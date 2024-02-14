@@ -11,23 +11,7 @@ export const TransactionTypeSchema = z.enum([
 ]);
 
 // Should only apply to sale and auth transactions
-export const PartialPaymentRequestSchema = z.object({
-  partial_payment_id: z.string().optional()
-    .describe(`Unique identifier returned when making the original transaction. This
-        should only be used for secondary transactions.`),
-  partial_payments: z.literal("settle_partial").or(z.literal("payment_in_full"))
-    .describe(`This variable allows the following two values to be passed to it:
-    settle_partial: Settles any amount of tender collected (captured partial
-    auth's and approved partial sales) at cut off.
-    payment_in_full: Required that any split tendered transaction is collected
-    in-full before settlement gets initiated.`),
-  type: z.literal("complete_partial_payment").optional()
-    .describe(`This variable can be passed the value 'complete_partial_payment' which
-    will complete a payment_in_full transaction that has not been collected in
-    full. This allows industries that require payment_in_full but subsequently
-    decide to still settle the transaction even though it has not been collected in
-    full.`),
-});
+export const PartialPaymentRequestSchema = z.object({});
 
 export const ProductDataSchema = z.object({
   item_product_code: z.string(),
@@ -44,7 +28,8 @@ export const ProductDataSchema = z.object({
   item_alternate_tax_id: z.string(),
 });
 
-export const BaseTransactionSchema = z.object({
+export const TransactionSchema = z.object({
+  type: TransactionTypeSchema,
   security_key: z.string()
     .describe(`API Security Key assigned to a merchant account.
     New keys can be generated from the merchant control panel in Settings > Security Keys`),
@@ -76,6 +61,7 @@ export const BaseTransactionSchema = z.object({
   account_holder_type: z
     .literal("business")
     .or(z.literal("personal"))
+    .optional()
     .describe(`The type of account holder`),
   account_type: z
     .literal("checking")
@@ -94,10 +80,15 @@ export const BaseTransactionSchema = z.object({
     .describe(
       `The amount of the transaction. For validate, use 0.00 or omit this field.`
     ),
-  surcharge: z.number().default(0.0).describe(`The surcharge amount`),
+  surcharge: z
+    .number()
+    .default(0.0)
+    .optional()
+    .describe(`The surcharge amount`),
   currency: z
     .string()
     .default("USD")
+    .optional()
     .describe(`The currency of the transaction`),
   payment: z
     .literal("creditcard")
@@ -171,8 +162,8 @@ export const BaseTransactionSchema = z.object({
   order_description: z.string().optional().describe(`Order description`),
   orderid: z.string().optional().describe(`Order ID`),
   ipaddress: z.string().optional().describe(`IP address of the customer`),
-  tax: z.number().default(0.0).describe(`The tax amount`),
-  shipping: z.number().default(0.0).describe(`The shipping amount`),
+  tax: z.number().optional().default(0.0).describe(`The tax amount`),
+  shipping: z.number().optional().default(0.0).describe(`The shipping amount`),
   ponumber: z.string().optional().describe(`The purchase order number`),
   first_name: z.string().optional().describe(`The first name of the customer`),
   last_name: z.string().optional().describe(`The last name of the customer`),
@@ -409,20 +400,25 @@ export const BaseTransactionSchema = z.object({
   submerchant_country: z.string().optional(),
   submerchant_phone: z.string().optional(),
   submerchant_email: z.string().optional(),
+
+  // ONLY used for partials, hard to include in better ways
+
+  partial_payment_id: z.string().optional()
+    .describe(`Unique identifier returned when making the original transaction. This
+        should only be used for secondary transactions.`),
+  partial_payments: z.literal("settle_partial").or(z.literal("payment_in_full"))
+    .describe(`This variable allows the following two values to be passed to it:
+    settle_partial: Settles any amount of tender collected (captured partial
+    auth's and approved partial sales) at cut off.
+    payment_in_full: Required that any split tendered transaction is collected
+    in-full before settlement gets initiated.`),
+  // type: z.literal("complete_partial_payment").optional()
+  //   .describe(`This variable can be passed the value 'complete_partial_payment' which
+  //   will complete a payment_in_full transaction that has not been collected in
+  //   full. This allows industries that require payment_in_full but subsequently
+  //   decide to still settle the transaction even though it has not been collected in
+  //   full.`),
 });
-
-const SupportsPartialTransactionType = BaseTransactionSchema.extend({
-  type: z.enum(["sale", "auth"]),
-}).merge(PartialPaymentRequestSchema);
-
-const OtherTransactionTypes = BaseTransactionSchema.extend({
-  type: z.enum(["credit", "validate", "offline"]),
-});
-
-export const TransactionSchema = z.union([
-  SupportsPartialTransactionType,
-  OtherTransactionTypes,
-]);
 
 export const TransactionRequestSchema = TransactionSchema.transform((data) => {
   // First we need to transform the products array to the same keys but _1, _2, _3, etc.
@@ -535,8 +531,8 @@ export const UpdateTransactionSchema = z.object({
   customer_receipt: z
     .literal(true)
     .or(z.literal(false))
-    .default(false)
     .optional()
+    .default(false)
     .describe(`Whether or not to send a receipt to the customer`),
   signature_image: z.string().optional().describe(`Base64 encoded image`),
   ponumber: z.string().optional().describe(`The purchase order number`),
@@ -553,7 +549,7 @@ export const UpdateTransactionSchema = z.object({
       `Amount included in the transaction amount associated with the import of purchased goods.`
     ),
   discount_amount: z.number().optional().describe(`The discount amount`),
-  tax: z.number().optional().describe(`The tax amount`),
+  tax: z.number().optional().default(0.0).describe(`The tax amount`),
   national_tax_amount: z
     .number()
     .optional()
@@ -619,3 +615,36 @@ export const UpdateTransactionRequestSchema = UpdateTransactionSchema.transform(
     return { ...data, ...transformedCustomFields };
   }
 );
+
+export const TransactionResponseSchema = z.object({
+  response: z
+    .literal("1")
+    .or(z.literal("2"))
+    .or(z.literal("3"))
+    .describe(
+      `1 = Transaction Approved, 2 = Transaction Declined, 3 = Error in Transaction data or system error`
+    ),
+  responsetext: z.string().describe(`Response message`),
+  authcode: z.string().optional().describe(`Authorization code`),
+  transactionid: z.string().optional().describe(`Transaction ID`),
+  avsresponse: z.string().optional().describe(`AVS response code`),
+  cvvresponse: z.string().optional().describe(`CVV response code`),
+  orderid: z.string().optional().describe(`Order ID`),
+  response_code: z.string().optional().describe(`Response code`),
+  emv_auth_response_data: z.string().optional()
+    .describe(`This will optionally come back when any chip card data is provided on the
+  authorization. This data needs to be sent back to the SDK after an
+  authorization.`),
+  customer_vault_id: z.string().optional()
+    .describe(`The original customer_vault_id passed in the transaction request or the
+  resulting customer_vault_id created on an approved transaction.
+  Note: Only returned when the "Customer Vault" service is active.`),
+  kount_score: z.string().optional()
+    .describe(`The Kount "Omniscore" indicating the level of risk on a given transaction.
+    The higher the score, the lower the risk.
+    Note: Only returned when the "Kount" service is active.`),
+  merchant_advice_code: z.string().optional()
+    .describe(`Mastercard’s Merchant Advice Code (MAC) is returned in response if one
+  is provided by the processor.
+  Note: Only returned if API configuration is set to return this value.`),
+});

@@ -4,8 +4,9 @@ import {
   RefundTransactionSchema,
   VoidTransactionRequestSchema,
   UpdateTransactionRequestSchema,
+  TransactionResponseSchema,
   TRANSACTION_URL,
-} from "../types/transactionRequest";
+} from "../types/transactionSchemas";
 import { z } from "zod";
 import { PostRequest } from "./utils";
 
@@ -31,32 +32,41 @@ export class Transactions {
     };
   };
 
+  parseResponse = (response: any) => {
+    return TransactionResponseSchema.parse(response);
+  };
+
   createTransaction = async (transactionRequest: TransactionRequest) => {
     const request = this.beforeRequest(transactionRequest);
-    return PostRequest(TRANSACTION_URL, request);
+    const response = await PostRequest(TRANSACTION_URL, request);
+    return this.parseResponse(response.data);
   };
 
   captureTransaction = async (
     captureTransactionRequest: CaptureTransactionRequest
   ) => {
     const request = this.beforeRequest(captureTransactionRequest);
-    return PostRequest(TRANSACTION_URL, request);
+    const response = await PostRequest(TRANSACTION_URL, request);
+    return this.parseResponse(response.data);
   };
 
   refundTransaction = async (refundTransaction: RefundTransaction) => {
     const request = this.beforeRequest(refundTransaction);
-    return PostRequest(TRANSACTION_URL, request);
+    const response = await PostRequest(TRANSACTION_URL, request);
+    return this.parseResponse(response.data);
   };
 
   voidTransaction = async (voidTransactionRequest: VoidTransactionRequest) => {
     const request = this.beforeRequest(voidTransactionRequest);
-    return PostRequest(TRANSACTION_URL, request);
+    const response = await PostRequest(TRANSACTION_URL, request);
+    return this.parseResponse(response.data);
   };
 
   updateTransaction = async (
     updateTransactionRequest: UpdateTransactionRequest
   ) => {
     const request = this.beforeRequest(updateTransactionRequest);
-    return PostRequest(TRANSACTION_URL, request);
+    const response = await PostRequest(TRANSACTION_URL, request);
+    return this.parseResponse(response.data);
   };
 }

@@ -7,6 +7,7 @@ import {
   DeleteSubscriptionRequestSchema,
   RECURRING_URL,
 } from "../types/recurringRequest";
+import { DefaultResponseSchema } from "@/types/base";
 import { z } from "zod";
 import { PostRequest } from "./utils";
 
