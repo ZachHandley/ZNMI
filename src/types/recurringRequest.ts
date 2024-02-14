@@ -596,7 +596,7 @@ export const UpdateSubscriptionRequestSchema =
     return { ...data, ...transformedCustomFields };
   });
 
-export const DeleteSubscriptionSchema = z.object({
+export const DeleteSubscriptionRequestSchema = z.object({
   recurring: z
     .literal("delete_subscription")
     .describe(`Delete an existing subscription`),

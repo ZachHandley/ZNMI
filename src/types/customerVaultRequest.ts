@@ -154,3 +154,79 @@ export const AddUpdateCustomerRequestSchema = AddUpdateCustomerSchema.transform(
     return { ...data, ...transformedCustomFields };
   }
 );
+
+export const CustomerVaultInitiatedTransactionSchema = z.object({
+  security_key: z
+    .string()
+    .describe(
+      `API Security Key assigned to a merchant account. New keys can be generated from the merchant control panel in Settings > Security Keys`
+    ),
+  customer_vault_id: z
+    .string()
+    .optional()
+    .describe(`The customer vault id of the customer`),
+  amount: z.number().describe(`The amount of the transaction to be processed`),
+  currency: z
+    .string()
+    .optional()
+    .default("USD")
+    .describe(`The currency of the transaction. Defaults to USD`),
+  processor_id: z
+    .string()
+    .optional()
+    .describe(
+      `If using Multiple MIDs, route to this processor (processor_id is obtained
+under Settings->Transaction Routing in the Control Panel).`
+    ),
+  descriptor: z
+    .string()
+    .optional()
+    .describe(
+      `The descriptor to be used for the transaction. If not set, the default descriptor will be used.`
+    ),
+  descriptor_phone: z
+    .string()
+    .optional()
+    .describe(
+      `The phone number to be used for the transaction descriptor. If not set, the default descriptor phone number will be used.`
+    ),
+  order_description: z
+    .string()
+    .optional()
+    .describe(`The description of the transaction`),
+  orderid: z.string().optional().describe(`The order id of the transaction`),
+  initiated_by: z
+    .literal("customer")
+    .or(z.literal("merchant"))
+    .describe(
+      `Who initiated the transaction. 'customer' or 'merchant'. If not set, the default is 'merchant'`
+    ),
+  iniital_transaction_id: z
+    .string()
+    .optional()
+    .describe(`The transaction id of the source transaction`),
+  stored_credential_indicator: z
+    .literal("stored")
+    .or(z.literal("used"))
+    .optional().describe(`The indicator of the stored credential.
+Values: 'stored' or 'used'
+Use 'stored' when processing the initial transaction in which you are storing a customer's payment
+details (customer credentials) in the Customer Vault or other third-party payment storage system.
+Use 'used' when processing a subsequent or follow-up transaction using the customer payment
+details (customer credentials) you have already stored to the Customer Vault or third-party payment
+storage method.`),
+});
+
+export const DeleteCustomerRecordSchema = z.object({
+  customer_vault: z
+    .literal("delete_customer")
+    .describe(`Delete a customer from the customer vault`),
+  customer_vault_id: z
+    .string()
+    .describe(`The customer vault id of the customer to delete`),
+  security_key: z
+    .string()
+    .describe(
+      `API Security Key assigned to a merchant account. New keys can be generated from the merchant control panel in Settings > Security Keys`
+    ),
+});

@@ -10,6 +10,25 @@ export const TransactionTypeSchema = z.enum([
   "offline",
 ]);
 
+// Should only apply to sale and auth transactions
+export const PartialPaymentRequestSchema = z.object({
+  partial_payment_id: z.string().optional()
+    .describe(`Unique identifier returned when making the original transaction. This
+        should only be used for secondary transactions.`),
+  partial_payments: z.literal("settle_partial").or(z.literal("payment_in_full"))
+    .describe(`This variable allows the following two values to be passed to it:
+    settle_partial: Settles any amount of tender collected (captured partial
+    auth's and approved partial sales) at cut off.
+    payment_in_full: Required that any split tendered transaction is collected
+    in-full before settlement gets initiated.`),
+  type: z.literal("complete_partial_payment").optional()
+    .describe(`This variable can be passed the value 'complete_partial_payment' which
+    will complete a payment_in_full transaction that has not been collected in
+    full. This allows industries that require payment_in_full but subsequently
+    decide to still settle the transaction even though it has not been collected in
+    full.`),
+});
+
 export const ProductDataSchema = z.object({
   item_product_code: z.string(),
   item_description: z.string(),
@@ -25,10 +44,7 @@ export const ProductDataSchema = z.object({
   item_alternate_tax_id: z.string(),
 });
 
-export const TransactionSchema = z.object({
-  type: TransactionTypeSchema.describe(
-    `The type of transaction to be processed`
-  ),
+export const BaseTransactionSchema = z.object({
   security_key: z.string()
     .describe(`API Security Key assigned to a merchant account.
     New keys can be generated from the merchant control panel in Settings > Security Keys`),
@@ -395,6 +411,19 @@ export const TransactionSchema = z.object({
   submerchant_email: z.string().optional(),
 });
 
+const SupportsPartialTransactionType = BaseTransactionSchema.extend({
+  type: z.enum(["sale", "auth"]),
+}).merge(PartialPaymentRequestSchema);
+
+const OtherTransactionTypes = BaseTransactionSchema.extend({
+  type: z.enum(["credit", "validate", "offline"]),
+});
+
+export const TransactionSchema = z.union([
+  SupportsPartialTransactionType,
+  OtherTransactionTypes,
+]);
+
 export const TransactionRequestSchema = TransactionSchema.transform((data) => {
   // First we need to transform the products array to the same keys but _1, _2, _3, etc.
   const products = data.products || [];
@@ -422,7 +451,7 @@ export const TransactionRequestSchema = TransactionSchema.transform((data) => {
   return { ...data, ...transformedProducts, ...transformedCustomFields };
 });
 
-export const CaptureTransactionSchema = z.object({
+export const CaptureTransactionRequestSchema = z.object({
   type: z.literal("capture"),
   security_key: z.string()
     .describe(`API Security Key assigned to a merchant account.
@@ -435,7 +464,7 @@ export const CaptureTransactionSchema = z.object({
   signature_image: z.string().optional().describe(`Base64 encoded image`),
 });
 
-export const VoidTransactionSchema = z.object({
+export const VoidTransactionRequestSchema = z.object({
   type: z.literal("void"),
   security_key: z.string()
     .describe(`API Security Key assigned to a merchant account.
