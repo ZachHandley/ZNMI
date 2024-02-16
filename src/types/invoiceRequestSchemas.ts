@@ -21,9 +21,6 @@ export const CreateInvoiceSchema = z.object({
   invoicing: z
     .literal("add_invoice")
     .describe(`Create a new invoice and email it to the customer`),
-  security_key: z.string()
-    .describe(`API Security Key assigned to a merchant account.
-    New keys can be generated from the merchant control panel in Settings > Security Keys`),
   amount: z
     .number()
     .positive()
@@ -165,28 +162,48 @@ export const CreateInvoiceRequestSchema = CreateInvoiceSchema.transform(
   }
 );
 
-export const UpdateInvoiceSchema = z.object({
+export const UpdateInvoiceSchema = CreateInvoiceSchema.extend({
   invoicing: z.literal("update_invoice").describe(`Update an existing invoice`),
-  security_key: z.string()
-    .describe(`API Security Key assigned to a merchant account.
-    New keys can be generated from the merchant control panel in Settings > Security Keys`),
   invoice_id: z.string().describe(`The invoice ID to update`),
 });
 
-export const SendInvoiceSchema = z.object({
+export const UpdateInvoiceRequestSchema = UpdateInvoiceSchema.transform(
+  (data) => {
+    // First we need to transform the products array to the same keys but _1, _2, _3, etc.
+    const products = data.products || [];
+    const transformedProducts = products.reduce((acc, product, index) => {
+      const productKeys = Object.keys(product);
+      const newProduct = productKeys.reduce((productAcc, key) => {
+        const newKey = `${key}_${index + 1}`;
+        return {
+          ...productAcc,
+          [newKey]: product[key as keyof typeof product],
+        };
+      }, {});
+      return { ...acc, ...newProduct };
+    }, {});
+    // Then we need to take the custom fields and turn it into merchant_defined_field_1, merchant_defined_field_2, etc.
+    const customFields = data.custom_fields || {};
+    const transformedCustomFields = Object.keys(customFields).reduce(
+      (acc, key, index) => {
+        const newKey = `merchant_defined_field_${index + 1}`;
+        return { ...acc, [newKey]: customFields[key] };
+      },
+      {}
+    );
+    // Then we return the correct object for parsing for the request
+    return { ...data, ...transformedProducts, ...transformedCustomFields };
+  }
+);
+
+export const SendInvoiceRequestSchema = z.object({
   invoicing: z
     .literal("send_invoice")
     .describe(`Send an existing invoice to the customer`),
-  security_key: z.string()
-    .describe(`API Security Key assigned to a merchant account.
-    New keys can be generated from the merchant control panel in Settings > Security Keys`),
   invoice_id: z.string().describe(`The invoice ID to send`),
 });
 
-export const CloseInvoiceSchema = z.object({
+export const CloseInvoiceRequestSchema = z.object({
   invoicing: z.literal("close_invoice").describe(`Close an existing invoice`),
-  security_key: z.string()
-    .describe(`API Security Key assigned to a merchant account.
-    New keys can be generated from the merchant control panel in Settings > Security Keys`),
   invoice_id: z.string().describe(`The invoice ID to close`),
 });

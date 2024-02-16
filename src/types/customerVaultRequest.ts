@@ -19,11 +19,6 @@ export const AddUpdateCustomerSchema = z.object({
     .describe(
       `The billing id of the customer to update, if not set the gateway will create one or the billing id with priority '1' will be updated.`
     ),
-  security_key: z
-    .string()
-    .describe(
-      `API Security Key assigned to a merchant account. New keys can be generated from the merchant control panel in Settings > Security Keys`
-    ),
   payment_token: z
     .string()
     .optional()
@@ -156,11 +151,6 @@ export const AddUpdateCustomerRequestSchema = AddUpdateCustomerSchema.transform(
 );
 
 export const CustomerVaultInitiatedTransactionSchema = z.object({
-  security_key: z
-    .string()
-    .describe(
-      `API Security Key assigned to a merchant account. New keys can be generated from the merchant control panel in Settings > Security Keys`
-    ),
   customer_vault_id: z
     .string()
     .optional()
@@ -229,4 +219,56 @@ export const DeleteCustomerRecordSchema = z.object({
     .describe(
       `API Security Key assigned to a merchant account. New keys can be generated from the merchant control panel in Settings > Security Keys`
     ),
+});
+
+export const AddBillingForCustomerRequestSchema = z.object({
+  customer_vault: z
+    .literal("add_billing")
+    .describe(`Add a billing record to the customer vault`),
+  customer_vault_id: z
+    .string()
+    .optional()
+    .describe(`The customer vault id of the customer`),
+  billing_id: z
+    .string()
+    .optional()
+    .describe(
+      `The billing id of the customer to update, if not set the gateway will create one or the billing id with priority '1' will be updated.`
+    ),
+  ccnumber: z.string().optional().describe(`The customer's credit card number`),
+  ccexp: z
+    .string()
+    .optional()
+    .describe(
+      `The expiration date of the customer's credit card in MMYY format`
+    ),
+  first_name: z.string().optional().describe(`The customer's first name`),
+  last_name: z.string().optional().describe(`The customer's last name`),
+  address1: z.string().optional().describe(`The customer's address`),
+  address2: z.string().optional().describe(`The customer's address (line 2)`),
+  city: z.string().optional().describe(`The customer's city`),
+  state: z.string().optional().describe(`The customer's state`),
+  zip: z.string().optional().describe(`The customer's zip code`),
+  country: z.string().optional().describe(`The customer's country`),
+  phone: z.string().optional().describe(`The customer's phone number`),
+  email: z.string().optional().describe(`The customer's email address`),
+  fax: z.string().optional().describe(`The customer's fax number`),
+  company: z.string().optional().describe(`The customer's company name`),
+});
+
+export const UpdateBillingForCustomerRequestSchema =
+  AddBillingForCustomerRequestSchema.extend({
+    customer_vault: z
+      .literal("update_billing")
+      .describe(`Update a billing record in the customer vault`),
+  });
+
+export const DeleteBillingForCustomerRequestSchema = z.object({
+  customer_vault: z
+    .literal("delete_billing")
+    .describe(`Delete a billing record from the customer vault`),
+  customer_vault_id: z
+    .string()
+    .describe(`The customer vault id of the customer`),
+  billing_id: z.string().describe(`The billing id of the customer to delete`),
 });

@@ -134,7 +134,7 @@ export class Recurring {
 
   /**
    * Adds a subscription to an existing plan
-   * Needs plan_id, start date, and payment details of some form
+   * Needs plan_id, start date, customer details, and payment details of some form
    */
   async addSubscriptionToExistingPlanByCreditCard(
     plan_id: string,
@@ -146,6 +146,7 @@ export class Recurring {
     state: string,
     zip: string,
     country: string,
+    email: string,
     phone: string,
     cc_number: string,
     cc_exp: string,
@@ -170,9 +171,9 @@ export class Recurring {
           zip: zip,
           country: country,
           phone: phone,
+          email: email,
           ccnumber: cc_number,
           ccexp: cc_exp,
-          security_key: this._securityKey,
           ...subscriptionData,
         });
       const result = await this.recurringApi.addSubscriptionToExistingPlan(
@@ -203,6 +204,7 @@ export class Recurring {
     zip: string,
     country: string,
     phone: string,
+    email: string,
     account_type: string,
     routing: string,
     account: string,
@@ -228,11 +230,11 @@ export class Recurring {
           zip: zip,
           country: country,
           phone: phone,
+          email: email,
           account_type: account_type,
           checkaba: routing,
           checkaccount: account,
           checkname: fullNameOnAccount,
-          security_key: this._securityKey,
           ...subscriptionData,
         });
       const result = await this.recurringApi.addSubscriptionToExistingPlan(
@@ -252,18 +254,63 @@ export class Recurring {
     }
   }
 
-  async addCustomSubscription(
-    subscriptionData: Partial<AddCustomSubscription>
+  async addCustomSubscriptionByCreditCard(
+    plan_id: string,
+    start_date: string,
+    amount: number,
+    first_name: string,
+    last_name: string,
+    address1: string,
+    city: string,
+    state: string,
+    zip: string,
+    country: string,
+    phone: string,
+    email: string,
+    cc_number: string,
+    cc_exp: string,
+    day_frequency?: number,
+    month_frequency?: number,
+    day_of_month?: number,
+    subscriptionData?: Partial<AddCustomSubscription>
   ): Promise<{
     status: number;
     data?: DefaultResponse;
     message: string;
   }> {
+    if (!day_frequency && (!month_frequency || !day_of_month)) {
+      throw new Error(
+        "at least one of day_frequency or month_frequency and day_of_month is required"
+      );
+    } else if (day_frequency && (month_frequency || day_of_month)) {
+      throw new Error(
+        "day_frequency and month_frequency/day_of_month are mutually exclusive"
+      );
+    }
     try {
       const subscriptionRequest: AddCustomSubscription =
         AddCustomSubscriptionSchema.parse({
+          recurring: "add_subscription",
+          payment: "creditcard",
+          plan_id: plan_id,
+          plan_amount: amount,
+          plan_payments: 0,
+          start_date: start_date,
+          day_frequency: day_frequency,
+          month_frequency: month_frequency,
+          day_of_month: day_of_month,
+          first_name: first_name,
+          last_name: last_name,
+          address1: address1,
+          city: city,
+          state: state,
+          zip: zip,
+          country: country,
+          phone: phone,
+          email: email,
+          ccnumber: cc_number,
+          ccexp: cc_exp,
           ...subscriptionData,
-          security_key: this._securityKey,
         });
       const result = await this.recurringApi.addCustomSubscription(
         subscriptionRequest
@@ -282,18 +329,114 @@ export class Recurring {
     }
   }
 
-  async updateSubscription(
-    subscriptionData: Partial<UpdateSubscription>
+  async addCustomSubscriptionByAch(
+    plan_id: string,
+    start_date: string,
+    amount: number,
+    first_name: string,
+    last_name: string,
+    address1: string,
+    city: string,
+    state: string,
+    zip: string,
+    country: string,
+    phone: string,
+    email: string,
+    account_type: string,
+    routing: string,
+    account: string,
+    fullNameOnAccount: string,
+    day_frequency?: number,
+    month_frequency?: number,
+    day_of_month?: number,
+    subscriptionData?: Partial<AddCustomSubscription>
   ): Promise<{
     status: number;
     data?: DefaultResponse;
     message: string;
   }> {
+    if (!day_frequency && (!month_frequency || !day_of_month)) {
+      throw new Error(
+        "at least one of day_frequency or month_frequency and day_of_month is required"
+      );
+    } else if (day_frequency && (month_frequency || day_of_month)) {
+      throw new Error(
+        "day_frequency and month_frequency/day_of_month are mutually exclusive"
+      );
+    }
     try {
       const subscriptionRequest: UpdateSubscription =
         UpdateSubscriptionSchema.parse({
+          recurring: "add_subscription",
+          payment: "check",
+          plan_id: plan_id,
+          plan_amount: amount,
+          plan_payments: 0,
+          start_date: start_date,
+          first_name: first_name,
+          last_name: last_name,
+          address1: address1,
+          city: city,
+          state: state,
+          zip: zip,
+          country: country,
+          phone: phone,
+          email: email,
+          account_type: account_type,
+          checkaba: routing,
+          checkaccount: account,
+          checkname: fullNameOnAccount,
+          day_frequency: day_frequency,
+          month_frequency: month_frequency,
+          day_of_month: day_of_month,
           ...subscriptionData,
-          security_key: this._securityKey,
+        });
+      const result = await this.recurringApi.updateSubscription(
+        subscriptionRequest
+      );
+      return {
+        status: 200,
+        data: result.data,
+        message: "Subscription updated successfully",
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 500,
+        message: `Error in updateSubscription ${error.message}`,
+      };
+    }
+  }
+
+  async updateSubscription(
+    subscription_id: string,
+    amount: number,
+    plan_payments?: number,
+    day_frequency?: number,
+    month_frequency?: number,
+    day_of_month?: number,
+    subscriptionData?: Partial<UpdateSubscription>
+  ): Promise<{
+    status: number;
+    data?: DefaultResponse;
+    message: string;
+  }> {
+    if (day_frequency && (month_frequency || day_of_month)) {
+      throw new Error(
+        "day_frequency and month_frequency/day_of_month are mutually exclusive"
+      );
+    }
+    try {
+      const subscriptionRequest: UpdateSubscription =
+        UpdateSubscriptionSchema.parse({
+          recurring: "update_subscription",
+          subscription_id: subscription_id,
+          plan_amount: amount,
+          plan_payments: plan_payments,
+          day_frequency: day_frequency,
+          month_frequency: month_frequency,
+          day_of_month: day_of_month,
+          ...subscriptionData,
         });
       const result = await this.recurringApi.updateSubscription(
         subscriptionRequest
@@ -313,7 +456,8 @@ export class Recurring {
   }
 
   async deleteSubscription(
-    subscriptionData: Partial<DeleteSubscriptionRequest>
+    subscription_id: string,
+    subscriptionData?: Partial<DeleteSubscriptionRequest>
   ): Promise<{
     status: number;
     data?: DefaultResponse;
@@ -322,8 +466,9 @@ export class Recurring {
     try {
       const deleteRequest: DeleteSubscriptionRequest =
         DeleteSubscriptionRequestSchema.parse({
+          recurring: "delete_subscription",
+          subscription_id: subscription_id,
           ...subscriptionData,
-          security_key: this._securityKey,
         });
       const result = await this.recurringApi.deleteSubscription(deleteRequest);
       return {

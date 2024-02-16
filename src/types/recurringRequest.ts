@@ -283,6 +283,7 @@ export const AddCustomSubscriptionSchema = z.object({
   payment: z
     .literal("creditcard")
     .or(z.literal("check"))
+    .default("creditcard")
     .describe(`The payment method to use for the subscription`),
   checkname: z
     .string()

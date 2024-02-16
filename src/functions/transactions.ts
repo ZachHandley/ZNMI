@@ -50,7 +50,6 @@ export class Transactions {
         TransactionRequestSchema.parse({
           type: transactionType,
           payment: payment,
-          security_key: this._securityKey,
           amount: amount,
           ccnumber: ccnumber,
           ccexp: ccexp,
@@ -90,7 +89,6 @@ export class Transactions {
         TransactionRequestSchema.parse({
           type: "auth",
           payment: "creditcard",
-          security_key: this._securityKey,
           amount: amount,
           ccnumber: ccnumber,
           ccexp: ccexp,
@@ -128,7 +126,6 @@ export class Transactions {
         TransactionRequestSchema.parse({
           type: "validate",
           payment: "creditcard",
-          security_key: this._securityKey,
           ccnumber: ccnumber,
           ccexp: ccexp,
           cvv: cvv,
@@ -163,7 +160,6 @@ export class Transactions {
       const captureRequest: CaptureTransactionRequest =
         CaptureTransactionRequestSchema.parse({
           type: "capture",
-          security_key: this._securityKey,
           transaction_id: transactionId,
           amount,
           ...additionalOptions,
@@ -231,7 +227,6 @@ export class Transactions {
       const voidRequest: VoidTransactionRequest =
         VoidTransactionRequestSchema.parse({
           type: "void",
-          security_key: this._securityKey,
           transaction_id: transactionId,
           ...additionalOptions,
         });
@@ -262,7 +257,6 @@ export class Transactions {
       const updateRequest: UpdateTransactionRequest =
         UpdateTransactionRequestSchema.parse({
           type: "update",
-          security_key: this._securityKey,
           transaction_id: transactionId,
           ...additionalOptions,
         });
