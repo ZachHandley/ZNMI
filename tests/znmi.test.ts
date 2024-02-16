@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { CustomerVault } from "../src/functions/customerVault.ts";
-import { Transactions } from "../src/functions/transactions.ts";
-import { ProductManager } from "../src/functions/productManager.ts";
-import { Invoices } from "../src/functions/invoices.ts";
-import { Recurring } from "../src/functions/recurring.ts";
+import { CustomerVaultApi } from "../src/api/customerVaultApi.ts";
+import { TransactionsApi } from "../src/api/transactionsApi.ts";
+import { ProductManagerApi } from "../src/api/productManagerApi.ts";
+import { InvoicesApi } from "../src/api/invoicesApi.ts";
+import { RecurringApi } from "../src/api/recurringApi.ts";
 import { ZNMI } from "../src/index.ts";
 
 describe("ZNMI", () => {
@@ -33,11 +33,11 @@ describe("ZNMI", () => {
     const recurring = znmi.recurring;
 
     // Assert
-    expect(customerVault).toBeInstanceOf(CustomerVault);
-    expect(transactions).toBeInstanceOf(Transactions);
-    expect(productManager).toBeInstanceOf(ProductManager);
-    expect(invoices).toBeInstanceOf(Invoices);
-    expect(recurring).toBeInstanceOf(Recurring);
+    expect(customerVault).toBeInstanceOf(CustomerVaultApi);
+    expect(transactions).toBeInstanceOf(TransactionsApi);
+    expect(productManager).toBeInstanceOf(ProductManagerApi);
+    expect(invoices).toBeInstanceOf(InvoicesApi);
+    expect(recurring).toBeInstanceOf(RecurringApi);
   });
 
   // CustomerVault object can add or update a customer record
@@ -117,19 +117,9 @@ describe("ZNMI", () => {
     // Arrange
     const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
     const znmi = new ZNMI(securityKey);
-    const transactionRequest = {
-      amount: 100.0,
-      currency: "USD",
-      payment: "creditcard",
-      ccnumber: "4111111111111111",
-      ccexp: "1025",
-      cvv: "999",
-    };
 
     // Act
     const result = await znmi.createTransaction(
-      "sale",
-      "creditcard",
       100.0,
       "4111111111111111",
       "1025",
@@ -138,7 +128,8 @@ describe("ZNMI", () => {
 
     // Assert
     expect(result).toBeDefined();
-    expect(result.status).toBe(200);
+    expect(result.data?.response).toBe("1");
+    expect(result.data?.responsetext).toBe("SUCCESS");
     expect(result.data).toBeDefined();
   });
 

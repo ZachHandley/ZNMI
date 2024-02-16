@@ -11,7 +11,7 @@ type AddProductRequest = z.infer<typeof AddProductRequestSchema>;
 type UpdateProductRequest = z.infer<typeof UpdateProductRequestSchema>;
 type DeleteProductRequest = z.infer<typeof DeleteProductRequestSchema>;
 
-export class ProductManager {
+export class ProductManagerApi {
   _securityKey: string;
 
   constructor(securityKey: string) {

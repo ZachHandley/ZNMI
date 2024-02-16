@@ -28,9 +28,6 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
   },
-  define: {
-    __APP_TEST_SEC_KEY__: process.env.TEST_SECURITY_KEY,
-  },
   test: {
     include: ["tests/*.test.ts"],
   },

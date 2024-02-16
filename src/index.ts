@@ -1,8 +1,9 @@
-import { CustomerVault } from "./functions/customerVault";
-import { Transactions } from "./functions/transactions";
-import { ProductManager } from "./functions/productManager";
-import { Invoices } from "./functions/invoices";
-import { Recurring } from "./functions/recurring";
+import { CustomerVaultApi } from "./api/customerVaultApi";
+import { TransactionsApi } from "./api/transactionsApi";
+import { ProductManagerApi } from "./api/productManagerApi";
+import { InvoicesApi } from "./api/invoicesApi";
+import { RecurringApi } from "./api/recurringApi";
+import { DefaultResponseSchema } from "./types/base";
 import {
   AddUpdateCustomerRequestSchema,
   CustomerVaultInitiatedTransactionSchema,
@@ -42,14 +43,7 @@ type UpdateSubscription = z.infer<typeof UpdateSubscriptionSchema>;
 type DeleteSubscriptionRequest = z.infer<
   typeof DeleteSubscriptionRequestSchema
 >;
-type TransactionRequest = z.infer<typeof TransactionRequestSchema>;
-type CaptureTransactionRequest = z.infer<
-  typeof CaptureTransactionRequestSchema
->;
-type RefundTransaction = z.infer<typeof RefundTransactionSchema>;
-type VoidTransactionRequest = z.infer<typeof VoidTransactionRequestSchema>;
-type UpdateTransactionRequest = z.infer<typeof UpdateTransactionRequestSchema>;
-type TransactionResponse = z.infer<typeof TransactionResponseSchema>;
+type DefaultResponse = z.infer<typeof DefaultResponseSchema>;
 
 export class ZNMI {
   _securityKey: string;
@@ -63,101 +57,10 @@ export class ZNMI {
     if (!securityKey || securityKey === "")
       throw new Error("Security Key is required");
     this._securityKey = securityKey;
-    this.customerVault = new CustomerVault(securityKey);
-    this.transactions = new Transactions(securityKey);
-    this.products = new ProductManager(securityKey);
-    this.invoices = new Invoices(securityKey);
-    this.recurring = new Recurring(securityKey);
-  }
-
-  async createTransaction(
-    transactionType: "sale" | "auth" | "credit" | "validate" | "offline",
-    payment: "creditcard" | "check",
-    amount: number,
-    ccnumber: string,
-    ccexp: string,
-    cvv?: string,
-    additionalOptions: Partial<TransactionRequest> = {}
-  ) {
-    try {
-      const transactionRequest: TransactionRequest =
-        TransactionRequestSchema.parse({
-          type: transactionType,
-          payment: payment,
-          security_key: this._securityKey,
-          amount: amount,
-          ccnumber: ccnumber,
-          ccexp: ccexp,
-          cvv: cvv,
-          ...additionalOptions,
-        });
-      return await this.transactions.createTransaction(transactionRequest);
-    } catch (error) {
-      console.log(error);
-      return {
-        status: 500,
-        data: error,
-        message: "Error in createTransaction",
-      };
-    }
-  }
-
-  async captureTransaction(
-    transactionId: string,
-    amount: number,
-    additionalOptions: Partial<CaptureTransactionRequest> = {}
-  ) {
-    const captureRequest: CaptureTransactionRequest =
-      CaptureTransactionRequestSchema.parse({
-        type: "capture",
-        security_key: this._securityKey,
-        transaction_id: transactionId,
-        amount,
-        ...additionalOptions,
-      });
-    return await this.transactions.captureTransaction(captureRequest);
-  }
-
-  async refundTransaction(
-    transactionId: string,
-    amount: number,
-    additionalOptions: Partial<RefundTransaction> = {}
-  ) {
-    const refundRequest: RefundTransaction = RefundTransactionSchema.parse({
-      type: "refund",
-      security_key: this._securityKey,
-      transaction_id: transactionId,
-      amount,
-      ...additionalOptions,
-    });
-    return await this.transactions.refundTransaction(refundRequest);
-  }
-
-  async voidTransaction(
-    transactionId: string,
-    additionalOptions: Partial<VoidTransactionRequest> = {}
-  ) {
-    const voidRequest: VoidTransactionRequest =
-      VoidTransactionRequestSchema.parse({
-        type: "void",
-        security_key: this._securityKey,
-        transaction_id: transactionId,
-        ...additionalOptions,
-      });
-    return await this.transactions.voidTransaction(voidRequest);
-  }
-
-  async updateTransaction(
-    transactionId: string,
-    additionalOptions: Partial<UpdateTransactionRequest> = {}
-  ) {
-    const updateRequest: UpdateTransactionRequest =
-      UpdateTransactionRequestSchema.parse({
-        type: "update",
-        security_key: this._securityKey,
-        transaction_id: transactionId,
-        ...additionalOptions,
-      });
-    return await this.transactions.updateTransaction(updateRequest);
+    this.customerVault = new CustomerVaultApi(securityKey);
+    this.transactions = new TransactionsApi(securityKey);
+    this.products = new ProductManagerApi(securityKey);
+    this.invoices = new InvoicesApi(securityKey);
+    this.recurring = new RecurringApi(securityKey);
   }
 }

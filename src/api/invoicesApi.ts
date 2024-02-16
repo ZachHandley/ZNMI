@@ -13,7 +13,7 @@ type UpdateInvoiceRequest = z.infer<typeof UpdateInvoiceSchema>;
 type SendInvoiceRequest = z.infer<typeof SendInvoiceSchema>;
 type CloseInvoiceRequest = z.infer<typeof CloseInvoiceSchema>;
 
-export class Invoices {
+export class InvoicesApi {
   _securityKey: string;
 
   constructor(securityKey: string) {

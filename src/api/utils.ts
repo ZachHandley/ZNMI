@@ -18,13 +18,14 @@ export const PostRequest = async (
 ): Promise<RequestResponse> => {
   try {
     const postResponse = await axios.post(
-      url,
-      data,
-      options ?? {
+      (url = url),
+      (data = qs.stringify(data)),
+      (options = options ?? {
         headers: {
-          "Content-Type": "application/json",
+          Accept: "application/x-www-form-urlencoded",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-      }
+      })
     );
     if (postResponse.status !== 200) {
       console.error("Error in PostRequest", postResponse.data);
