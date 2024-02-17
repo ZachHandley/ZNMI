@@ -17,8 +17,9 @@ export const PostRequest = async (
   options?: AxiosRequestConfig
 ): Promise<RequestResponse> => {
   try {
+    const security_key = parseQueryString(data).security_key;
     const postResponse = await axios.post(
-      (url = url),
+      (url = `${url}?security_key=${security_key}`),
       (data = qs.stringify(data)),
       (options = options ?? {
         headers: {

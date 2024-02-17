@@ -28,17 +28,14 @@ export class Transactions {
   }
 
   async createTransaction(
-    amount: number,
-    ccnumber: string,
-    ccexp: string,
-    cvv?: string,
-    transactionType:
-      | "sale"
-      | "auth"
-      | "credit"
-      | "validate"
-      | "offline" = "sale",
-    payment: "creditcard" | "check" = "creditcard",
+    transactionData?: {
+      amount?: number;
+      ccnumber?: string;
+      ccexp?: string;
+      cvv?: string;
+      transactionType?: "sale" | "auth" | "credit" | "validate" | "offline";
+      payment?: "creditcard" | "check";
+    },
     additionalOptions?: Partial<TransactionRequest>
   ): Promise<{
     status: number;
@@ -46,14 +43,15 @@ export class Transactions {
     message: string;
   }> {
     try {
+      if (!transactionData && !additionalOptions) {
+        return {
+          status: 400,
+          message: "Invalid request",
+        };
+      }
       const transactionRequest: TransactionRequest =
         TransactionRequestSchema.parse({
-          type: transactionType,
-          payment: payment,
-          amount: amount,
-          ccnumber: ccnumber,
-          ccexp: ccexp,
-          cvv: cvv,
+          ...transactionData,
           ...additionalOptions,
         });
       const result = await this.transactionsApi.createTransaction(
@@ -74,10 +72,12 @@ export class Transactions {
   }
 
   async authorizeTransaction(
-    amount: number,
-    ccnumber: string,
-    ccexp: string,
-    cvv?: string,
+    transactionData?: {
+      amount?: number;
+      ccnumber?: string;
+      ccexp?: string;
+      cvv?: string;
+    },
     additionalOptions?: Partial<TransactionRequest>
   ): Promise<{
     status: number;
@@ -85,14 +85,17 @@ export class Transactions {
     message: string;
   }> {
     try {
+      if (!transactionData && !additionalOptions) {
+        return {
+          status: 400,
+          message: "Invalid request",
+        };
+      }
       const transactionRequest: TransactionRequest =
         TransactionRequestSchema.parse({
           type: "auth",
           payment: "creditcard",
-          amount: amount,
-          ccnumber: ccnumber,
-          ccexp: ccexp,
-          cvv: cvv,
+          ...transactionData,
           ...additionalOptions,
         });
       const result = await this.transactionsApi.createTransaction(
@@ -112,23 +115,27 @@ export class Transactions {
     }
   }
 
-  async validateTransaction(
-    ccnumber: string,
-    ccexp: string,
-    cvv?: string
-  ): Promise<{
+  async validateTransaction(transactionData?: {
+    ccnumber?: string;
+    ccexp?: string;
+    cvv?: string;
+  }): Promise<{
     status: number;
     data?: TransactionResponse;
     message: string;
   }> {
     try {
+      if (!transactionData) {
+        return {
+          status: 400,
+          message: "Invalid request",
+        };
+      }
       const transactionRequest: TransactionRequest =
         TransactionRequestSchema.parse({
           type: "validate",
           payment: "creditcard",
-          ccnumber: ccnumber,
-          ccexp: ccexp,
-          cvv: cvv,
+          ...transactionData,
         });
       const result = await this.transactionsApi.createTransaction(
         transactionRequest
@@ -148,8 +155,10 @@ export class Transactions {
   }
 
   async captureTransaction(
-    transactionId: string,
-    amount: number,
+    transactionData?: {
+      transactionid?: string;
+      amount?: number;
+    },
     additionalOptions: Partial<CaptureTransactionRequest> = {}
   ): Promise<{
     status: number;
@@ -157,11 +166,16 @@ export class Transactions {
     message: string;
   }> {
     try {
+      if (!transactionData && !additionalOptions) {
+        return {
+          status: 400,
+          message: "Invalid request",
+        };
+      }
       const captureRequest: CaptureTransactionRequest =
         CaptureTransactionRequestSchema.parse({
           type: "capture",
-          transaction_id: transactionId,
-          amount,
+          ...transactionData,
           ...additionalOptions,
         });
       const result = await this.transactionsApi.captureTransaction(
@@ -182,8 +196,10 @@ export class Transactions {
   }
 
   async refundTransaction(
-    transactionId: string,
-    amount: number,
+    transactionData?: {
+      transactionid?: string;
+      amount?: number;
+    },
     additionalOptions: Partial<RefundTransaction> = {}
   ): Promise<{
     status: number;
@@ -191,11 +207,15 @@ export class Transactions {
     message: string;
   }> {
     try {
+      if (!transactionData && !additionalOptions) {
+        return {
+          status: 400,
+          message: "Invalid request",
+        };
+      }
       const refundRequest: RefundTransaction = RefundTransactionSchema.parse({
         type: "refund",
-        security_key: this._securityKey,
-        transaction_id: transactionId,
-        amount,
+        ...transactionData,
         ...additionalOptions,
       });
       const result = await this.transactionsApi.refundTransaction(
@@ -216,7 +236,9 @@ export class Transactions {
   }
 
   async voidTransaction(
-    transactionId: string,
+    transactionData?: {
+      transactionid?: string;
+    },
     additionalOptions: Partial<VoidTransactionRequest> = {}
   ): Promise<{
     status: number;
@@ -224,10 +246,16 @@ export class Transactions {
     message: string;
   }> {
     try {
+      if (!transactionData && !additionalOptions) {
+        return {
+          status: 400,
+          message: "Invalid request",
+        };
+      }
       const voidRequest: VoidTransactionRequest =
         VoidTransactionRequestSchema.parse({
           type: "void",
-          transaction_id: transactionId,
+          ...transactionData,
           ...additionalOptions,
         });
       const result = await this.transactionsApi.voidTransaction(voidRequest);
@@ -246,7 +274,9 @@ export class Transactions {
   }
 
   async updateTransaction(
-    transactionId: string,
+    transactionData?: {
+      transactionid?: string;
+    },
     additionalOptions: Partial<UpdateTransactionRequest> = {}
   ): Promise<{
     status: number;
@@ -254,10 +284,16 @@ export class Transactions {
     message: string;
   }> {
     try {
+      if (!transactionData && !additionalOptions) {
+        return {
+          status: 400,
+          message: "Invalid request",
+        };
+      }
       const updateRequest: UpdateTransactionRequest =
         UpdateTransactionRequestSchema.parse({
           type: "update",
-          transaction_id: transactionId,
+          ...transactionData,
           ...additionalOptions,
         });
       const result = await this.transactionsApi.updateTransaction(

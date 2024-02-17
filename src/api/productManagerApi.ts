@@ -21,7 +21,7 @@ export class ProductManagerApi {
   beforeRequest = (request: any) => {
     return {
       ...request,
-      securityKey: this._securityKey,
+      security_key: this._securityKey,
     };
   };
 

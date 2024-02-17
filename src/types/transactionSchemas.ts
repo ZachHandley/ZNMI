@@ -74,6 +74,7 @@ export const TransactionSchema = z.object({
     .optional(),
   amount: z
     .number()
+    .optional()
     .describe(
       `The amount of the transaction. For validate, use 0.00 or omit this field.`
     ),
@@ -449,7 +450,7 @@ export const TransactionRequestSchema = TransactionSchema.transform((data) => {
 
 export const CaptureTransactionRequestSchema = z.object({
   type: z.literal("capture"),
-  transaction_id: z.string().describe(`The transaction ID to be captured`),
+  transactionid: z.string().describe(`The transaction ID to be captured`),
   amount: z.number().describe(`The amount to be captured`),
   tracking_number: z.string().optional().describe(`The tracking number`),
   shipping_carrier: z.string().optional().describe(`The shipping carrier`),
@@ -459,7 +460,7 @@ export const CaptureTransactionRequestSchema = z.object({
 
 export const VoidTransactionRequestSchema = z.object({
   type: z.literal("void"),
-  transaction_id: z.string().describe(`The transaction ID to be voided`),
+  transactionid: z.string().describe(`The transaction ID to be voided`),
   void_reason: z.string().optional().describe(`The reason for the void`),
   payment: z
     .literal("creditcard")
@@ -470,7 +471,7 @@ export const VoidTransactionRequestSchema = z.object({
 
 export const RefundTransactionSchema = z.object({
   type: z.literal("refund"),
-  transaction_id: z.string().describe(`The transaction ID to be refunded`),
+  transactionid: z.string().describe(`The transaction ID to be refunded`),
   amount: z.number().optional().describe(`The amount to be refunded`),
   payment: z
     .literal("creditcard")
@@ -481,7 +482,7 @@ export const RefundTransactionSchema = z.object({
 
 export const UpdateTransactionSchema = z.object({
   type: z.literal("update"),
-  transaction_id: z.string().describe(`The transaction ID to be updated`),
+  transactionid: z.string().describe(`The transaction ID to be updated`),
   payment: z
     .literal("creditcard")
     .or(z.literal("check"))

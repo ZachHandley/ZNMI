@@ -6,6 +6,11 @@ import {
   AddBillingForCustomerRequestSchema,
   UpdateBillingForCustomerRequestSchema,
   DeleteBillingForCustomerRequestSchema,
+  ValidateCustomerByVaultIdRequestSchema,
+  AuthorizeCustomerByVaultIdRequestSchema,
+  SaleByVaultIdRequestSchema,
+  CreditTransactionByVaultIdRequestSchema,
+  OfflineTransactionByVaultIdRequestSchema,
 } from "../types/customerVaultRequest";
 import { z } from "zod";
 import { PostRequest } from "./utils";
@@ -24,6 +29,19 @@ type UpdateBillingForCustomerRequest = z.infer<
 type DeleteBillingForCustomerRequest = z.infer<
   typeof DeleteBillingForCustomerRequestSchema
 >;
+type ValidateCustomerVaultIdRequest = z.infer<
+  typeof ValidateCustomerByVaultIdRequestSchema
+>;
+type AuthorizeCustomerByVaultIdRequest = z.infer<
+  typeof AuthorizeCustomerByVaultIdRequestSchema
+>;
+type SaleByVaultIdRequest = z.infer<typeof SaleByVaultIdRequestSchema>;
+type CreditTransactionByVaultIdRequest = z.infer<
+  typeof CreditTransactionByVaultIdRequestSchema
+>;
+type OfflineTransactionByVaultIdRequest = z.infer<
+  typeof OfflineTransactionByVaultIdRequestSchema
+>;
 
 export class CustomerVaultApi {
   _securityKey: string;
@@ -35,7 +53,7 @@ export class CustomerVaultApi {
   beforeRequest = (request: any) => {
     return {
       ...request,
-      securityKey: this._securityKey,
+      security_key: this._securityKey,
     };
   };
 
@@ -43,6 +61,39 @@ export class CustomerVaultApi {
     addUpdateCustomerRequest: AddUpdateCustomerRequest
   ) => {
     const request = this.beforeRequest(addUpdateCustomerRequest);
+    return PostRequest(CUSTOMER_VAULT_URL, request);
+  };
+
+  validateCustomerVaultId = async (
+    validateCustomerVaultIdRequest: ValidateCustomerVaultIdRequest
+  ) => {
+    const request = this.beforeRequest(validateCustomerVaultIdRequest);
+    return PostRequest(CUSTOMER_VAULT_URL, request);
+  };
+
+  authorizeCustomerByVaultId = async (
+    authorizeCustomerByVaultIdRequest: AuthorizeCustomerByVaultIdRequest
+  ) => {
+    const request = this.beforeRequest(authorizeCustomerByVaultIdRequest);
+    return PostRequest(CUSTOMER_VAULT_URL, request);
+  };
+
+  saleByVaultId = async (saleByVaultIdRequest: SaleByVaultIdRequest) => {
+    const request = this.beforeRequest(saleByVaultIdRequest);
+    return PostRequest(CUSTOMER_VAULT_URL, request);
+  };
+
+  creditTransactionByVaultId = async (
+    creditTransactionByVaultIdRequest: CreditTransactionByVaultIdRequest
+  ) => {
+    const request = this.beforeRequest(creditTransactionByVaultIdRequest);
+    return PostRequest(CUSTOMER_VAULT_URL, request);
+  };
+
+  offlineTransactionByVaultId = async (
+    offlineTransactionByVaultIdRequest: OfflineTransactionByVaultIdRequest
+  ) => {
+    const request = this.beforeRequest(offlineTransactionByVaultIdRequest);
     return PostRequest(CUSTOMER_VAULT_URL, request);
   };
 

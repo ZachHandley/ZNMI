@@ -7,6 +7,11 @@ import {
   AddBillingForCustomerRequestSchema,
   UpdateBillingForCustomerRequestSchema,
   DeleteBillingForCustomerRequestSchema,
+  ValidateCustomerByVaultIdRequestSchema,
+  AuthorizeCustomerByVaultIdRequestSchema,
+  SaleByVaultIdRequestSchema,
+  CreditTransactionByVaultIdRequestSchema,
+  OfflineTransactionByVaultIdRequestSchema,
 } from "../types/customerVaultRequest";
 
 type AddUpdateCustomerRequest = z.infer<typeof AddUpdateCustomerRequestSchema>;
@@ -23,6 +28,19 @@ type UpdateBillingForCustomerRequest = z.infer<
 type DeleteBillingForCustomerRequest = z.infer<
   typeof DeleteBillingForCustomerRequestSchema
 >;
+type ValidateCustomerVaultIdRequest = z.infer<
+  typeof ValidateCustomerByVaultIdRequestSchema
+>;
+type AuthorizeCustomerByVaultIdRequest = z.infer<
+  typeof AuthorizeCustomerByVaultIdRequestSchema
+>;
+type SaleByVaultIdRequest = z.infer<typeof SaleByVaultIdRequestSchema>;
+type CreditTransactionByVaultIdRequest = z.infer<
+  typeof CreditTransactionByVaultIdRequestSchema
+>;
+type OfflineTransactionByVaultIdRequest = z.infer<
+  typeof OfflineTransactionByVaultIdRequestSchema
+>;
 
 export class CustomerVault {
   customerVaultApi: CustomerVaultApi;
@@ -34,21 +52,23 @@ export class CustomerVault {
   }
 
   async addCustomer(
-    ccnumber: string,
-    ccexp: string,
-    customer_vault_id?: string,
-    first_name?: string,
-    last_name?: string,
-    company?: string,
-    address1?: string,
-    address2?: string,
-    city?: string,
-    state?: string,
-    zip?: string,
-    country?: string,
-    phone?: string,
-    email?: string,
-    fax?: string,
+    customerData?: {
+      ccnumber?: string;
+      ccexp?: string;
+      customer_vault_id?: string;
+      first_name?: string;
+      last_name?: string;
+      company?: string;
+      address1?: string;
+      address2?: string;
+      city?: string;
+      state?: string;
+      zip?: string;
+      country?: string;
+      phone?: string;
+      email?: string;
+      fax?: string;
+    },
     additionalOptions?: Partial<AddUpdateCustomerRequest>
   ): Promise<{
     status: number;
@@ -56,24 +76,16 @@ export class CustomerVault {
     message: string;
   }> {
     try {
+      if (!customerData && !additionalOptions) {
+        return {
+          status: 400,
+          message: "Invalid request",
+        };
+      }
       const addCustomerRequest: AddUpdateCustomerRequest =
         AddUpdateCustomerRequestSchema.parse({
-          type: "add_customer",
-          ccnumber: ccnumber,
-          ccexp: ccexp,
-          company: company,
-          customer_vault_id: customer_vault_id,
-          first_name: first_name,
-          last_name: last_name,
-          address1: address1,
-          address2: address2,
-          city: city,
-          state: state,
-          zip: zip,
-          country: country,
-          phone: phone,
-          email: email,
-          fax: fax,
+          customer_vault: "add_customer",
+          ...customerData,
           ...additionalOptions,
         });
       const result = await this.customerVaultApi.addOrUpdateCustomer(
@@ -82,7 +94,7 @@ export class CustomerVault {
       return {
         status: 200,
         data: result.data,
-        message: "Customer added successfully",
+        message: result.data.responsetext || "Customer added successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -94,21 +106,23 @@ export class CustomerVault {
   }
 
   async updateCustomer(
-    customer_vault_id: string,
-    ccnumber?: string,
-    ccexp?: string,
-    first_name?: string,
-    last_name?: string,
-    company?: string,
-    address1?: string,
-    address2?: string,
-    city?: string,
-    state?: string,
-    zip?: string,
-    country?: string,
-    phone?: string,
-    email?: string,
-    fax?: string,
+    customerData?: {
+      customer_vault_id: string | number;
+      ccnumber?: string;
+      ccexp?: string;
+      first_name?: string;
+      last_name?: string;
+      company?: string;
+      address1?: string;
+      address2?: string;
+      city?: string;
+      state?: string;
+      zip?: string;
+      country?: string;
+      phone?: string;
+      email?: string;
+      fax?: string;
+    },
     additionalOptions?: Partial<AddUpdateCustomerRequest>
   ): Promise<{
     status: number;
@@ -118,22 +132,8 @@ export class CustomerVault {
     try {
       const updateCustomerRequest: AddUpdateCustomerRequest =
         AddUpdateCustomerRequestSchema.parse({
-          type: "update_customer",
-          customer_vault_id: customer_vault_id,
-          first_name: first_name,
-          last_name: last_name,
-          company: company,
-          address1: address1,
-          address2: address2,
-          city: city,
-          state: state,
-          zip: zip,
-          country: country,
-          phone: phone,
-          email: email,
-          fax: fax,
-          ccnumber: ccnumber,
-          ccexp: ccexp,
+          customer_vault: "update_customer",
+          ...customerData,
           ...additionalOptions,
         });
       const result = await this.customerVaultApi.addOrUpdateCustomer(
@@ -142,7 +142,7 @@ export class CustomerVault {
       return {
         status: 200,
         data: result.data,
-        message: "Customer updated successfully",
+        message: result.data.responsetext || "Customer updated successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -154,9 +154,11 @@ export class CustomerVault {
   }
 
   async initiateCustomerVaultTransaction(
-    customer_vault_id: string,
-    amount: number,
-    additionalOptions: Partial<CustomerVaultInitiatedTransaction>
+    transactionData?: {
+      customer_vault_id: string | number;
+      amount: number;
+    },
+    additionalOptions?: Partial<CustomerVaultInitiatedTransaction>
   ): Promise<{
     status: number;
     data?: any;
@@ -165,9 +167,8 @@ export class CustomerVault {
     try {
       const customerVaultInitiatedTransaction: CustomerVaultInitiatedTransaction =
         CustomerVaultInitiatedTransactionSchema.parse({
-          type: "initiate_transaction",
-          customer_vault_id: customer_vault_id,
-          amount,
+          customer_vault: "initiate_transaction",
+          ...transactionData,
           ...additionalOptions,
         });
       const result =
@@ -177,7 +178,9 @@ export class CustomerVault {
       return {
         status: 200,
         data: result.data,
-        message: "Customer vault transaction initiated successfully",
+        message:
+          result.data.responsetext ||
+          "Customer vault transaction initiated successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -188,54 +191,24 @@ export class CustomerVault {
     }
   }
 
-  async deleteCustomer(
-    customer_vault_id: string,
-    additionalOptions: Partial<DeleteCustomerRecord>
-  ): Promise<{
-    status: number;
-    data?: any;
-    message: string;
-  }> {
-    try {
-      const deleteCustomerRecord: DeleteCustomerRecord =
-        DeleteCustomerRecordSchema.parse({
-          type: "delete_customer",
-          customer_vault_id,
-          ...additionalOptions,
-        });
-      const result = await this.customerVaultApi.deleteCustomer(
-        deleteCustomerRecord
-      );
-      return {
-        status: 200,
-        data: result.data,
-        message: "Customer deleted successfully",
-      };
-    } catch (error: any) {
-      console.log(error);
-      return {
-        status: 500,
-        message: `Error in deleteCustomer ${error.message}`,
-      };
-    }
-  }
-
   async addBillingToCustomer(
-    customer_vault_id: string,
-    ccnumber?: string,
-    ccexp?: string,
-    first_name?: string,
-    last_name?: string,
-    company?: string,
-    address1?: string,
-    address2?: string,
-    city?: string,
-    state?: string,
-    zip?: string,
-    country?: string,
-    phone?: string,
-    fax?: string,
-    email?: string,
+    billingData?: {
+      customer_vault_id: string | number;
+      ccnumber?: string;
+      ccexp?: string;
+      first_name?: string;
+      last_name?: string;
+      company?: string;
+      address1?: string;
+      address2?: string;
+      city?: string;
+      state?: string;
+      zip?: string;
+      country?: string;
+      phone?: string;
+      fax?: string;
+      email?: string;
+    },
     additionalOptions?: Partial<AddBillingForCustomerRequest>
   ): Promise<{
     status: number;
@@ -245,22 +218,8 @@ export class CustomerVault {
     try {
       const addBillingRequest: AddBillingForCustomerRequest =
         AddBillingForCustomerRequestSchema.parse({
-          type: "add_billing",
-          customer_vault_id: customer_vault_id,
-          ccnumber: ccnumber,
-          ccexp: ccexp,
-          first_name: first_name,
-          last_name: last_name,
-          company: company,
-          address1: address1,
-          address2: address2,
-          city: city,
-          state: state,
-          zip: zip,
-          country: country,
-          phone: phone,
-          fax: fax,
-          email: email,
+          customer_vault: "add_billing",
+          ...billingData,
           ...additionalOptions,
         });
       const result = await this.customerVaultApi.addBillingForCustomer(
@@ -269,7 +228,7 @@ export class CustomerVault {
       return {
         status: 200,
         data: result.data,
-        message: "Billing added successfully",
+        message: result.data.responsetext || "Billing added successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -281,22 +240,24 @@ export class CustomerVault {
   }
 
   async updateBillingForCustomer(
-    billing_id: string,
-    customer_vault_id: string,
-    ccnumber?: string,
-    ccexp?: string,
-    first_name?: string,
-    last_name?: string,
-    company?: string,
-    address1?: string,
-    address2?: string,
-    city?: string,
-    state?: string,
-    zip?: string,
-    country?: string,
-    phone?: string,
-    fax?: string,
-    email?: string,
+    billingData?: {
+      billing_id: string;
+      customer_vault_id: string | number;
+      ccnumber?: string;
+      ccexp?: string;
+      first_name?: string;
+      last_name?: string;
+      company?: string;
+      address1?: string;
+      address2?: string;
+      city?: string;
+      state?: string;
+      zip?: string;
+      country?: string;
+      phone?: string;
+      fax?: string;
+      email?: string;
+    },
     additionalOptions?: Partial<UpdateBillingForCustomerRequest>
   ): Promise<{
     status: number;
@@ -306,23 +267,8 @@ export class CustomerVault {
     try {
       const updateBillingRequest: UpdateBillingForCustomerRequest =
         UpdateBillingForCustomerRequestSchema.parse({
-          type: "update_billing",
-          billing_id,
-          customer_vault_id,
-          ccnumber,
-          ccexp,
-          first_name,
-          last_name,
-          company,
-          address1,
-          address2,
-          city,
-          state,
-          zip,
-          country,
-          phone,
-          fax,
-          email,
+          customer_vault: "update_billing",
+          ...billingData,
           ...additionalOptions,
         });
       const result = await this.customerVaultApi.updateBillingForCustomer(
@@ -343,8 +289,10 @@ export class CustomerVault {
   }
 
   async deleteBillingForCustomer(
-    billing_id: string,
-    customer_vault_id: string,
+    deleteData?: {
+      billing_id: string;
+      customer_vault_id: string | number;
+    },
     additionalOptions?: Partial<DeleteBillingForCustomerRequest>
   ): Promise<{
     status: number;
@@ -354,9 +302,8 @@ export class CustomerVault {
     try {
       const deleteBillingRequest: DeleteBillingForCustomerRequest =
         DeleteBillingForCustomerRequestSchema.parse({
-          type: "delete_billing",
-          billing_id,
-          customer_vault_id,
+          customer_vault: "delete_billing",
+          ...deleteData,
           ...additionalOptions,
         });
       const result = await this.customerVaultApi.deleteBillingForCustomer(

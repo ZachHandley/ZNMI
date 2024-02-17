@@ -1,17 +1,17 @@
 import {
   CreateInvoiceRequestSchema,
-  UpdateInvoiceSchema,
-  SendInvoiceSchema,
-  CloseInvoiceSchema,
+  UpdateInvoiceRequestSchema,
+  SendInvoiceRequestSchema,
+  CloseInvoiceRequestSchema,
   INVOICE_URL,
 } from "../types/invoiceRequestSchemas";
 import { z } from "zod";
 import { PostRequest } from "./utils";
 
 type CreateInvoiceRequest = z.infer<typeof CreateInvoiceRequestSchema>;
-type UpdateInvoiceRequest = z.infer<typeof UpdateInvoiceSchema>;
-type SendInvoiceRequest = z.infer<typeof SendInvoiceSchema>;
-type CloseInvoiceRequest = z.infer<typeof CloseInvoiceSchema>;
+type UpdateInvoiceRequest = z.infer<typeof UpdateInvoiceRequestSchema>;
+type SendInvoiceRequest = z.infer<typeof SendInvoiceRequestSchema>;
+type CloseInvoiceRequest = z.infer<typeof CloseInvoiceRequestSchema>;
 
 export class InvoicesApi {
   _securityKey: string;
@@ -23,7 +23,7 @@ export class InvoicesApi {
   beforeRequest = (request: any) => {
     return {
       ...request,
-      securityKey: this._securityKey,
+      security_key: this._securityKey,
     };
   };
 

@@ -9,6 +9,7 @@ export const AddUpdateCustomerSchema = z.object({
     .describe(`Add or update a customer in the customer vault`),
   customer_vault_id: z
     .string()
+    .or(z.number())
     .optional()
     .describe(
       `The customer vault id of the customer to update, if not set the gateway will generate one randomly.`
@@ -153,6 +154,7 @@ export const AddUpdateCustomerRequestSchema = AddUpdateCustomerSchema.transform(
 export const CustomerVaultInitiatedTransactionSchema = z.object({
   customer_vault_id: z
     .string()
+    .or(z.number())
     .optional()
     .describe(`The customer vault id of the customer`),
   amount: z.number().describe(`The amount of the transaction to be processed`),
@@ -207,12 +209,63 @@ details (customer credentials) you have already stored to the Customer Vault or 
 storage method.`),
 });
 
+export const AuthorizeCustomerByVaultIdRequestSchema = z.object({
+  type: z.literal("auth").describe(`The type of transaction`),
+  customer_vault_id: z
+    .string()
+    .or(z.number())
+    .describe(`The customer vault id of the customer to authorize`),
+  amount: z.number().describe(`The amount of the transaction to be processed`),
+});
+
+export const CreditTransactionByVaultIdRequestSchema = z.object({
+  type: z.literal("credit").describe(`The type of transaction`),
+  customer_vault_id: z
+    .string()
+    .or(z.number())
+    .describe(`The customer vault id of the customer to credit`),
+  amount: z.number().describe(`The amount of the transaction to be processed`),
+});
+
+export const OfflineTransactionByVaultIdRequestSchema = z.object({
+  type: z.literal("offline").describe(`The type of transaction`),
+  customer_vault_id: z
+    .string()
+    .or(z.number())
+    .describe(
+      `The customer vault id of the customer to process the transaction`
+    ),
+  amount: z.number().describe(`The amount of the transaction to be processed`),
+});
+
+export const SaleByVaultIdRequestSchema = z.object({
+  type: z.literal("sale").describe(`The type of transaction`),
+  customer_vault_id: z
+    .string()
+    .or(z.number())
+    .describe(
+      `The customer vault id of the customer to process the transaction`
+    ),
+  amount: z.number().describe(`The amount of the transaction to be processed`),
+});
+
+export const ValidateCustomerByVaultIdRequestSchema = z.object({
+  customer_vault: z
+    .literal("validate")
+    .describe(`Validate a customer vault id in the customer vault`),
+  customer_vault_id: z
+    .string()
+    .or(z.number())
+    .describe(`The customer vault id of the customer to validate`),
+});
+
 export const DeleteCustomerRecordSchema = z.object({
   customer_vault: z
     .literal("delete_customer")
     .describe(`Delete a customer from the customer vault`),
   customer_vault_id: z
     .string()
+    .or(z.number())
     .describe(`The customer vault id of the customer to delete`),
   security_key: z
     .string()
@@ -227,6 +280,7 @@ export const AddBillingForCustomerRequestSchema = z.object({
     .describe(`Add a billing record to the customer vault`),
   customer_vault_id: z
     .string()
+    .or(z.number())
     .optional()
     .describe(`The customer vault id of the customer`),
   billing_id: z
@@ -269,6 +323,7 @@ export const DeleteBillingForCustomerRequestSchema = z.object({
     .describe(`Delete a billing record from the customer vault`),
   customer_vault_id: z
     .string()
+    .or(z.number())
     .describe(`The customer vault id of the customer`),
   billing_id: z.string().describe(`The billing id of the customer to delete`),
 });

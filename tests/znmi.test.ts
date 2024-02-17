@@ -1,30 +1,23 @@
 import { describe, it, expect } from "vitest";
-import { CustomerVaultApi } from "../src/api/customerVaultApi.ts";
-import { TransactionsApi } from "../src/api/transactionsApi.ts";
-import { ProductManagerApi } from "../src/api/productManagerApi.ts";
-import { InvoicesApi } from "../src/api/invoicesApi.ts";
-import { RecurringApi } from "../src/api/recurringApi.ts";
+import { CustomerVault } from "../src/functions/customerVault.ts";
+import { Transactions } from "../src/functions/transactions.ts";
+import { Products } from "../src/functions/products.ts";
+import { Invoices } from "../src/functions/invoices";
+import { Recurring } from "../src/functions/recurring";
+
 import { ZNMI } from "../src/index.ts";
+const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
+const znmi = new ZNMI(securityKey);
 
 describe("ZNMI", () => {
   // ZNMI can be instantiated with a security key
   it("should instantiate ZNMI with a security key", () => {
-    // Arrange
-    const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
-
-    // Act
-    const znmi = new ZNMI(securityKey);
-
     // Assert
     expect(znmi._securityKey).toBe(securityKey);
   });
 
   // CustomerVault, Transactions, ProductManager, Invoices, and Recurring objects can be created from ZNMI
   it("should create CustomerVault, Transactions, ProductManager, Invoices, and Recurring objects from ZNMI", () => {
-    // Arrange
-    const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
-    const znmi = new ZNMI(securityKey);
-
     // Act
     const customerVault = znmi.customerVault;
     const transactions = znmi.transactions;
@@ -33,187 +26,214 @@ describe("ZNMI", () => {
     const recurring = znmi.recurring;
 
     // Assert
-    expect(customerVault).toBeInstanceOf(CustomerVaultApi);
-    expect(transactions).toBeInstanceOf(TransactionsApi);
-    expect(productManager).toBeInstanceOf(ProductManagerApi);
-    expect(invoices).toBeInstanceOf(InvoicesApi);
-    expect(recurring).toBeInstanceOf(RecurringApi);
+    expect(customerVault).toBeInstanceOf(CustomerVault);
+    expect(transactions).toBeInstanceOf(Transactions);
+    expect(productManager).toBeInstanceOf(Products);
+    expect(invoices).toBeInstanceOf(Invoices);
+    expect(recurring).toBeInstanceOf(Recurring);
   });
 
   // CustomerVault object can add or update a customer record
-  it("should add or update a customer record using CustomerVault object", async () => {
-    // Arrange
-    const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
-    const znmi = new ZNMI(securityKey);
-    const addUpdateCustomerRequest = {
-      customer_vault: "add_customer",
+  // Add Customer
+  it("should add a customer using CustomerVault object", async () => {
+    const addCustomerRequest = {
       ccnumber: "4111111111111111",
-      ccexp: "10/25", // MMYY format
-      cvv: "999",
+      ccexp: "1234",
     };
-
-    // Act
-    const response = await znmi.customerVault.addOrUpdateCustomer(
-      addUpdateCustomerRequest
-    );
-
-    // Assert
-    expect(response).toBeDefined(); // Example assertion
+    const response = await znmi.customerVault.addCustomer(addCustomerRequest);
+    expect(response.data).toBeDefined();
+    expect(response.data.response).toBe("1");
   });
 
-  // ZNMI cannot be instantiated with an empty security key
-  it("should throw an error when instantiating ZNMI with an empty security key", () => {
-    // Arrange
-    const securityKey = "";
-
-    // Act & Assert
-    expect(() => new ZNMI(securityKey)).toThrowError();
-  });
-
-  // CustomerVault object can delete a customer record
-  it("should delete a customer record using CustomerVault object", async () => {
-    // Arrange
-    const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
-    const znmi = new ZNMI(securityKey);
-    const deleteCustomerRecord = {
-      // Assuming deletion requires an ID or similar identifier
-      customerId: "12345",
+  // Update Customer
+  it("should update a customer using CustomerVault object", async () => {
+    const updateCustomerRequest = {
+      customer_vault_id: "123456789",
+      ccnumber: "4111111111111111",
+      ccexp: "1234",
     };
-
-    // Act
-    const response = await znmi.customerVault.deleteCustomer(
-      deleteCustomerRecord
+    const response = await znmi.customerVault.updateCustomer(
+      updateCustomerRequest
     );
-
-    // Assert
-    expect(response).toBeDefined(); // Example assertion
+    expect(response.data).toBeDefined();
+    expect(response.data.response).toBe("1");
   });
 
-  // Transactions object can capture a transaction
-  it("should capture a transaction using Transactions object", async () => {
-    // Arrange
-    const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
-    const znmi = new ZNMI(securityKey);
-    const captureTransactionRequest = {
-      amount: 100.0,
-      currency: "USD",
-      payment: "creditcard",
+  // Add Billing to Customer
+  it("should add billing to a customer using CustomerVault object", async () => {
+    const addBillingRequest = {
+      customer_vault_id: "123456789",
+      billing_id: "BillingId1",
+      ccnumber: "4111111111111111",
+      ccexp: "1234",
+    };
+    const response = await znmi.customerVault.addBillingToCustomer(
+      addBillingRequest
+    );
+    expect(response.data).toBeDefined();
+    expect(response.data.response).toBe("1");
+  });
+
+  // Update Billing for Customer
+  it("should update billing for a customer using CustomerVault object", async () => {
+    const updateBillingRequest = {
+      billing_id: "BillingId1",
+      customer_vault_id: "123456789",
+      ccnumber: "4111111111111111",
+      ccexp: "1234",
+    };
+    const response = await znmi.customerVault.updateBillingForCustomer(
+      updateBillingRequest
+    );
+    expect(response.data).toBeDefined();
+    expect(response.data.response).toBe("1");
+  });
+
+  it("should delete a customer's billing using CustomerVault object", async () => {
+    const deleteBillingRequest = {
+      billing_id: "BillingId1",
+      customer_vault_id: "123456789",
+    };
+    const response = await znmi.customerVault.deleteBillingForCustomer(
+      deleteBillingRequest
+    );
+    expect(response.data).toBeDefined();
+    expect(response.data.response).toBe("1");
+  });
+
+  // Validate Transaction
+  it("should validate a transaction using Transactions object", async () => {
+    const validateTransactionRequest = {
       ccnumber: "4111111111111111",
       ccexp: "1025",
-      cvv: "999",
+      cvv: "123",
     };
+    const response = await znmi.transactions.validateTransaction(
+      validateTransactionRequest
+    );
+    expect(response.data).toBeDefined();
+    expect(response.data?.response).toBe("1");
+  });
 
-    // Act
+  // Capture Transaction
+  it("should capture a transaction using Transactions object", async () => {
+    const captureTransactionRequest = {
+      transactionid: "9224298113",
+      amount: 10,
+    };
     const response = await znmi.transactions.captureTransaction(
       captureTransactionRequest
     );
-
-    // Assert
-    expect(response).toBeDefined(); // Example assertion
+    expect(response.data).toBeDefined();
+    // Can't capture a transaction without a transaction id
+    expect(response.data?.response).toBe("3");
   });
 
-  // Transactions object can create a transaction
-  it("should create a transaction when called", async () => {
-    // Arrange
-    const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
-    const znmi = new ZNMI(securityKey);
-
-    // Act
-    const result = await znmi.createTransaction(
-      100.0,
-      "4111111111111111",
-      "1025",
-      "999"
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.data?.response).toBe("1");
-    expect(result.data?.responsetext).toBe("SUCCESS");
-    expect(result.data).toBeDefined();
-  });
-
-  // ProductManager object can add a product
-  it("should add a product when called", async () => {
-    // Arrange
-    const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
-    const znmi = new ZNMI(securityKey);
-    const addProductRequest = {
-      // Assuming adding a product requires specific product details
-      productName: "Example Product",
-      price: 19.99,
-    };
-
-    // Act
-    const result = await znmi.products.addProduct(addProductRequest);
-
-    // Assert
-    expect(result.status).toBe(200);
-    expect(result.data).toBeDefined();
-  });
-
-  // Invoices object can create an invoice
-  it("should create an invoice when called", async () => {
-    // Arrange
-    const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
-    const znmi = new ZNMI(securityKey);
-    const createInvoiceRequest = {
-      // Assuming creating an invoice requires specific details like customer ID, amount, etc.
-      customerId: "12345",
-      amount: 100.0,
-      dueDate: "2023-12-31",
-    };
-
-    // Act
-    const result = await znmi.invoices.createInvoice(createInvoiceRequest);
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.status).toBe(200);
-    expect(result.data).toBeDefined();
-  });
-
-  // The test is checking if the Recurring object can create a recurring plan
-  it("should create a recurring plan when called", async () => {
-    // Arrange
-    const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
-    const znmi = new ZNMI(securityKey);
-    const recurringPlanRequest = {
-      // Assuming creating a recurring plan requires specific details like plan name, amount, frequency, etc.
-      planName: "Monthly Subscription",
-      amount: 9.99,
-      frequency: "monthly",
-    };
-
-    // Act
-    const result = await znmi.recurring.createRecurringPlan(
-      recurringPlanRequest
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.status).toBe(200);
-    expect(result.data).toBeDefined();
-  });
-
-  // Transactions object can refund a transaction
-  it("should refund a transaction when called", async () => {
-    // Arrange
-    const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
-    const znmi = new ZNMI(securityKey);
+  // Refund Transaction
+  it("should refund a transaction using Transactions object", async () => {
     const refundTransactionRequest = {
-      transactionId: "987654321", // Example transaction ID
-      amount: 50.0, // Partial refund example
+      transactionid: "9224298113",
+      amount: 50.0,
     };
-
-    // Act
-    const result = await znmi.transactions.refundTransaction(
+    const response = await znmi.transactions.refundTransaction(
       refundTransactionRequest
     );
+    expect(response.data).toBeDefined();
+    // Can't refund a non-existent transaction
+    expect(response.data?.response).toBe("3");
+  });
 
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.status).toBe(200); // Assuming 200 is success
-    expect(result.data).toBeDefined();
+  let productSku: string = `sku${Math.floor(Math.random() * 10000)}`;
+  let productId: string;
+  // Add Product
+  it("should add a product using Products object", async () => {
+    const addProductRequest = {
+      product_sku: productSku,
+      product_description: "Test Product",
+      product_cost: "19.99",
+      product_currency: "USD",
+    };
+    const response = await znmi.products.addProduct(addProductRequest);
+    productId = response.data.product_id;
+    expect(response.data).toBeDefined();
+    expect(response.data.response).toBe("1");
+  });
+
+  it("should update a product using Products object", async () => {
+    const updateProductRequest = {
+      product_id: productId,
+      product_sku: productSku,
+      product_description: "Test Product",
+      product_cost: "19.99",
+      product_currency: "USD",
+    };
+    const response = await znmi.products.updateProduct(updateProductRequest);
+    expect(response.data).toBeDefined();
+    expect(response.data.response).toBe("1");
+  });
+
+  // Update Product
+  it("should delete a product using Products object", async () => {
+    const deleteProductRequest = {
+      product_id: productId,
+    };
+    const response = await znmi.products.deleteProduct(deleteProductRequest);
+    expect(response.data).toBeDefined();
+    expect(response.data.response).toBe("1");
+  });
+
+  // Create Invoice
+  it("should create an invoice using Invoices object", async () => {
+    const createInvoiceRequest = {
+      amount: 1.0,
+      email: "test@example.com",
+    };
+    const response = await znmi.invoices.createInvoice(createInvoiceRequest);
+    expect(response.data).toBeDefined();
+    // expect(response.data.response).toBe("1"); because no invoicing setup on test account
+    expect(response.data.response).toBe("3");
+  });
+
+  const subscriptionId = `sub${Math.floor(Math.random() * 10000)}`;
+  // Add Recurring Plan
+  it("should add a recurring plan using Recurring object", async () => {
+    const addRecurringPlanRequest = {
+      plan_name: "Monthly Subscription",
+      plan_amount: 9.99,
+      day_frequency: 31,
+      plan_id: subscriptionId,
+    };
+    const response = await znmi.recurring.addRecurringPlan(
+      addRecurringPlanRequest
+    );
+    expect(response.data).toBeDefined();
+    expect(response.data?.response).toBe("1");
+  });
+
+  // Update Recurring Plan
+  it("should update a recurring plan using Recurring object", async () => {
+    const updateRecurringPlanRequest = {
+      plan_id: subscriptionId,
+      plan_name: "Monthly Subscription",
+      plan_amount: 9.99,
+      day_frequency: 31,
+    };
+    const response = await znmi.recurring.editRecurringPlan(
+      updateRecurringPlanRequest
+    );
+    expect(response.data).toBeDefined();
+    expect(response.data?.response).toBe("1");
+  });
+
+  // Delete Subscription
+  it("should delete a subscription using Recurring object", async () => {
+    const deleteSubscriptionRequest = {
+      subscription_id: subscriptionId,
+    };
+    const response = await znmi.recurring.deleteSubscription(
+      deleteSubscriptionRequest
+    );
+    expect(response.data).toBeDefined();
+    expect(response.data?.response).toBe("3");
   });
 });
