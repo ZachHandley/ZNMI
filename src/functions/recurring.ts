@@ -8,7 +8,7 @@ import {
   UpdateSubscriptionSchema,
   DeleteSubscriptionRequestSchema,
 } from "../types/recurringRequest";
-import { DefaultResponseSchema } from "../types/base";
+import { RecurringResponseSchema } from "@/types/responseTypes";
 
 type AddRecurringPlan = z.infer<typeof AddRecurringPlanSchema>;
 type EditRecurringPlan = z.infer<typeof EditRecurringPlanSchema>;
@@ -20,7 +20,7 @@ type UpdateSubscription = z.infer<typeof UpdateSubscriptionSchema>;
 type DeleteSubscriptionRequest = z.infer<
   typeof DeleteSubscriptionRequestSchema
 >;
-type DefaultResponse = z.infer<typeof DefaultResponseSchema>;
+type RecurringResponse = z.infer<typeof RecurringResponseSchema>;
 
 export class Recurring {
   recurringApi: RecurringApi;
@@ -43,7 +43,7 @@ export class Recurring {
     planData?: Partial<AddRecurringPlan>
   ): Promise<{
     status: number;
-    data?: DefaultResponse;
+    data?: RecurringResponse;
     message: string;
   }> {
     try {
@@ -79,7 +79,7 @@ export class Recurring {
       const result = await this.recurringApi.createRecurringPlan(planRequest);
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Recurring plan added successfully",
       };
     } catch (error: any) {
@@ -104,7 +104,7 @@ export class Recurring {
     planData?: Partial<EditRecurringPlan>
   ): Promise<{
     status: number;
-    data?: DefaultResponse;
+    data?: RecurringResponse;
     message: string;
   }> {
     try {
@@ -139,7 +139,7 @@ export class Recurring {
       const result = await this.recurringApi.editRecurringPlan(planRequest);
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Recurring plan edited successfully",
       };
     } catch (error: any) {
@@ -176,7 +176,7 @@ export class Recurring {
     additionalData?: Partial<AddCustomSubscription>
   ): Promise<{
     status: number;
-    data?: DefaultResponse;
+    data?: RecurringResponse;
     message: string;
   }> {
     try {
@@ -198,7 +198,7 @@ export class Recurring {
       );
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Subscription updated successfully",
       };
     } catch (error: any) {
@@ -222,7 +222,7 @@ export class Recurring {
     additionalData?: Partial<UpdateSubscription>
   ): Promise<{
     status: number;
-    data?: DefaultResponse;
+    data?: RecurringResponse;
     message: string;
   }> {
     try {
@@ -243,7 +243,7 @@ export class Recurring {
       );
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Subscription updated successfully",
       };
     } catch (error: any) {
@@ -262,7 +262,7 @@ export class Recurring {
     additionalData?: Partial<DeleteSubscriptionRequest>
   ): Promise<{
     status: number;
-    data?: DefaultResponse;
+    data?: RecurringResponse;
     message: string;
   }> {
     try {
@@ -281,7 +281,7 @@ export class Recurring {
       const result = await this.recurringApi.deleteSubscription(deleteRequest);
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Subscription deleted successfully",
       };
     } catch (error: any) {

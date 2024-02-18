@@ -1,8 +1,3 @@
-import { CustomerVaultApi } from "./api/customerVaultApi";
-import { TransactionsApi } from "./api/transactionsApi";
-import { ProductManagerApi } from "./api/productManagerApi";
-import { InvoicesApi } from "./api/invoicesApi";
-import { RecurringApi } from "./api/recurringApi";
 import { Transactions } from "./functions/transactions";
 import { CustomerVault } from "./functions/customerVault";
 import { Products } from "./functions/products";

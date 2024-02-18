@@ -7,7 +7,7 @@ import {
   DeleteSubscriptionRequestSchema,
   RECURRING_URL,
 } from "../types/recurringRequest";
-import { DefaultResponseSchema } from "@/types/base";
+import { RecurringResponseSchema } from "@/types/responseTypes";
 import { z } from "zod";
 import { PostRequest } from "./utils";
 
@@ -36,39 +36,49 @@ export class RecurringApi {
     };
   };
 
+  parseResponse = (data: any) => {
+    return RecurringResponseSchema.parse(data);
+  };
+
   createRecurringPlan = async (addRecurringPlan: AddRecurringPlan) => {
     const request = this.beforeRequest(addRecurringPlan);
-    return PostRequest(RECURRING_URL, request);
+    const response = await PostRequest(RECURRING_URL, request);
+    return this.parseResponse(response.data);
   };
 
   editRecurringPlan = async (editRecurringPlan: EditRecurringPlan) => {
     const request = this.beforeRequest(editRecurringPlan);
-    return PostRequest(RECURRING_URL, request);
+    const response = await PostRequest(RECURRING_URL, request);
+    return this.parseResponse(response.data);
   };
 
   addSubscriptionToExistingPlan = async (
     addSubscriptionToExistingPlan: AddSubscriptionToExistingPlan
   ) => {
     const request = this.beforeRequest(addSubscriptionToExistingPlan);
-    return PostRequest(RECURRING_URL, request);
+    const response = await PostRequest(RECURRING_URL, request);
+    return this.parseResponse(response.data);
   };
 
   addCustomSubscription = async (
     addCustomSubscription: AddCustomSubscription
   ) => {
     const request = this.beforeRequest(addCustomSubscription);
-    return PostRequest(RECURRING_URL, request);
+    const response = await PostRequest(RECURRING_URL, request);
+    return this.parseResponse(response.data);
   };
 
   updateSubscription = async (updateSubscription: UpdateSubscription) => {
     const request = this.beforeRequest(updateSubscription);
-    return PostRequest(RECURRING_URL, request);
+    const response = await PostRequest(RECURRING_URL, request);
+    return this.parseResponse(response.data);
   };
 
   deleteSubscription = async (
     deleteSubscriptionRequest: DeleteSubscriptionRequest
   ) => {
     const request = this.beforeRequest(deleteSubscriptionRequest);
-    return PostRequest(RECURRING_URL, request);
+    const response = await PostRequest(RECURRING_URL, request);
+    return this.parseResponse(response.data);
   };
 }

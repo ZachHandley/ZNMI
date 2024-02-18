@@ -32,8 +32,8 @@ export class TransactionsApi {
     };
   };
 
-  parseResponse = (response: any) => {
-    return TransactionResponseSchema.parse(response);
+  parseResponse = (data: any) => {
+    return TransactionResponseSchema.parse(data);
   };
 
   createTransaction = async (transactionRequest: TransactionRequest) => {

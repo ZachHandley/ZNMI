@@ -5,11 +5,13 @@ import {
   PRODUCT_MANAGER_URL,
 } from "@/types/productManagerRequest";
 import { ProductManagerApi } from "@/api/productManagerApi";
+import { ProductResponseSchema } from "@/types/responseTypes";
 import { z } from "zod";
 
 type AddProductRequest = z.infer<typeof AddProductRequestSchema>;
 type UpdateProductRequest = z.infer<typeof UpdateProductRequestSchema>;
 type DeleteProductRequest = z.infer<typeof DeleteProductRequestSchema>;
+type ProductResponse = z.infer<typeof ProductResponseSchema>;
 
 export class Products {
   productManagerApi: ProductManagerApi;
@@ -41,7 +43,11 @@ export class Products {
       product_image_name?: string;
     },
     additionalOptions?: Partial<AddProductRequest>
-  ) {
+  ): Promise<{
+    status: number;
+    data?: ProductResponse;
+    message?: string;
+  }> {
     try {
       if (!productData && !additionalOptions) {
         return {
@@ -59,7 +65,7 @@ export class Products {
       const result = await this.productManagerApi.addProduct(request);
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Product added successfully",
       };
     } catch (error) {
@@ -85,7 +91,11 @@ export class Products {
       product_image_name?: string;
     },
     additionalOptions?: Partial<UpdateProductRequest>
-  ) {
+  ): Promise<{
+    status: number;
+    data?: ProductResponse;
+    message?: string;
+  }> {
     try {
       if (!productData && !additionalOptions) {
         return {
@@ -103,7 +113,7 @@ export class Products {
       const result = await this.productManagerApi.updateProduct(request);
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Product updated successfully",
       };
     } catch (error) {
@@ -119,7 +129,11 @@ export class Products {
       product_id: string;
     },
     additionalOptions?: Partial<DeleteProductRequest>
-  ) {
+  ): Promise<{
+    status: number;
+    data?: ProductResponse;
+    message?: string;
+  }> {
     try {
       if (
         !productData &&
@@ -140,7 +154,7 @@ export class Products {
       const result = await this.productManagerApi.deleteProduct(request);
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Product deleted successfully",
       };
     } catch (error) {

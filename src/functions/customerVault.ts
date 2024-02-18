@@ -13,6 +13,10 @@ import {
   CreditTransactionByVaultIdRequestSchema,
   OfflineTransactionByVaultIdRequestSchema,
 } from "../types/customerVaultRequest";
+import {
+  CustomerVaultResponseSchema,
+  BillingResponseSchema,
+} from "@/types/responseTypes";
 
 type AddUpdateCustomerRequest = z.infer<typeof AddUpdateCustomerRequestSchema>;
 type CustomerVaultInitiatedTransaction = z.infer<
@@ -41,6 +45,8 @@ type CreditTransactionByVaultIdRequest = z.infer<
 type OfflineTransactionByVaultIdRequest = z.infer<
   typeof OfflineTransactionByVaultIdRequestSchema
 >;
+type CustomerVaultResponse = z.infer<typeof CustomerVaultResponseSchema>;
+type BillingResponse = z.infer<typeof BillingResponseSchema>;
 
 export class CustomerVault {
   customerVaultApi: CustomerVaultApi;
@@ -72,7 +78,7 @@ export class CustomerVault {
     additionalOptions?: Partial<AddUpdateCustomerRequest>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: CustomerVaultResponse;
     message: string;
   }> {
     try {
@@ -93,8 +99,8 @@ export class CustomerVault {
       );
       return {
         status: 200,
-        data: result.data,
-        message: result.data.responsetext || "Customer added successfully",
+        data: result,
+        message: result.responsetext || "Customer added successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -126,7 +132,7 @@ export class CustomerVault {
     additionalOptions?: Partial<AddUpdateCustomerRequest>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: CustomerVaultResponse;
     message: string;
   }> {
     try {
@@ -141,8 +147,8 @@ export class CustomerVault {
       );
       return {
         status: 200,
-        data: result.data,
-        message: result.data.responsetext || "Customer updated successfully",
+        data: result,
+        message: result.responsetext || "Customer updated successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -161,7 +167,7 @@ export class CustomerVault {
     additionalOptions?: Partial<CustomerVaultInitiatedTransaction>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: CustomerVaultResponse;
     message: string;
   }> {
     try {
@@ -177,9 +183,9 @@ export class CustomerVault {
         );
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message:
-          result.data.responsetext ||
+          result.responsetext ||
           "Customer vault transaction initiated successfully",
       };
     } catch (error: any) {
@@ -198,7 +204,7 @@ export class CustomerVault {
     additionalOptions?: Partial<ValidateCustomerVaultIdRequest>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: CustomerVaultResponse;
     message: string;
   }> {
     try {
@@ -213,8 +219,8 @@ export class CustomerVault {
       );
       return {
         status: 200,
-        data: result.data,
-        message: "Customer validated successfully",
+        data: result,
+        message: result.responsetext || "Customer validated successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -233,7 +239,7 @@ export class CustomerVault {
     additionalOptions?: Partial<AuthorizeCustomerByVaultIdRequest>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: CustomerVaultResponse;
     message: string;
   }> {
     try {
@@ -248,8 +254,8 @@ export class CustomerVault {
       );
       return {
         status: 200,
-        data: result.data,
-        message: "Customer authorized successfully",
+        data: result,
+        message: result.responsetext || "Customer authorized successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -269,7 +275,7 @@ export class CustomerVault {
     additionalOptions?: Partial<SaleByVaultIdRequest>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: CustomerVaultResponse;
     message: string;
   }> {
     try {
@@ -282,8 +288,8 @@ export class CustomerVault {
       const result = await this.customerVaultApi.saleByVaultId(saleByVaultId);
       return {
         status: 200,
-        data: result.data,
-        message: "Sale completed successfully",
+        data: result,
+        message: result.responsetext || "Sale completed successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -303,7 +309,7 @@ export class CustomerVault {
     additionalOptions?: Partial<CreditTransactionByVaultIdRequest>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: CustomerVaultResponse;
     message: string;
   }> {
     try {
@@ -318,8 +324,9 @@ export class CustomerVault {
       );
       return {
         status: 200,
-        data: result.data,
-        message: "Credit transaction completed successfully",
+        data: result,
+        message:
+          result.responsetext || "Credit transaction completed successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -339,7 +346,7 @@ export class CustomerVault {
     additionalOptions?: Partial<OfflineTransactionByVaultIdRequest>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: CustomerVaultResponse;
     message: string;
   }> {
     try {
@@ -354,8 +361,9 @@ export class CustomerVault {
       );
       return {
         status: 200,
-        data: result.data,
-        message: "Offline transaction completed successfully",
+        data: result,
+        message:
+          result.responsetext || "Offline transaction completed successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -387,7 +395,7 @@ export class CustomerVault {
     additionalOptions?: Partial<AddBillingForCustomerRequest>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: BillingResponse;
     message: string;
   }> {
     try {
@@ -402,8 +410,8 @@ export class CustomerVault {
       );
       return {
         status: 200,
-        data: result.data,
-        message: result.data.responsetext || "Billing added successfully",
+        data: result,
+        message: result.responsetext || "Billing added successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -436,7 +444,7 @@ export class CustomerVault {
     additionalOptions?: Partial<UpdateBillingForCustomerRequest>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: BillingResponse;
     message: string;
   }> {
     try {
@@ -451,8 +459,8 @@ export class CustomerVault {
       );
       return {
         status: 200,
-        data: result.data,
-        message: "Billing updated successfully",
+        data: result,
+        message: result.responsetext || "Billing updated successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -471,7 +479,7 @@ export class CustomerVault {
     additionalOptions?: Partial<DeleteBillingForCustomerRequest>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: BillingResponse;
     message: string;
   }> {
     try {
@@ -486,8 +494,8 @@ export class CustomerVault {
       );
       return {
         status: 200,
-        data: result.data,
-        message: "Billing deleted successfully",
+        data: result,
+        message: result.responsetext || "Billing deleted successfully",
       };
     } catch (error: any) {
       console.log(error);
@@ -505,7 +513,7 @@ export class CustomerVault {
     additionalOptions?: Partial<DeleteCustomerRecord>
   ): Promise<{
     status: number;
-    data?: any;
+    data?: CustomerVaultResponse;
     message: string;
   }> {
     try {
@@ -520,8 +528,8 @@ export class CustomerVault {
       );
       return {
         status: 200,
-        data: result.data,
-        message: "Customer deleted successfully",
+        data: result,
+        message: result.responsetext || "Customer deleted successfully",
       };
     } catch (error: any) {
       console.log(error);

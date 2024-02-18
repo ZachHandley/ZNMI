@@ -113,5 +113,6 @@ For more detailed information on transaction types, response variables, and test
 
 ### Changelog
 
+0.1.3 - Added return types to all functions
 0.1.2 - Added additional methods I forgot to customerVault, added more tests for data to use in my integration package
 0.1.1 - Fixed Vite dependency instead of dev dependency

@@ -6,8 +6,8 @@ import {
   RefundTransactionSchema,
   VoidTransactionRequestSchema,
   UpdateTransactionRequestSchema,
-  TransactionResponseSchema,
 } from "../types/transactionSchemas";
+import { TransactionResponseSchema } from "../types/transactionSchemas";
 
 type TransactionRequest = z.infer<typeof TransactionRequestSchema>;
 type CaptureTransactionRequest = z.infer<

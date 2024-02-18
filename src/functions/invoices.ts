@@ -6,12 +6,14 @@ import {
   SendInvoiceRequestSchema,
 } from "@/types/invoiceRequestSchemas";
 import { InvoicesApi } from "@/api/invoicesApi";
+import { InvoiceResponseSchema } from "@/types/responseTypes";
 import { z } from "zod";
 
 type CreateInvoiceRequest = z.infer<typeof CreateInvoiceRequestSchema>;
 type UpdateInvoiceRequest = z.infer<typeof UpdateInvoiceRequestSchema>;
 type CloseInvoiceRequest = z.infer<typeof CloseInvoiceRequestSchema>;
 type SendInvoiceRequest = z.infer<typeof SendInvoiceRequestSchema>;
+type InvoiceResponse = z.infer<typeof InvoiceResponseSchema>;
 
 export class Invoices {
   invoicesApi: InvoicesApi;
@@ -54,7 +56,11 @@ export class Invoices {
       website?: string;
     },
     additionalOptions?: Partial<CreateInvoiceRequest>
-  ) {
+  ): Promise<{
+    status: number;
+    data?: InvoiceResponse;
+    message: string;
+  }> {
     try {
       if (!invoiceData && !additionalOptions) {
         return {
@@ -74,7 +80,7 @@ export class Invoices {
       const result = await this.invoicesApi.createInvoice(request);
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Invoice created",
       };
     } catch (error: any) {
@@ -111,7 +117,11 @@ export class Invoices {
       website?: string;
     },
     additionalOptions?: Partial<UpdateInvoiceRequest>
-  ) {
+  ): Promise<{
+    status: number;
+    data?: InvoiceResponse;
+    message: string;
+  }> {
     try {
       if (!invoiceData && !additionalOptions) {
         return {
@@ -129,7 +139,7 @@ export class Invoices {
       const result = await this.invoicesApi.updateInvoice(request);
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Invoice updated",
       };
     } catch (error) {
@@ -145,7 +155,11 @@ export class Invoices {
       invoice_id?: string;
     },
     additionalOptions?: Partial<CloseInvoiceRequest>
-  ) {
+  ): Promise<{
+    status: number;
+    data?: InvoiceResponse;
+    message: string;
+  }> {
     try {
       if (
         !invoiceData &&
@@ -166,7 +180,7 @@ export class Invoices {
       const result = await this.invoicesApi.closeInvoice(request);
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Invoice closed",
       };
     } catch (error) {
@@ -183,7 +197,11 @@ export class Invoices {
       invoice_id?: string;
     },
     additionalOptions?: Partial<SendInvoiceRequest>
-  ) {
+  ): Promise<{
+    status: number;
+    data?: InvoiceResponse;
+    message: string;
+  }> {
     try {
       if (
         !invoiceData ||
@@ -206,7 +224,7 @@ export class Invoices {
       const result = await this.invoicesApi.sendInvoice(request);
       return {
         status: 200,
-        data: result.data,
+        data: result,
         message: "Invoice sent",
       };
     } catch (error) {

@@ -4,8 +4,9 @@ import {
   DeleteProductRequestSchema,
   PRODUCT_MANAGER_URL,
 } from "../types/productManagerRequest";
-import { z } from "zod";
+import { ProductResponseSchema } from "@/types/responseTypes";
 import { PostRequest } from "./utils";
+import { z } from "zod";
 
 type AddProductRequest = z.infer<typeof AddProductRequestSchema>;
 type UpdateProductRequest = z.infer<typeof UpdateProductRequestSchema>;
@@ -25,18 +26,25 @@ export class ProductManagerApi {
     };
   };
 
+  parseResponse = (data: any) => {
+    return ProductResponseSchema.parse(data);
+  };
+
   addProduct = async (addProductRequest: AddProductRequest) => {
     const request = this.beforeRequest(addProductRequest);
-    return PostRequest(PRODUCT_MANAGER_URL, request);
+    const response = await PostRequest(PRODUCT_MANAGER_URL, request);
+    return this.parseResponse(response.data);
   };
 
   updateProduct = async (updateProductRequest: UpdateProductRequest) => {
     const request = this.beforeRequest(updateProductRequest);
-    return PostRequest(PRODUCT_MANAGER_URL, request);
+    const response = await PostRequest(PRODUCT_MANAGER_URL, request);
+    return this.parseResponse(response.data);
   };
 
   deleteProduct = async (deleteProductRequest: DeleteProductRequest) => {
     const request = this.beforeRequest(deleteProductRequest);
-    return PostRequest(PRODUCT_MANAGER_URL, request);
+    const response = await PostRequest(PRODUCT_MANAGER_URL, request);
+    return this.parseResponse(response.data);
   };
 }
