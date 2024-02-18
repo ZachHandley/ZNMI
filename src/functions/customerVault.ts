@@ -191,6 +191,181 @@ export class CustomerVault {
     }
   }
 
+  async validateCustomerByVaultId(
+    validateData?: {
+      customer_vault_id: string | number;
+    },
+    additionalOptions?: Partial<ValidateCustomerVaultIdRequest>
+  ): Promise<{
+    status: number;
+    data?: any;
+    message: string;
+  }> {
+    try {
+      const validateCustomerByVaultId: ValidateCustomerVaultIdRequest =
+        ValidateCustomerByVaultIdRequestSchema.parse({
+          type: "validate",
+          ...validateData,
+          ...additionalOptions,
+        });
+      const result = await this.customerVaultApi.validateCustomerVaultId(
+        validateCustomerByVaultId
+      );
+      return {
+        status: 200,
+        data: result.data,
+        message: "Customer validated successfully",
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 500,
+        message: `Error in validateCustomerByVaultId ${error.message}`,
+      };
+    }
+  }
+
+  async authorizeCustomerByVaultId(
+    authorizeData?: {
+      customer_vault_id: string | number;
+      amount: number;
+    },
+    additionalOptions?: Partial<AuthorizeCustomerByVaultIdRequest>
+  ): Promise<{
+    status: number;
+    data?: any;
+    message: string;
+  }> {
+    try {
+      const authorizeCustomerByVaultId: AuthorizeCustomerByVaultIdRequest =
+        AuthorizeCustomerByVaultIdRequestSchema.parse({
+          type: "auth",
+          ...authorizeData,
+          ...additionalOptions,
+        });
+      const result = await this.customerVaultApi.authorizeCustomerByVaultId(
+        authorizeCustomerByVaultId
+      );
+      return {
+        status: 200,
+        data: result.data,
+        message: "Customer authorized successfully",
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 500,
+        message: `Error in authorizeCustomerByVaultId ${error.message}`,
+      };
+    }
+  }
+
+  async saleByVaultId(
+    saleData?: {
+      customer_vault_id: string | number;
+      amount: number;
+      billing_id?: string;
+    },
+    additionalOptions?: Partial<SaleByVaultIdRequest>
+  ): Promise<{
+    status: number;
+    data?: any;
+    message: string;
+  }> {
+    try {
+      const saleByVaultId: SaleByVaultIdRequest =
+        SaleByVaultIdRequestSchema.parse({
+          type: "sale",
+          ...saleData,
+          ...additionalOptions,
+        });
+      const result = await this.customerVaultApi.saleByVaultId(saleByVaultId);
+      return {
+        status: 200,
+        data: result.data,
+        message: "Sale completed successfully",
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 500,
+        message: `Error in saleByVaultId ${error.message}`,
+      };
+    }
+  }
+
+  async creditTransactionByVaultId(
+    creditData?: {
+      customer_vault_id: string | number;
+      amount: number;
+      billing_id?: string;
+    },
+    additionalOptions?: Partial<CreditTransactionByVaultIdRequest>
+  ): Promise<{
+    status: number;
+    data?: any;
+    message: string;
+  }> {
+    try {
+      const creditTransactionByVaultId: CreditTransactionByVaultIdRequest =
+        CreditTransactionByVaultIdRequestSchema.parse({
+          type: "credit",
+          ...creditData,
+          ...additionalOptions,
+        });
+      const result = await this.customerVaultApi.creditTransactionByVaultId(
+        creditTransactionByVaultId
+      );
+      return {
+        status: 200,
+        data: result.data,
+        message: "Credit transaction completed successfully",
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 500,
+        message: `Error in creditTransactionByVaultId ${error.message}`,
+      };
+    }
+  }
+
+  async offlineTransactionByVaultId(
+    offlineData?: {
+      customer_vault_id: string | number;
+      amount: number;
+      billing_id?: string;
+    },
+    additionalOptions?: Partial<OfflineTransactionByVaultIdRequest>
+  ): Promise<{
+    status: number;
+    data?: any;
+    message: string;
+  }> {
+    try {
+      const offlineTransactionByVaultId: OfflineTransactionByVaultIdRequest =
+        OfflineTransactionByVaultIdRequestSchema.parse({
+          type: "offline",
+          ...offlineData,
+          ...additionalOptions,
+        });
+      const result = await this.customerVaultApi.offlineTransactionByVaultId(
+        offlineTransactionByVaultId
+      );
+      return {
+        status: 200,
+        data: result.data,
+        message: "Offline transaction completed successfully",
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 500,
+        message: `Error in offlineTransactionByVaultId ${error.message}`,
+      };
+    }
+  }
+
   async addBillingToCustomer(
     billingData?: {
       customer_vault_id: string | number;
@@ -319,6 +494,40 @@ export class CustomerVault {
       return {
         status: 500,
         message: `Error in deleteBillingForCustomer ${error.message}`,
+      };
+    }
+  }
+
+  async deleteCustomerRecord(
+    deleteData?: {
+      customer_vault_id: string | number;
+    },
+    additionalOptions?: Partial<DeleteCustomerRecord>
+  ): Promise<{
+    status: number;
+    data?: any;
+    message: string;
+  }> {
+    try {
+      const deleteCustomerRecord: DeleteCustomerRecord =
+        DeleteCustomerRecordSchema.parse({
+          customer_vault: "delete_customer",
+          ...deleteData,
+          ...additionalOptions,
+        });
+      const result = await this.customerVaultApi.deleteCustomer(
+        deleteCustomerRecord
+      );
+      return {
+        status: 200,
+        data: result.data,
+        message: "Customer deleted successfully",
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 500,
+        message: `Error in deleteCustomerRecord ${error.message}`,
       };
     }
   }

@@ -216,6 +216,7 @@ export const AuthorizeCustomerByVaultIdRequestSchema = z.object({
     .or(z.number())
     .describe(`The customer vault id of the customer to authorize`),
   amount: z.number().describe(`The amount of the transaction to be processed`),
+  billing_id: z.string().optional().describe(`The billing id of the customer`),
 });
 
 export const CreditTransactionByVaultIdRequestSchema = z.object({
@@ -225,6 +226,7 @@ export const CreditTransactionByVaultIdRequestSchema = z.object({
     .or(z.number())
     .describe(`The customer vault id of the customer to credit`),
   amount: z.number().describe(`The amount of the transaction to be processed`),
+  billing_id: z.string().optional().describe(`The billing id of the customer`),
 });
 
 export const OfflineTransactionByVaultIdRequestSchema = z.object({
@@ -236,6 +238,7 @@ export const OfflineTransactionByVaultIdRequestSchema = z.object({
       `The customer vault id of the customer to process the transaction`
     ),
   amount: z.number().describe(`The amount of the transaction to be processed`),
+  billing_id: z.string().optional().describe(`The billing id of the customer`),
 });
 
 export const SaleByVaultIdRequestSchema = z.object({
@@ -247,16 +250,24 @@ export const SaleByVaultIdRequestSchema = z.object({
       `The customer vault id of the customer to process the transaction`
     ),
   amount: z.number().describe(`The amount of the transaction to be processed`),
+  billing_id: z
+    .string()
+    .optional()
+    .describe(`The billing id of the customer, used if multiple exist`),
 });
 
 export const ValidateCustomerByVaultIdRequestSchema = z.object({
-  customer_vault: z
+  type: z
     .literal("validate")
     .describe(`Validate a customer vault id in the customer vault`),
   customer_vault_id: z
     .string()
     .or(z.number())
     .describe(`The customer vault id of the customer to validate`),
+  billing_id: z
+    .string()
+    .optional()
+    .describe(`The billing id of the customer to validate`),
 });
 
 export const DeleteCustomerRecordSchema = z.object({

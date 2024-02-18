@@ -93,7 +93,7 @@ export class Recurring {
 
   async editRecurringPlan(
     planDetails?: {
-      plan_id?: string;
+      current_plan_id?: string;
       plan_name?: string;
       plan_amount?: number;
       plan_payments?: number;
@@ -115,7 +115,6 @@ export class Recurring {
         };
       }
       const {
-        plan_id,
         plan_name,
         plan_amount,
         plan_payments,

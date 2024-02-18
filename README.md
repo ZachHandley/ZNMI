@@ -110,3 +110,8 @@ This command will run all tests defined in the `znmi.test.ts` file, which also h
 ## Further Reading
 
 For more detailed information on transaction types, response variables, and testing methods, please refer to the official card brand documentation and the NMI API documentation. These resources provide comprehensive guidelines and best practices for integrating payment gateway services into your applications.
+
+### Changelog
+
+0.1.2 - Added additional methods I forgot to customerVault, added more tests for data to use in my integration package
+0.1.1 - Fixed Vite dependency instead of dev dependency

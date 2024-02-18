@@ -115,10 +115,27 @@ describe("ZNMI", () => {
     expect(response.data?.response).toBe("1");
   });
 
+  let transactionId: string;
+
+  it("should authorize a transaction using Transactions object", async () => {
+    const authorizeTransactionRequest = {
+      ccnumber: "4111111111111111",
+      ccexp: "1025",
+      cvv: "123",
+      amount: 10,
+    };
+    const response = await znmi.transactions.authorizeTransaction(
+      authorizeTransactionRequest
+    );
+    transactionId = response.data?.transactionid ?? "";
+    expect(response.data).toBeDefined();
+    expect(response.data?.response).toBe("1");
+  });
+
   // Capture Transaction
   it("should capture a transaction using Transactions object", async () => {
     const captureTransactionRequest = {
-      transactionid: "9224298113",
+      transactionid: transactionId,
       amount: 10,
     };
     const response = await znmi.transactions.captureTransaction(
@@ -126,21 +143,21 @@ describe("ZNMI", () => {
     );
     expect(response.data).toBeDefined();
     // Can't capture a transaction without a transaction id
-    expect(response.data?.response).toBe("3");
+    expect(response.data?.response).toBe("1");
   });
 
   // Refund Transaction
   it("should refund a transaction using Transactions object", async () => {
     const refundTransactionRequest = {
-      transactionid: "9224298113",
-      amount: 50.0,
+      transactionid: transactionId,
+      amount: 10,
     };
     const response = await znmi.transactions.refundTransaction(
       refundTransactionRequest
     );
     expect(response.data).toBeDefined();
     // Can't refund a non-existent transaction
-    expect(response.data?.response).toBe("3");
+    expect(response.data?.response).toBe("1");
   });
 
   let productSku: string = `sku${Math.floor(Math.random() * 10000)}`;
@@ -213,7 +230,7 @@ describe("ZNMI", () => {
   // Update Recurring Plan
   it("should update a recurring plan using Recurring object", async () => {
     const updateRecurringPlanRequest = {
-      plan_id: subscriptionId,
+      current_plan_id: subscriptionId,
       plan_name: "Monthly Subscription",
       plan_amount: 9.99,
       day_frequency: 31,
