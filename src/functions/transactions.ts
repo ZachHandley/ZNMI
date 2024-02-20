@@ -33,12 +33,12 @@ export class Transactions {
 
   async createTransaction(
     transactionData?: {
-      amount?: number;
-      ccnumber?: string;
-      ccexp?: string;
-      cvv?: string;
-      transactionType?: "sale" | "auth" | "credit" | "validate" | "offline";
-      payment?: "creditcard" | "check";
+      amount: number;
+      ccnumber: string;
+      ccexp: string;
+      cvv: string;
+      transactionType: "sale" | "auth" | "credit" | "validate" | "offline";
+      payment: "creditcard" | "check";
     },
     additionalOptions?: Partial<TransactionRequest>
   ): Promise<{
@@ -53,11 +53,17 @@ export class Transactions {
           message: "Invalid request",
         };
       }
-      const transactionRequest: TransactionRequest =
-        TransactionRequestSchema.parse({
-          ...transactionData,
-          ...additionalOptions,
-        });
+      const parsed = TransactionRequestSchema.safeParse({
+        ...transactionData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for createTransaction: ${parsed.error.message}`,
+        };
+      }
+      const transactionRequest: TransactionRequest = parsed.data;
       const result = await this.transactionsApi.createTransaction(
         transactionRequest
       );
@@ -77,10 +83,10 @@ export class Transactions {
 
   async authorizeTransaction(
     transactionData?: {
-      amount?: number;
-      ccnumber?: string;
-      ccexp?: string;
-      cvv?: string;
+      amount: number;
+      ccnumber: string;
+      ccexp: string;
+      cvv: string;
     },
     additionalOptions?: Partial<TransactionRequest>
   ): Promise<{
@@ -95,13 +101,19 @@ export class Transactions {
           message: "Invalid request",
         };
       }
-      const transactionRequest: TransactionRequest =
-        TransactionRequestSchema.parse({
-          type: "auth",
-          payment: "creditcard",
-          ...transactionData,
-          ...additionalOptions,
-        });
+      const parsed = TransactionRequestSchema.safeParse({
+        type: "auth",
+        payment: "creditcard",
+        ...transactionData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for authorizeTransaction: ${parsed.error.message}`,
+        };
+      }
+      const transactionRequest: TransactionRequest = parsed.data;
       const result = await this.transactionsApi.createTransaction(
         transactionRequest
       );
@@ -119,11 +131,14 @@ export class Transactions {
     }
   }
 
-  async validateTransaction(transactionData?: {
-    ccnumber?: string;
-    ccexp?: string;
-    cvv?: string;
-  }): Promise<{
+  async validateTransaction(
+    transactionData?: {
+      ccnumber: string;
+      ccexp: string;
+      cvv: string;
+    },
+    additionalOptions?: Partial<TransactionRequest>
+  ): Promise<{
     status: number;
     data?: TransactionResponse;
     message: string;
@@ -135,12 +150,19 @@ export class Transactions {
           message: "Invalid request",
         };
       }
-      const transactionRequest: TransactionRequest =
-        TransactionRequestSchema.parse({
-          type: "validate",
-          payment: "creditcard",
-          ...transactionData,
-        });
+      const parsed = TransactionRequestSchema.safeParse({
+        type: "validate",
+        payment: "creditcard",
+        ...transactionData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for validateTransaction: ${parsed.error.message}`,
+        };
+      }
+      const transactionRequest: TransactionRequest = parsed.data;
       const result = await this.transactionsApi.createTransaction(
         transactionRequest
       );
@@ -160,8 +182,8 @@ export class Transactions {
 
   async captureTransaction(
     transactionData?: {
-      transactionid?: string;
-      amount?: number;
+      transactionid: string;
+      amount: number;
     },
     additionalOptions: Partial<CaptureTransactionRequest> = {}
   ): Promise<{
@@ -176,12 +198,18 @@ export class Transactions {
           message: "Invalid request",
         };
       }
-      const captureRequest: CaptureTransactionRequest =
-        CaptureTransactionRequestSchema.parse({
-          type: "capture",
-          ...transactionData,
-          ...additionalOptions,
-        });
+      const parsed = CaptureTransactionRequestSchema.safeParse({
+        type: "capture",
+        ...transactionData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for captureTransaction: ${parsed.error.message}`,
+        };
+      }
+      const captureRequest: CaptureTransactionRequest = parsed.data;
       const result = await this.transactionsApi.captureTransaction(
         captureRequest
       );
@@ -201,8 +229,8 @@ export class Transactions {
 
   async refundTransaction(
     transactionData?: {
-      transactionid?: string;
-      amount?: number;
+      transactionid: string;
+      amount: number;
     },
     additionalOptions: Partial<RefundTransaction> = {}
   ): Promise<{
@@ -217,11 +245,18 @@ export class Transactions {
           message: "Invalid request",
         };
       }
-      const refundRequest: RefundTransaction = RefundTransactionSchema.parse({
+      const parsed = RefundTransactionSchema.safeParse({
         type: "refund",
         ...transactionData,
         ...additionalOptions,
       });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for refundTransaction: ${parsed.error.message}`,
+        };
+      }
+      const refundRequest: RefundTransaction = parsed.data;
       const result = await this.transactionsApi.refundTransaction(
         refundRequest
       );
@@ -241,7 +276,7 @@ export class Transactions {
 
   async voidTransaction(
     transactionData?: {
-      transactionid?: string;
+      transactionid: string;
     },
     additionalOptions: Partial<VoidTransactionRequest> = {}
   ): Promise<{
@@ -256,12 +291,18 @@ export class Transactions {
           message: "Invalid request",
         };
       }
-      const voidRequest: VoidTransactionRequest =
-        VoidTransactionRequestSchema.parse({
-          type: "void",
-          ...transactionData,
-          ...additionalOptions,
-        });
+      const parsed = VoidTransactionRequestSchema.safeParse({
+        type: "void",
+        ...transactionData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for voidTransaction: ${parsed.error.message}`,
+        };
+      }
+      const voidRequest: VoidTransactionRequest = parsed.data;
       const result = await this.transactionsApi.voidTransaction(voidRequest);
       return {
         status: 200,
@@ -279,7 +320,7 @@ export class Transactions {
 
   async updateTransaction(
     transactionData?: {
-      transactionid?: string;
+      transactionid: string;
     },
     additionalOptions: Partial<UpdateTransactionRequest> = {}
   ): Promise<{
@@ -294,12 +335,18 @@ export class Transactions {
           message: "Invalid request",
         };
       }
-      const updateRequest: UpdateTransactionRequest =
-        UpdateTransactionRequestSchema.parse({
-          type: "update",
-          ...transactionData,
-          ...additionalOptions,
-        });
+      const parsed = UpdateTransactionRequestSchema.safeParse({
+        type: "update",
+        ...transactionData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for updateTransaction: ${parsed.error.message}`,
+        };
+      }
+      const updateRequest: UpdateTransactionRequest = parsed.data;
       const result = await this.transactionsApi.updateTransaction(
         updateRequest
       );

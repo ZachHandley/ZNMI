@@ -55,12 +55,18 @@ export class Products {
           message: "Invalid request",
         };
       }
-      const addProductRequest: AddProductRequest =
-        AddProductRequestSchema.parse({
-          products: "add_product",
-          ...productData,
-          ...additionalOptions,
-        });
+      const parsed = AddProductRequestSchema.safeParse({
+        products: "add_product",
+        ...productData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for addProduct ${parsed.error.message}`,
+        };
+      }
+      const addProductRequest: AddProductRequest = parsed.data;
       const request = this.beforeRequest(addProductRequest);
       const result = await this.productManagerApi.addProduct(request);
       return {
@@ -103,12 +109,18 @@ export class Products {
           message: "Invalid request",
         };
       }
-      const updateProductRequest: UpdateProductRequest =
-        UpdateProductRequestSchema.parse({
-          products: "update_product",
-          ...productData,
-          ...additionalOptions,
-        });
+      const parsed = UpdateProductRequestSchema.safeParse({
+        products: "update_product",
+        ...productData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for updateProduct ${parsed.error.message}`,
+        };
+      }
+      const updateProductRequest: UpdateProductRequest = parsed.data;
       const request = this.beforeRequest(updateProductRequest);
       const result = await this.productManagerApi.updateProduct(request);
       return {
@@ -144,12 +156,18 @@ export class Products {
           message: "product_id is required",
         };
       }
-      const deleteProductRequest: DeleteProductRequest =
-        DeleteProductRequestSchema.parse({
-          products: "delete_product",
-          ...productData,
-          ...additionalOptions,
-        });
+      const parsed = DeleteProductRequestSchema.safeParse({
+        products: "delete_product",
+        ...productData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for deleteProduct ${parsed.error.message}`,
+        };
+      }
+      const deleteProductRequest: DeleteProductRequest = parsed.data;
       const request = this.beforeRequest(deleteProductRequest);
       const result = await this.productManagerApi.deleteProduct(request);
       return {

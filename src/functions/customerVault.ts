@@ -90,12 +90,18 @@ export class CustomerVault {
           message: "Invalid request",
         };
       }
-      const addCustomerRequest: AddUpdateCustomerRequest =
-        AddUpdateCustomerRequestSchema.parse({
-          customer_vault: "add_customer",
-          ...customerData,
-          ...additionalOptions,
-        });
+      const parsed = AddUpdateCustomerRequestSchema.safeParse({
+        customer_vault: "add_customer",
+        ...customerData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data ${parsed.error.message}`,
+        };
+      }
+      const addCustomerRequest: AddUpdateCustomerRequest = parsed.data;
       const result = await this.customerVaultApi.addOrUpdateCustomer(
         addCustomerRequest
       );
@@ -138,12 +144,18 @@ export class CustomerVault {
     message: string;
   }> {
     try {
-      const updateCustomerRequest: AddUpdateCustomerRequest =
-        AddUpdateCustomerRequestSchema.parse({
-          customer_vault: "update_customer",
-          ...customerData,
-          ...additionalOptions,
-        });
+      const parsed = AddUpdateCustomerRequestSchema.safeParse({
+        customer_vault: "update_customer",
+        ...customerData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data ${parsed.error.message}`,
+        };
+      }
+      const updateCustomerRequest: AddUpdateCustomerRequest = parsed.data;
       const result = await this.customerVaultApi.addOrUpdateCustomer(
         updateCustomerRequest
       );
@@ -173,12 +185,19 @@ export class CustomerVault {
     message: string;
   }> {
     try {
+      const parsed = CustomerVaultInitiatedTransactionSchema.safeParse({
+        customer_vault: "initiate_transaction",
+        ...transactionData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data ${parsed.error.message}`,
+        };
+      }
       const customerVaultInitiatedTransaction: CustomerVaultInitiatedTransaction =
-        CustomerVaultInitiatedTransactionSchema.parse({
-          customer_vault: "initiate_transaction",
-          ...transactionData,
-          ...additionalOptions,
-        });
+        parsed.data;
       const result =
         await this.customerVaultApi.initiateCustomerVaultTransaction(
           customerVaultInitiatedTransaction
@@ -210,12 +229,19 @@ export class CustomerVault {
     message: string;
   }> {
     try {
+      const parsed = ValidateCustomerByVaultIdRequestSchema.safeParse({
+        type: "validate",
+        ...validateData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for validateCustomerByVaultId ${parsed.error.message}`,
+        };
+      }
       const validateCustomerByVaultId: ValidateCustomerVaultIdRequest =
-        ValidateCustomerByVaultIdRequestSchema.parse({
-          type: "validate",
-          ...validateData,
-          ...additionalOptions,
-        });
+        parsed.data;
       const result = await this.customerVaultApi.validateCustomerVaultId(
         validateCustomerByVaultId
       );
@@ -245,59 +271,32 @@ export class CustomerVault {
     message: string;
   }> {
     try {
+      const parsed = AuthorizeCustomerByVaultIdRequestSchema.safeParse({
+        type: "auth",
+        ...authorizeData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for authorizeCustomerByVaultId ${parsed.error.message}`,
+        };
+      }
       const authorizeCustomerByVaultId: AuthorizeCustomerByVaultIdRequest =
-        AuthorizeCustomerByVaultIdRequestSchema.parse({
-          type: "auth",
-          ...authorizeData,
-          ...additionalOptions,
-        });
+        parsed.data;
       const result = await this.customerVaultApi.authorizeCustomerByVaultId(
         authorizeCustomerByVaultId
       );
       return {
         status: 200,
         data: result,
-        message: result.responsetext || "Customer authorized successfully",
+        message: result.responsetext || "Authorization completed successfully",
       };
     } catch (error: any) {
       console.log(error);
       return {
         status: 500,
         message: `Error in authorizeCustomerByVaultId ${error.message}`,
-      };
-    }
-  }
-
-  async saleByVaultId(
-    saleData?: {
-      customer_vault_id: string | number;
-      amount: number;
-      billing_id?: string;
-    },
-    additionalOptions?: Partial<SaleByVaultIdRequest>
-  ): Promise<{
-    status: number;
-    data?: CustomerVaultResponse;
-    message: string;
-  }> {
-    try {
-      const saleByVaultId: SaleByVaultIdRequest =
-        SaleByVaultIdRequestSchema.parse({
-          type: "sale",
-          ...saleData,
-          ...additionalOptions,
-        });
-      const result = await this.customerVaultApi.saleByVaultId(saleByVaultId);
-      return {
-        status: 200,
-        data: result,
-        message: result.responsetext || "Sale completed successfully",
-      };
-    } catch (error: any) {
-      console.log(error);
-      return {
-        status: 500,
-        message: `Error in saleByVaultId ${error.message}`,
       };
     }
   }
@@ -315,12 +314,19 @@ export class CustomerVault {
     message: string;
   }> {
     try {
+      const parsed = CreditTransactionByVaultIdRequestSchema.safeParse({
+        type: "credit",
+        ...creditData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for creditTransactionByVaultId ${parsed.error.message}`,
+        };
+      }
       const creditTransactionByVaultId: CreditTransactionByVaultIdRequest =
-        CreditTransactionByVaultIdRequestSchema.parse({
-          type: "credit",
-          ...creditData,
-          ...additionalOptions,
-        });
+        parsed.data;
       const result = await this.customerVaultApi.creditTransactionByVaultId(
         creditTransactionByVaultId
       );
@@ -352,12 +358,19 @@ export class CustomerVault {
     message: string;
   }> {
     try {
+      const parsed = OfflineTransactionByVaultIdRequestSchema.safeParse({
+        type: "offline",
+        ...offlineData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for offlineTransactionByVaultId ${parsed.error.message}`,
+        };
+      }
       const offlineTransactionByVaultId: OfflineTransactionByVaultIdRequest =
-        OfflineTransactionByVaultIdRequestSchema.parse({
-          type: "offline",
-          ...offlineData,
-          ...additionalOptions,
-        });
+        parsed.data;
       const result = await this.customerVaultApi.offlineTransactionByVaultId(
         offlineTransactionByVaultId
       );
@@ -401,12 +414,18 @@ export class CustomerVault {
     message: string;
   }> {
     try {
-      const addBillingRequest: AddBillingForCustomerRequest =
-        AddBillingForCustomerRequestSchema.parse({
-          customer_vault: "add_billing",
-          ...billingData,
-          ...additionalOptions,
-        });
+      const parsed = AddBillingForCustomerRequestSchema.safeParse({
+        customer_vault: "add_billing",
+        ...billingData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for addBillingToCustomer ${parsed.error.message}`,
+        };
+      }
+      const addBillingRequest: AddBillingForCustomerRequest = parsed.data;
       const result = await this.customerVaultApi.addBillingForCustomer(
         addBillingRequest
       );
@@ -450,12 +469,18 @@ export class CustomerVault {
     message: string;
   }> {
     try {
-      const updateBillingRequest: UpdateBillingForCustomerRequest =
-        UpdateBillingForCustomerRequestSchema.parse({
-          customer_vault: "update_billing",
-          ...billingData,
-          ...additionalOptions,
-        });
+      const parsed = UpdateBillingForCustomerRequestSchema.safeParse({
+        customer_vault: "update_billing",
+        ...billingData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for updateBillingForCustomer ${parsed.error.message}`,
+        };
+      }
+      const updateBillingRequest: UpdateBillingForCustomerRequest = parsed.data;
       const result = await this.customerVaultApi.updateBillingForCustomer(
         updateBillingRequest
       );
@@ -485,12 +510,18 @@ export class CustomerVault {
     message: string;
   }> {
     try {
-      const deleteBillingRequest: DeleteBillingForCustomerRequest =
-        DeleteBillingForCustomerRequestSchema.parse({
-          customer_vault: "delete_billing",
-          ...deleteData,
-          ...additionalOptions,
-        });
+      const parsed = DeleteBillingForCustomerRequestSchema.safeParse({
+        customer_vault: "delete_billing",
+        ...deleteData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for deleteBillingForCustomer ${parsed.error.message}`,
+        };
+      }
+      const deleteBillingRequest: DeleteBillingForCustomerRequest = parsed.data;
       const result = await this.customerVaultApi.deleteBillingForCustomer(
         deleteBillingRequest
       );
@@ -519,12 +550,18 @@ export class CustomerVault {
     message: string;
   }> {
     try {
-      const deleteCustomerRecord: DeleteCustomerRecord =
-        DeleteCustomerRecordSchema.parse({
-          customer_vault: "delete_customer",
-          ...deleteData,
-          ...additionalOptions,
-        });
+      const parsed = DeleteCustomerRecordSchema.safeParse({
+        customer_vault: "delete_customer",
+        ...deleteData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for deleteCustomerRecord ${parsed.error.message}`,
+        };
+      }
+      const deleteCustomerRecord: DeleteCustomerRecord = parsed.data;
       const result = await this.customerVaultApi.deleteCustomer(
         deleteCustomerRecord
       );

@@ -33,12 +33,12 @@ export class Recurring {
 
   async addRecurringPlan(
     planDetails?: {
-      plan_name?: string;
-      plan_amount?: number;
-      plan_id?: string;
-      day_frequency?: number;
-      month_frequency?: number;
-      day_of_month?: number;
+      plan_name: string;
+      plan_amount: number;
+      plan_id: string;
+      day_frequency: number;
+      month_frequency: number;
+      day_of_month: number;
     },
     planData?: Partial<AddRecurringPlan>
   ): Promise<{
@@ -70,12 +70,19 @@ export class Recurring {
           "day_frequency and month_frequency/day_of_month are mutually exclusive"
         );
       }
-      const planRequest: AddRecurringPlan = AddRecurringPlanSchema.parse({
+      const parsed = AddRecurringPlanSchema.safeParse({
         recurring: "add_plan",
         plan_payments: 0,
         ...planDetails,
         ...planData,
       });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for addRecurringPlan: ${parsed.error.message}`,
+        };
+      }
+      const planRequest: AddRecurringPlan = parsed.data;
       const result = await this.recurringApi.createRecurringPlan(planRequest);
       return {
         status: 200,
@@ -93,13 +100,13 @@ export class Recurring {
 
   async editRecurringPlan(
     planDetails?: {
-      current_plan_id?: string;
-      plan_name?: string;
-      plan_amount?: number;
-      plan_payments?: number;
-      day_frequency?: number;
-      month_frequency?: number;
-      day_of_month?: number;
+      current_plan_id: string;
+      plan_name: string;
+      plan_amount: number;
+      plan_payments: number;
+      day_frequency: number;
+      month_frequency: number;
+      day_of_month: number;
     },
     planData?: Partial<EditRecurringPlan>
   ): Promise<{
@@ -114,28 +121,18 @@ export class Recurring {
           message: "Invalid request",
         };
       }
-      const {
-        plan_name,
-        plan_amount,
-        plan_payments,
-        day_frequency,
-        month_frequency,
-        day_of_month,
-      } = planDetails || {};
-      if (!plan_name && !plan_amount && !plan_payments) {
-        throw new Error(
-          "at least one of plan_name or plan_amount or plan_payments is required"
-        );
-      } else if (day_frequency && (month_frequency || day_of_month)) {
-        throw new Error(
-          "day_frequency and month_frequency/day_of_month are mutually exclusive"
-        );
-      }
-      const planRequest: EditRecurringPlan = EditRecurringPlanSchema.parse({
+      const parsed = EditRecurringPlanSchema.safeParse({
         recurring: "edit_plan",
         ...planDetails,
         ...planData,
       });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for editRecurringPlan: ${parsed.error.message}`,
+        };
+      }
+      const planRequest: EditRecurringPlan = parsed.data;
       const result = await this.recurringApi.editRecurringPlan(planRequest);
       return {
         status: 200,
@@ -147,6 +144,70 @@ export class Recurring {
       return {
         status: 500,
         message: `Error in editRecurringPlan ${error.message}`,
+      };
+    }
+  }
+
+  async addCustomSubscriptionByCc(
+    subscriptionData?: {
+      plan_id: string;
+      start_date: string;
+      amount: number;
+      first_name: string;
+      last_name: string;
+      address1: string;
+      city: string;
+      state: string;
+      zip: string;
+      country: string;
+      phone: string;
+      email: string;
+      ccnumber: string;
+      ccexp: string;
+      cvv?: string;
+      day_frequency?: number;
+      month_frequency?: number;
+      day_of_month?: number;
+    },
+    additionalData?: Partial<AddSubscriptionToExistingPlan>
+  ): Promise<{
+    status: number;
+    data?: RecurringResponse;
+    message: string;
+  }> {
+    try {
+      if (!subscriptionData && !additionalData) {
+        return {
+          status: 400,
+          message: "Invalid request",
+        };
+      }
+      const parsed = AddSubscriptionToExistingPlanSchema.safeParse({
+        recurring: "add_subscription",
+        payment: "creditcard",
+        ...subscriptionData,
+        ...additionalData,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for addCustomSubscriptionByCc: ${parsed.error.message}`,
+        };
+      }
+      const subscriptionRequest = parsed.data;
+      const result = await this.recurringApi.addSubscriptionToExistingPlan(
+        subscriptionRequest
+      );
+      return {
+        status: 200,
+        data: result,
+        message: "Custom subscription added successfully",
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 500,
+        message: `Error in addCustomSubscriptionByCc ${error.message}`,
       };
     }
   }
@@ -186,14 +247,20 @@ export class Recurring {
           message: "Invalid request",
         };
       }
-      const subscriptionRequest: UpdateSubscription =
-        UpdateSubscriptionSchema.parse({
-          recurring: "add_subscription",
-          payment: "check",
-          ...subscriptionData,
-          ...additionalData,
-        });
-      const result = await this.recurringApi.updateSubscription(
+      const parsed = AddCustomSubscriptionSchema.safeParse({
+        recurring: "add_subscription",
+        payment: "check",
+        ...subscriptionData,
+        ...additionalData,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for addCustomSubscriptionByAch: ${parsed.error.message}`,
+        };
+      }
+      const subscriptionRequest = parsed.data;
+      const result = await this.recurringApi.addCustomSubscription(
         subscriptionRequest
       );
       return {
@@ -232,12 +299,18 @@ export class Recurring {
           message: "Invalid request",
         };
       }
-      const subscriptionRequest: UpdateSubscription =
-        UpdateSubscriptionSchema.parse({
-          recurring: "update_subscription",
-          ...subscriptionData,
-          ...additionalData,
-        });
+      const parsed = UpdateSubscriptionSchema.safeParse({
+        recurring: "update_subscription",
+        ...subscriptionData,
+        ...additionalData,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for updateSubscription: ${parsed.error.message}`,
+        };
+      }
+      const subscriptionRequest = parsed.data;
       const result = await this.recurringApi.updateSubscription(
         subscriptionRequest
       );
@@ -272,12 +345,18 @@ export class Recurring {
           message: "Invalid request",
         };
       }
-      const deleteRequest: DeleteSubscriptionRequest =
-        DeleteSubscriptionRequestSchema.parse({
-          recurring: "delete_subscription",
-          ...subscriptionData,
-          ...additionalData,
-        });
+      const parsed = DeleteSubscriptionRequestSchema.safeParse({
+        recurring: "delete_subscription",
+        ...subscriptionData,
+        ...additionalData,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for deleteSubscription: ${parsed.error.message}`,
+        };
+      }
+      const deleteRequest = parsed.data;
       const result = await this.recurringApi.deleteSubscription(deleteRequest);
       return {
         status: 200,

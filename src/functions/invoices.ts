@@ -37,6 +37,7 @@ export class Invoices {
       email: string;
       tax?: number;
       payment_terms?: "upon_receipt" | number;
+      payment_terms_allowed?: ("cc" | "ck" | "cs")[];
       shipping?: number;
       customer_id?: string;
       currency?: string;
@@ -68,14 +69,20 @@ export class Invoices {
           message: "Invalid request",
         };
       }
-      const createInvoiceRequest: CreateInvoiceRequest =
-        CreateInvoiceRequestSchema.parse({
-          invoicing: "add_invoice",
-          payment_terms: "upon_receipt",
-          payment_terms_allowed: ["cc", "ck", "cs"],
-          ...invoiceData,
-          ...additionalOptions,
-        });
+      const parsed = CreateInvoiceRequestSchema.safeParse({
+        invoicing: "add_invoice",
+        payment_terms: "upon_receipt",
+        payment_terms_allowed: ["cc", "ck", "cs"],
+        ...invoiceData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for createInvoice ${parsed.error.message}`,
+        };
+      }
+      const createInvoiceRequest: CreateInvoiceRequest = parsed.data;
       const request = this.beforeRequest(createInvoiceRequest);
       const result = await this.invoicesApi.createInvoice(request);
       return {
@@ -129,12 +136,18 @@ export class Invoices {
           message: "Invalid request",
         };
       }
-      const updateInvoiceRequest: UpdateInvoiceRequest =
-        UpdateInvoiceRequestSchema.parse({
-          invoicing: "update_invoice",
-          ...invoiceData,
-          ...additionalOptions,
-        });
+      const parsed = UpdateInvoiceRequestSchema.safeParse({
+        invoicing: "update_invoice",
+        ...invoiceData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for updateInvoice ${parsed.error.message}`,
+        };
+      }
+      const updateInvoiceRequest: UpdateInvoiceRequest = parsed.data;
       const request = this.beforeRequest(updateInvoiceRequest);
       const result = await this.invoicesApi.updateInvoice(request);
       return {
@@ -170,12 +183,18 @@ export class Invoices {
           message: "invoice_id is required",
         };
       }
-      const closeInvoiceRequest: CloseInvoiceRequest =
-        CloseInvoiceRequestSchema.parse({
-          invoicing: "close_invoice",
-          ...invoiceData,
-          ...additionalOptions,
-        });
+      const parsed = CloseInvoiceRequestSchema.safeParse({
+        invoicing: "close_invoice",
+        ...invoiceData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for closeInvoice ${parsed.error.message}`,
+        };
+      }
+      const closeInvoiceRequest: CloseInvoiceRequest = parsed.data;
       const request = this.beforeRequest(closeInvoiceRequest);
       const result = await this.invoicesApi.closeInvoice(request);
       return {
@@ -214,12 +233,18 @@ export class Invoices {
           message: "invoice_id and email are required",
         };
       }
-      const sendInvoiceRequest: SendInvoiceRequest =
-        SendInvoiceRequestSchema.parse({
-          invoicing: "send_invoice",
-          ...invoiceData,
-          ...additionalOptions,
-        });
+      const parsed = SendInvoiceRequestSchema.safeParse({
+        invoicing: "send_invoice",
+        ...invoiceData,
+        ...additionalOptions,
+      });
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data for sendInvoice ${parsed.error.message}`,
+        };
+      }
+      const sendInvoiceRequest: SendInvoiceRequest = parsed.data;
       const request = this.beforeRequest(sendInvoiceRequest);
       const result = await this.invoicesApi.sendInvoice(request);
       return {

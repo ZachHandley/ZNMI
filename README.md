@@ -113,6 +113,7 @@ For more detailed information on transaction types, response variables, and test
 
 ### Changelog
 
+0.1.8 - Added missing function to recurring for adding a custom subscription by credit card, rather than only ACH, also updated ZOD parses to use safeParse rather than parse
 0.1.7 - Exported types for requests and such from the functions, in theory that'll fix the typehints not showing up
 0.1.6 - Fixed publish script order oops
 0.1.5 - Added tsc as a prepublish step to hopefully get return types fixed
