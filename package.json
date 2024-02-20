@@ -1,7 +1,7 @@
 {
   "name": "znmi",
   "type": "module",
-  "version": "0.1.3",
+  "version": "0.1.7",
   "description": "A simple and easy TypeScript wrapper around NMI's API",
   "files": [
     "dist"
@@ -18,8 +18,8 @@
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
     "start": "bun index.ts",
-    "prepublish": "vitest run",
-    "publish_pkg": "npm publish --access public"
+    "prepublish": "vitest run && bun run build",
+    "publish_pkg": "bun run prepublish && npm publish --access public"
   },
   "devDependencies": {
     "@types/bun": "latest",

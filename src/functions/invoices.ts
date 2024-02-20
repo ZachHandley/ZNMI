@@ -9,11 +9,11 @@ import { InvoicesApi } from "@/api/invoicesApi";
 import { InvoiceResponseSchema } from "@/types/responseTypes";
 import { z } from "zod";
 
-type CreateInvoiceRequest = z.infer<typeof CreateInvoiceRequestSchema>;
-type UpdateInvoiceRequest = z.infer<typeof UpdateInvoiceRequestSchema>;
-type CloseInvoiceRequest = z.infer<typeof CloseInvoiceRequestSchema>;
-type SendInvoiceRequest = z.infer<typeof SendInvoiceRequestSchema>;
-type InvoiceResponse = z.infer<typeof InvoiceResponseSchema>;
+export type CreateInvoiceRequest = z.infer<typeof CreateInvoiceRequestSchema>;
+export type UpdateInvoiceRequest = z.infer<typeof UpdateInvoiceRequestSchema>;
+export type CloseInvoiceRequest = z.infer<typeof CloseInvoiceRequestSchema>;
+export type SendInvoiceRequest = z.infer<typeof SendInvoiceRequestSchema>;
+export type InvoiceResponse = z.infer<typeof InvoiceResponseSchema>;
 
 export class Invoices {
   invoicesApi: InvoicesApi;

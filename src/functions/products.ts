@@ -8,10 +8,10 @@ import { ProductManagerApi } from "@/api/productManagerApi";
 import { ProductResponseSchema } from "@/types/responseTypes";
 import { z } from "zod";
 
-type AddProductRequest = z.infer<typeof AddProductRequestSchema>;
-type UpdateProductRequest = z.infer<typeof UpdateProductRequestSchema>;
-type DeleteProductRequest = z.infer<typeof DeleteProductRequestSchema>;
-type ProductResponse = z.infer<typeof ProductResponseSchema>;
+export type AddProductRequest = z.infer<typeof AddProductRequestSchema>;
+export type UpdateProductRequest = z.infer<typeof UpdateProductRequestSchema>;
+export type DeleteProductRequest = z.infer<typeof DeleteProductRequestSchema>;
+export type ProductResponse = z.infer<typeof ProductResponseSchema>;
 
 export class Products {
   productManagerApi: ProductManagerApi;

@@ -113,6 +113,10 @@ For more detailed information on transaction types, response variables, and test
 
 ### Changelog
 
+0.1.7 - Exported types for requests and such from the functions, in theory that'll fix the typehints not showing up
+0.1.6 - Fixed publish script order oops
+0.1.5 - Added tsc as a prepublish step to hopefully get return types fixed
+0.1.4 - Added the return types to export in index so you can use em
 0.1.3 - Added return types to all functions
 0.1.2 - Added additional methods I forgot to customerVault, added more tests for data to use in my integration package
 0.1.1 - Fixed Vite dependency instead of dev dependency

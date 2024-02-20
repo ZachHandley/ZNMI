@@ -18,35 +18,37 @@ import {
   BillingResponseSchema,
 } from "@/types/responseTypes";
 
-type AddUpdateCustomerRequest = z.infer<typeof AddUpdateCustomerRequestSchema>;
-type CustomerVaultInitiatedTransaction = z.infer<
+export type AddUpdateCustomerRequest = z.infer<
+  typeof AddUpdateCustomerRequestSchema
+>;
+export type CustomerVaultInitiatedTransaction = z.infer<
   typeof CustomerVaultInitiatedTransactionSchema
 >;
-type DeleteCustomerRecord = z.infer<typeof DeleteCustomerRecordSchema>;
-type AddBillingForCustomerRequest = z.infer<
+export type DeleteCustomerRecord = z.infer<typeof DeleteCustomerRecordSchema>;
+export type AddBillingForCustomerRequest = z.infer<
   typeof AddBillingForCustomerRequestSchema
 >;
-type UpdateBillingForCustomerRequest = z.infer<
+export type UpdateBillingForCustomerRequest = z.infer<
   typeof UpdateBillingForCustomerRequestSchema
 >;
-type DeleteBillingForCustomerRequest = z.infer<
+export type DeleteBillingForCustomerRequest = z.infer<
   typeof DeleteBillingForCustomerRequestSchema
 >;
-type ValidateCustomerVaultIdRequest = z.infer<
+export type ValidateCustomerVaultIdRequest = z.infer<
   typeof ValidateCustomerByVaultIdRequestSchema
 >;
-type AuthorizeCustomerByVaultIdRequest = z.infer<
+export type AuthorizeCustomerByVaultIdRequest = z.infer<
   typeof AuthorizeCustomerByVaultIdRequestSchema
 >;
-type SaleByVaultIdRequest = z.infer<typeof SaleByVaultIdRequestSchema>;
-type CreditTransactionByVaultIdRequest = z.infer<
+export type SaleByVaultIdRequest = z.infer<typeof SaleByVaultIdRequestSchema>;
+export type CreditTransactionByVaultIdRequest = z.infer<
   typeof CreditTransactionByVaultIdRequestSchema
 >;
-type OfflineTransactionByVaultIdRequest = z.infer<
+export type OfflineTransactionByVaultIdRequest = z.infer<
   typeof OfflineTransactionByVaultIdRequestSchema
 >;
-type CustomerVaultResponse = z.infer<typeof CustomerVaultResponseSchema>;
-type BillingResponse = z.infer<typeof BillingResponseSchema>;
+export type CustomerVaultResponse = z.infer<typeof CustomerVaultResponseSchema>;
+export type BillingResponse = z.infer<typeof BillingResponseSchema>;
 
 export class CustomerVault {
   customerVaultApi: CustomerVaultApi;

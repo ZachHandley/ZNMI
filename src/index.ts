@@ -3,6 +3,14 @@ import { CustomerVault } from "./functions/customerVault";
 import { Products } from "./functions/products";
 import { Invoices } from "./functions/invoices";
 import { Recurring } from "./functions/recurring";
+import {
+  TransactionResponseSchema,
+  RecurringResponseSchema,
+  CustomerVaultResponseSchema,
+  BillingResponseSchema,
+  ProductResponseSchema,
+  InvoiceResponseSchema,
+} from "./types/responseTypes";
 
 export class ZNMI {
   _securityKey: string;
@@ -23,3 +31,17 @@ export class ZNMI {
     this.recurring = new Recurring(securityKey);
   }
 }
+
+export {
+  TransactionResponseSchema,
+  RecurringResponseSchema,
+  CustomerVaultResponseSchema,
+  BillingResponseSchema,
+  ProductResponseSchema,
+  InvoiceResponseSchema,
+};
+export * from "./functions/transactions";
+export * from "./functions/customerVault";
+export * from "./functions/products";
+export * from "./functions/invoices";
+export * from "./functions/recurring";

@@ -9,14 +9,18 @@ import {
 } from "../types/transactionSchemas";
 import { TransactionResponseSchema } from "../types/transactionSchemas";
 
-type TransactionRequest = z.infer<typeof TransactionRequestSchema>;
-type CaptureTransactionRequest = z.infer<
+export type TransactionRequest = z.infer<typeof TransactionRequestSchema>;
+export type CaptureTransactionRequest = z.infer<
   typeof CaptureTransactionRequestSchema
 >;
-type RefundTransaction = z.infer<typeof RefundTransactionSchema>;
-type VoidTransactionRequest = z.infer<typeof VoidTransactionRequestSchema>;
-type UpdateTransactionRequest = z.infer<typeof UpdateTransactionRequestSchema>;
-type TransactionResponse = z.infer<typeof TransactionResponseSchema>;
+export type RefundTransaction = z.infer<typeof RefundTransactionSchema>;
+export type VoidTransactionRequest = z.infer<
+  typeof VoidTransactionRequestSchema
+>;
+export type UpdateTransactionRequest = z.infer<
+  typeof UpdateTransactionRequestSchema
+>;
+export type TransactionResponse = z.infer<typeof TransactionResponseSchema>;
 
 export class Transactions {
   transactionsApi: TransactionsApi;

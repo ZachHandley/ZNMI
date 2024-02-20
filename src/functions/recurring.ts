@@ -10,17 +10,17 @@ import {
 } from "../types/recurringRequest";
 import { RecurringResponseSchema } from "@/types/responseTypes";
 
-type AddRecurringPlan = z.infer<typeof AddRecurringPlanSchema>;
-type EditRecurringPlan = z.infer<typeof EditRecurringPlanSchema>;
-type AddSubscriptionToExistingPlan = z.infer<
+export type AddRecurringPlan = z.infer<typeof AddRecurringPlanSchema>;
+export type EditRecurringPlan = z.infer<typeof EditRecurringPlanSchema>;
+export type AddSubscriptionToExistingPlan = z.infer<
   typeof AddSubscriptionToExistingPlanSchema
 >;
-type AddCustomSubscription = z.infer<typeof AddCustomSubscriptionSchema>;
-type UpdateSubscription = z.infer<typeof UpdateSubscriptionSchema>;
-type DeleteSubscriptionRequest = z.infer<
+export type AddCustomSubscription = z.infer<typeof AddCustomSubscriptionSchema>;
+export type UpdateSubscription = z.infer<typeof UpdateSubscriptionSchema>;
+export type DeleteSubscriptionRequest = z.infer<
   typeof DeleteSubscriptionRequestSchema
 >;
-type RecurringResponse = z.infer<typeof RecurringResponseSchema>;
+export type RecurringResponse = z.infer<typeof RecurringResponseSchema>;
 
 export class Recurring {
   recurringApi: RecurringApi;
