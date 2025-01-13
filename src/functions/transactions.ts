@@ -1,26 +1,19 @@
 import { z } from "zod";
-import { TransactionsApi } from "../api/transactionsApi";
+import { TransactionsApi } from "../api/transactionsApi.js";
+
 import {
   TransactionRequestSchema,
   CaptureTransactionRequestSchema,
   RefundTransactionSchema,
   VoidTransactionRequestSchema,
   UpdateTransactionRequestSchema,
-} from "../types/transactionSchemas";
-import { TransactionResponseSchema } from "../types/transactionSchemas";
-
-export type TransactionRequest = z.infer<typeof TransactionRequestSchema>;
-export type CaptureTransactionRequest = z.infer<
-  typeof CaptureTransactionRequestSchema
->;
-export type RefundTransaction = z.infer<typeof RefundTransactionSchema>;
-export type VoidTransactionRequest = z.infer<
-  typeof VoidTransactionRequestSchema
->;
-export type UpdateTransactionRequest = z.infer<
-  typeof UpdateTransactionRequestSchema
->;
-export type TransactionResponse = z.infer<typeof TransactionResponseSchema>;
+  type TransactionRequest,
+  type CaptureTransactionRequest,
+  type RefundTransaction,
+  type VoidTransactionRequest,
+  type UpdateTransactionRequest,
+  type TransactionResponse,
+} from "../types/transactionSchemas.js";
 
 export class Transactions {
   transactionsApi: TransactionsApi;

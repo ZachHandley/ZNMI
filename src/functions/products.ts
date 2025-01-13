@@ -2,16 +2,13 @@ import {
   AddProductRequestSchema,
   UpdateProductRequestSchema,
   DeleteProductRequestSchema,
+  type AddProductRequest,
+  type UpdateProductRequest,
+  type DeleteProductRequest,
   PRODUCT_MANAGER_URL,
-} from "@/types/productManagerRequest";
-import { ProductManagerApi } from "@/api/productManagerApi";
-import { ProductResponseSchema } from "@/types/responseTypes";
-import { z } from "zod";
-
-export type AddProductRequest = z.infer<typeof AddProductRequestSchema>;
-export type UpdateProductRequest = z.infer<typeof UpdateProductRequestSchema>;
-export type DeleteProductRequest = z.infer<typeof DeleteProductRequestSchema>;
-export type ProductResponse = z.infer<typeof ProductResponseSchema>;
+} from "../types/productManagerRequest.js";
+import { ProductManagerApi } from "../api/productManagerApi.js";
+import type { ProductResponse } from "../types/responseTypes.js";
 
 export class Products {
   productManagerApi: ProductManagerApi;

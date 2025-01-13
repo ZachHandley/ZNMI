@@ -135,6 +135,8 @@ export const AddUpdateCustomerSchema = z.object({
     ),
 });
 
+export type AddUpdateCustomer = z.infer<typeof AddUpdateCustomerSchema>;
+
 export const AddUpdateCustomerRequestSchema = AddUpdateCustomerSchema.transform(
   (data) => {
     // Then we need to take the custom fields and turn it into merchant_defined_field_1, merchant_defined_field_2, etc.
@@ -150,6 +152,10 @@ export const AddUpdateCustomerRequestSchema = AddUpdateCustomerSchema.transform(
     return { ...data, ...transformedCustomFields };
   }
 );
+
+export type AddUpdateCustomerRequest = z.infer<
+  typeof AddUpdateCustomerRequestSchema
+>;
 
 export const CustomerVaultInitiatedTransactionSchema = z.object({
   customer_vault_id: z
@@ -209,6 +215,10 @@ details (customer credentials) you have already stored to the Customer Vault or 
 storage method.`),
 });
 
+export type CustomerVaultInitiatedTransaction = z.infer<
+  typeof CustomerVaultInitiatedTransactionSchema
+>;
+
 export const AuthorizeCustomerByVaultIdRequestSchema = z.object({
   type: z.literal("auth").describe(`The type of transaction`),
   customer_vault_id: z
@@ -219,6 +229,10 @@ export const AuthorizeCustomerByVaultIdRequestSchema = z.object({
   billing_id: z.string().optional().describe(`The billing id of the customer`),
 });
 
+export type AuthorizeCustomerByVaultIdRequest = z.infer<
+  typeof AuthorizeCustomerByVaultIdRequestSchema
+>;
+
 export const CreditTransactionByVaultIdRequestSchema = z.object({
   type: z.literal("credit").describe(`The type of transaction`),
   customer_vault_id: z
@@ -228,6 +242,10 @@ export const CreditTransactionByVaultIdRequestSchema = z.object({
   amount: z.number().describe(`The amount of the transaction to be processed`),
   billing_id: z.string().optional().describe(`The billing id of the customer`),
 });
+
+export type CreditTransactionByVaultIdRequest = z.infer<
+  typeof CreditTransactionByVaultIdRequestSchema
+>;
 
 export const OfflineTransactionByVaultIdRequestSchema = z.object({
   type: z.literal("offline").describe(`The type of transaction`),
@@ -240,6 +258,10 @@ export const OfflineTransactionByVaultIdRequestSchema = z.object({
   amount: z.number().describe(`The amount of the transaction to be processed`),
   billing_id: z.string().optional().describe(`The billing id of the customer`),
 });
+
+export type OfflineTransactionByVaultIdRequest = z.infer<
+  typeof OfflineTransactionByVaultIdRequestSchema
+>;
 
 export const SaleByVaultIdRequestSchema = z.object({
   type: z.literal("sale").describe(`The type of transaction`),
@@ -256,6 +278,8 @@ export const SaleByVaultIdRequestSchema = z.object({
     .describe(`The billing id of the customer, used if multiple exist`),
 });
 
+export type SaleByVaultIdRequest = z.infer<typeof SaleByVaultIdRequestSchema>;
+
 export const ValidateCustomerByVaultIdRequestSchema = z.object({
   type: z
     .literal("validate")
@@ -269,6 +293,10 @@ export const ValidateCustomerByVaultIdRequestSchema = z.object({
     .optional()
     .describe(`The billing id of the customer to validate`),
 });
+
+export type ValidateCustomerByVaultIdRequest = z.infer<
+  typeof ValidateCustomerByVaultIdRequestSchema
+>;
 
 export const DeleteCustomerRecordSchema = z.object({
   customer_vault: z
@@ -284,6 +312,8 @@ export const DeleteCustomerRecordSchema = z.object({
       `API Security Key assigned to a merchant account. New keys can be generated from the merchant control panel in Settings > Security Keys`
     ),
 });
+
+export type DeleteCustomerRecord = z.infer<typeof DeleteCustomerRecordSchema>;
 
 export const AddBillingForCustomerRequestSchema = z.object({
   customer_vault: z
@@ -321,12 +351,20 @@ export const AddBillingForCustomerRequestSchema = z.object({
   company: z.string().optional().describe(`The customer's company name`),
 });
 
+export type AddBillingForCustomerRequest = z.infer<
+  typeof AddBillingForCustomerRequestSchema
+>;
+
 export const UpdateBillingForCustomerRequestSchema =
   AddBillingForCustomerRequestSchema.extend({
     customer_vault: z
       .literal("update_billing")
       .describe(`Update a billing record in the customer vault`),
   });
+
+export type UpdateBillingForCustomerRequest = z.infer<
+  typeof UpdateBillingForCustomerRequestSchema
+>;
 
 export const DeleteBillingForCustomerRequestSchema = z.object({
   customer_vault: z
@@ -338,3 +376,7 @@ export const DeleteBillingForCustomerRequestSchema = z.object({
     .describe(`The customer vault id of the customer`),
   billing_id: z.string().describe(`The billing id of the customer to delete`),
 });
+
+export type DeleteBillingForCustomerRequest = z.infer<
+  typeof DeleteBillingForCustomerRequestSchema
+>;

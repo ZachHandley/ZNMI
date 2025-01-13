@@ -40,6 +40,8 @@ export const AddRecurringPlanSchema = z.object({
     ),
 });
 
+export type AddRecurringPlan = z.infer<typeof AddRecurringPlanSchema>;
+
 export const EditRecurringPlanSchema = z.object({
   recurring: z.literal("edit_plan").describe(`Edit an existing recurring plan`),
   current_plan_id: z.string().describe(`The ID of the recurring plan to edit`),
@@ -78,6 +80,8 @@ export const EditRecurringPlanSchema = z.object({
       `The day of the month to charge the customer. Cannot be set with 'day_frequency' or 'month_frequency'`
     ),
 });
+
+export type EditRecurringPlan = z.infer<typeof EditRecurringPlanSchema>;
 
 export const AddSubscriptionToExistingPlanSchema = z.object({
   recurring: z
@@ -205,6 +209,10 @@ export const AddSubscriptionToExistingPlanSchema = z.object({
     ),
 });
 
+export type AddSubscriptionToExistingPlan = z.infer<
+  typeof AddSubscriptionToExistingPlanSchema
+>;
+
 export const AddSubscriptionToExistingPlanRequestSchema =
   AddSubscriptionToExistingPlanSchema.transform((data) => {
     // Then we need to take the custom fields and turn it into merchant_defined_field_1, merchant_defined_field_2, etc.
@@ -219,6 +227,10 @@ export const AddSubscriptionToExistingPlanRequestSchema =
     // Then we return the correct object for parsing for the request
     return { ...data, ...transformedCustomFields };
   });
+
+export type AddSubscriptionToExistingPlanRequest = z.infer<
+  typeof AddSubscriptionToExistingPlanRequestSchema
+>;
 
 export const AddCustomSubscriptionSchema = z.object({
   recurring: z
@@ -376,6 +388,8 @@ export const AddCustomSubscriptionSchema = z.object({
     .describe(`Pause the subscription after creation. Defaults to false`),
 });
 
+export type AddCustomSubscription = z.infer<typeof AddCustomSubscriptionSchema>;
+
 export const AddCustomSubscriptionRequestSchema =
   AddCustomSubscriptionSchema.transform((data) => {
     // Then we need to take the custom fields and turn it into merchant_defined_field_1, merchant_defined_field_2, etc.
@@ -390,6 +404,10 @@ export const AddCustomSubscriptionRequestSchema =
     // Then we return the correct object for parsing for the request
     return { ...data, ...transformedCustomFields };
   });
+
+export type AddCustomSubscriptionRequest = z.infer<
+  typeof AddCustomSubscriptionRequestSchema
+>;
 
 export const UpdateCustomSubscriptionRequestSchema = z.object({
   recurring: z
@@ -429,6 +447,10 @@ export const UpdateCustomSubscriptionRequestSchema = z.object({
       `The day of the month to charge the customer. Cannot be set with 'day_frequency' or 'month_frequency'`
     ),
 });
+
+export type UpdateCustomSubscriptionRequest = z.infer<
+  typeof UpdateCustomSubscriptionRequestSchema
+>;
 
 export const UpdateSubscriptionSchema = z.object({
   recurring: z
@@ -582,6 +604,8 @@ export const UpdateSubscriptionSchema = z.object({
     .describe(`Pause the subscription after creation. Defaults to false`),
 });
 
+export type UpdateSubscription = z.infer<typeof UpdateSubscriptionSchema>;
+
 export const UpdateSubscriptionRequestSchema =
   UpdateSubscriptionSchema.transform((data) => {
     // Then we need to take the custom fields and turn it into merchant_defined_field_1, merchant_defined_field_2, etc.
@@ -597,9 +621,17 @@ export const UpdateSubscriptionRequestSchema =
     return { ...data, ...transformedCustomFields };
   });
 
+export type UpdateSubscriptionRequest = z.infer<
+  typeof UpdateSubscriptionRequestSchema
+>;
+
 export const DeleteSubscriptionRequestSchema = z.object({
   recurring: z
     .literal("delete_subscription")
     .describe(`Delete an existing subscription`),
   subscription_id: z.string().describe(`The ID of the subscription to delete`),
 });
+
+export type DeleteSubscriptionRequest = z.infer<
+  typeof DeleteSubscriptionRequestSchema
+>;

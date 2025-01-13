@@ -1,16 +1,17 @@
-import { Transactions } from "./functions/transactions";
-import { CustomerVault } from "./functions/customerVault";
-import { Products } from "./functions/products";
-import { Invoices } from "./functions/invoices";
-import { Recurring } from "./functions/recurring";
+import { Transactions } from "./functions/transactions.js";
+import { CustomerVault } from "./functions/customerVault.js";
+import { Products } from "./functions/products.js";
+import { Invoices } from "./functions/invoices.js";
+import { Recurring } from "./functions/recurring.js";
+
 import {
-  TransactionResponseSchema,
+  APITransactionResponseSchema,
   RecurringResponseSchema,
   CustomerVaultResponseSchema,
   BillingResponseSchema,
   ProductResponseSchema,
   InvoiceResponseSchema,
-} from "./types/responseTypes";
+} from "./types/responseTypes.js";
 
 export class ZNMI {
   _securityKey: string;
@@ -33,15 +34,22 @@ export class ZNMI {
 }
 
 export {
-  TransactionResponseSchema,
+  APITransactionResponseSchema,
   RecurringResponseSchema,
   CustomerVaultResponseSchema,
   BillingResponseSchema,
   ProductResponseSchema,
   InvoiceResponseSchema,
 };
-export * from "./functions/transactions";
-export * from "./functions/customerVault";
-export * from "./functions/products";
-export * from "./functions/invoices";
-export * from "./functions/recurring";
+
+export * from "./functions/transactions.js";
+export * from "./functions/customerVault.js";
+export * from "./functions/products.js";
+export * from "./functions/invoices.js";
+export * from "./functions/recurring.js";
+export * from "./types/customerVaultRequest.js";
+export * from "./types/invoiceRequestSchemas.js";
+export * from "./types/productManagerRequest.js";
+export * from "./types/recurringRequest.js";
+export * from "./types/responseTypes.js";
+export * from "./types/transactionSchemas.js";

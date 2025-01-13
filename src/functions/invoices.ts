@@ -4,16 +4,13 @@ import {
   UpdateInvoiceRequestSchema,
   CloseInvoiceRequestSchema,
   SendInvoiceRequestSchema,
-} from "@/types/invoiceRequestSchemas";
-import { InvoicesApi } from "@/api/invoicesApi";
-import { InvoiceResponseSchema } from "@/types/responseTypes";
-import { z } from "zod";
-
-export type CreateInvoiceRequest = z.infer<typeof CreateInvoiceRequestSchema>;
-export type UpdateInvoiceRequest = z.infer<typeof UpdateInvoiceRequestSchema>;
-export type CloseInvoiceRequest = z.infer<typeof CloseInvoiceRequestSchema>;
-export type SendInvoiceRequest = z.infer<typeof SendInvoiceRequestSchema>;
-export type InvoiceResponse = z.infer<typeof InvoiceResponseSchema>;
+  type CreateInvoiceRequest,
+  type UpdateInvoiceRequest,
+  type CloseInvoiceRequest,
+  type SendInvoiceRequest,
+} from "../types/invoiceRequestSchemas.js";
+import { InvoicesApi } from "../api/invoicesApi.js";
+import type { InvoiceResponse } from "../types/responseTypes.js";
 
 export class Invoices {
   invoicesApi: InvoicesApi;

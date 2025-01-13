@@ -20,6 +20,8 @@ export const PartialPaymentRequestSchema = z.object({
     full.`),
 });
 
+export type PartialPaymentRequest = z.infer<typeof PartialPaymentRequestSchema>;
+
 export const PartialPaymentResponseSchema = z.object({
   partial_payment_id: z
     .string()
@@ -36,3 +38,7 @@ export const PartialPaymentResponseSchema = z.object({
     .optional()
     .describe(`Returns the amount that was authorized.`),
 });
+
+export type PartialPaymentResponse = z.infer<
+  typeof PartialPaymentResponseSchema
+>;

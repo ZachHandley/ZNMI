@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RecurringApi } from "../api/recurringApi";
+import { RecurringApi } from "../api/recurringApi.js";
 import {
   AddRecurringPlanSchema,
   EditRecurringPlanSchema,
@@ -7,20 +7,14 @@ import {
   AddCustomSubscriptionSchema,
   UpdateSubscriptionSchema,
   DeleteSubscriptionRequestSchema,
-} from "../types/recurringRequest";
-import { RecurringResponseSchema } from "@/types/responseTypes";
-
-export type AddRecurringPlan = z.infer<typeof AddRecurringPlanSchema>;
-export type EditRecurringPlan = z.infer<typeof EditRecurringPlanSchema>;
-export type AddSubscriptionToExistingPlan = z.infer<
-  typeof AddSubscriptionToExistingPlanSchema
->;
-export type AddCustomSubscription = z.infer<typeof AddCustomSubscriptionSchema>;
-export type UpdateSubscription = z.infer<typeof UpdateSubscriptionSchema>;
-export type DeleteSubscriptionRequest = z.infer<
-  typeof DeleteSubscriptionRequestSchema
->;
-export type RecurringResponse = z.infer<typeof RecurringResponseSchema>;
+  type AddRecurringPlan,
+  type EditRecurringPlan,
+  type AddSubscriptionToExistingPlan,
+  type AddCustomSubscription,
+  type UpdateSubscription,
+  type DeleteSubscriptionRequest,
+} from "../types/recurringRequest.js";
+import { type RecurringResponse } from "../types/responseTypes.js";
 
 export class Recurring {
   recurringApi: RecurringApi;
@@ -36,9 +30,9 @@ export class Recurring {
       plan_name: string;
       plan_amount: number;
       plan_id: string;
-      day_frequency: number;
-      month_frequency: number;
-      day_of_month: number;
+      day_frequency?: number;
+      month_frequency?: number;
+      day_of_month?: number;
     },
     planData?: Partial<AddRecurringPlan>
   ): Promise<{
@@ -101,12 +95,12 @@ export class Recurring {
   async editRecurringPlan(
     planDetails?: {
       current_plan_id: string;
-      plan_name: string;
-      plan_amount: number;
-      plan_payments: number;
-      day_frequency: number;
-      month_frequency: number;
-      day_of_month: number;
+      plan_name?: string;
+      plan_amount?: number;
+      plan_payments?: number;
+      day_frequency?: number;
+      month_frequency?: number;
+      day_of_month?: number;
     },
     planData?: Partial<EditRecurringPlan>
   ): Promise<{

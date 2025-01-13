@@ -6,9 +6,9 @@ import {
   UpdateTransactionRequestSchema,
   TransactionResponseSchema,
   TRANSACTION_URL,
-} from "../types/transactionSchemas";
+} from "../types/transactionSchemas.js";
 import { z } from "zod";
-import { PostRequest } from "./utils";
+import { PostRequest } from "./utils.js";
 
 type TransactionRequest = z.infer<typeof TransactionRequestSchema>;
 type CaptureTransactionRequest = z.infer<

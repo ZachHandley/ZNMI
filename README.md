@@ -1,123 +1,264 @@
 # ZNMI TypeScript Wrapper
 
-The ZNMI TypeScript Wrapper is a comprehensive library designed to facilitate interactions with the NMI (Network Merchants, Inc.) API in a type-safe and structured manner. This wrapper simplifies the integration of NMI's payment gateway services into TypeScript applications by providing easy-to-use functionalities for managing customer vaults, transactions, products, invoices, and recurring payments.
+A comprehensive TypeScript wrapper for NMI (Network Merchants, Inc.) payment gateway API. This wrapper provides type-safe interactions with NMI's services including customer vault management, transaction processing, product management, invoicing, and recurring payments.
 
-## Features
+## 0.2.0 Update
 
-- **Customer Vault**: Securely manage customer data by easily adding, updating, or deleting customer information in the NMI Customer Vault.
-- **Transactions**: Process a wide range of transactions including sales, authorizations, credits, validations, and offline transactions, with detailed responses.
-- **Product Manager**: Dynamically manage products by adding or deleting them in the NMI Product Manager.
-- **Invoices**: Seamlessly integrate billing and payment processing by creating and managing invoices.
-- **Recurring Payments**: Support various billing cycles and payment methods by adding and managing recurring payment plans.
+My bad for leaving it for so long pointing to the wrong file, I have fixed it and updated the `README` <3
+
+- Zach
 
 ## Installation
 
-To integrate the ZNMI wrapper into your TypeScript project, follow these steps:
+```bash
+# Using pnpm (recommended)
+pnpm add znmi
 
-1. Install the package via npm or yarn:
+# Using npm
+npm install znmi
 
-   ```bash
-   npm install znmi
-   # or
-   yarn add znmi
-   ```
-
-2. Import the package into your project:
-
-   ```typescript
-   import { ZNMI } from 'znmi';
-   ```
-
-3. Instantiate the ZNMI class with your security key:
-
-   ```typescript
-   const znmi = new ZNMI('your_security_key_here');
-   ```
-
-## Usage Examples
-
-Below are some examples demonstrating how to use the ZNMI wrapper to interact with various components of the NMI API.
-
-### Adding a Customer
-
-```typescript
-const addCustomerRequest = {
-  ccnumber: "4111111111111111",
-  ccexp: "1234",
-};
-const response = await znmi.customerVault.addCustomer(addCustomerRequest);
-console.log(response.data);
+# Using yarn
+yarn add znmi
 ```
 
-### Processing a Transaction
+## Quick Start
 
 ```typescript
-const validateTransactionRequest = {
-  ccnumber: "4111111111111111",
-  ccexp: "1025",
-  cvv: "123",
-};
-const response = await znmi.transactions.validateTransaction(validateTransactionRequest);
-console.log(response.data);
+import { ZNMI } from "znmi";
+
+const znmi = new ZNMI("your_security_key_here");
 ```
 
-### Adding a Product
+## API Documentation
+
+### Customer Vault API
+
+Manage customer data and payment information securely.
 
 ```typescript
-let productSku = `sku${Math.floor(Math.random() * 10000)}`;
-const addProductRequest = {
-  product_sku: productSku,
-  product_description: "Test Product",
-  product_cost: "19.99",
+// Add or Update a Customer
+const customerData = {
+  customer_vault: "add_customer",
+  ccnumber: "4111111111111111",
+  ccexp: "1225",
+};
+const response = await znmi.customerVault.addOrUpdateCustomer(customerData);
+
+// Validate Customer by Vault ID
+const validateData = {
+  customer_vault_id: "12345",
+};
+await znmi.customerVault.validateCustomerVaultId(validateData);
+```
+
+Available Methods:
+
+- `addOrUpdateCustomer(request: AddUpdateCustomerRequest)` - Add or update a customer's information
+- `validateCustomerVaultId(request: ValidateCustomerVaultIdRequest)` - Validate stored customer data
+- `authorizeCustomerByVaultId(request: AuthorizeCustomerByVaultIdRequest)` - Authorize payment using vault
+- `saleByVaultId(request: SaleByVaultIdRequest)` - Process sale using vault
+- `creditTransactionByVaultId(request: CreditTransactionByVaultIdRequest)` - Process credit using vault
+- `offlineTransactionByVaultId(request: OfflineTransactionByVaultIdRequest)` - Process offline transaction
+- `initiateCustomerVaultTransaction(request: CustomerVaultInitiatedTransaction)` - Start vault transaction
+- `deleteCustomer(request: DeleteCustomerRecord)` - Remove customer from vault
+- `addBillingForCustomer(request: AddBillingForCustomerRequest)` - Add billing info
+- `updateBillingForCustomer(request: UpdateBillingForCustomerRequest)` - Update billing
+- `deleteBillingForCustomer(request: DeleteBillingForCustomerRequest)` - Remove billing
+
+### Transactions API
+
+Process various types of payment transactions.
+
+```typescript
+// Process a Sale
+const saleData = {
+  type: "sale",
+  amount: "49.99",
+  ccnumber: "4111111111111111",
+  ccexp: "1225",
+};
+await znmi.transactions.createTransaction(saleData);
+
+// Capture an Authorization
+const captureData = {
+  type: "capture",
+  transactionid: "1234567",
+};
+await znmi.transactions.captureTransaction(captureData);
+```
+
+Available Methods:
+
+- `createTransaction(request: TransactionRequest)` - Process new transaction
+- `captureTransaction(request: CaptureTransactionRequest)` - Capture authorized transaction
+- `refundTransaction(request: RefundTransaction)` - Process refund
+- `voidTransaction(request: VoidTransactionRequest)` - Void transaction
+- `updateTransaction(request: UpdateTransactionRequest)` - Update transaction details
+
+### Product Management API
+
+Manage your product catalog.
+
+```typescript
+// Add a Product
+const productData = {
+  product_sku: "PROD-001",
+  product_description: "Premium Widget",
+  product_cost: "29.99",
   product_currency: "USD",
 };
-const response = await znmi.products.addProduct(addProductRequest);
-console.log(response.data);
+await znmi.products.addProduct(productData);
+
+// Update a Product
+const updateData = {
+  product_sku: "PROD-001",
+  product_description: "Premium Widget V2",
+};
+await znmi.products.updateProduct(updateData);
 ```
 
-### Creating an Invoice
+Available Methods:
+
+- `addProduct(request: AddProductRequest)` - Add new product
+- `updateProduct(request: UpdateProductRequest)` - Update product details
+- `deleteProduct(request: DeleteProductRequest)` - Remove product
+
+### Invoice Management API
+
+Create and manage invoices.
 
 ```typescript
-const createInvoiceRequest = {
-  amount: 1.0,
-  email: "test@example.com",
+// Create an Invoice
+const invoiceData = {
+  amount: 99.99,
+  email: "customer@example.com",
+  payment_terms: "upon_receipt",
 };
-const response = await znmi.invoices.createInvoice(createInvoiceRequest);
-console.log(response.data);
+await znmi.invoices.createInvoice(invoiceData);
+
+// Send an Invoice
+const sendData = {
+  invoice_id: "INV-001",
+  email: "customer@example.com",
+};
+await znmi.invoices.sendInvoice(sendData);
 ```
 
-### Adding a Recurring Payment Plan
+Available Methods:
+
+- `createInvoice(request: CreateInvoiceRequest)` - Generate new invoice
+- `updateInvoice(request: UpdateInvoiceRequest)` - Modify existing invoice
+- `sendInvoice(request: SendInvoiceRequest)` - Send invoice to customer
+- `closeInvoice(request: CloseInvoiceRequest)` - Close existing invoice
+
+### Recurring Payments API
+
+Set up and manage recurring payment plans.
 
 ```typescript
-const subscriptionId = `sub${Math.floor(Math.random() * 10000)}`;
-const addRecurringPlanRequest = {
-  plan_name: "Monthly Subscription",
-  plan_amount: 9.99,
-  day_frequency: 31,
-  plan_id: subscriptionId,
+// Create a Recurring Plan
+const planData = {
+  plan_payments: 12,
+  plan_amount: 29.99,
+  plan_name: "Premium Monthly",
+  plan_id: "PLAN-001",
+  month_frequency: 1,
 };
-const response = await znmi.recurring.addRecurringPlan(addRecurringPlanRequest);
-console.log(response.data);
+await znmi.recurring.createRecurringPlan(planData);
+
+// Add Custom Subscription
+const subscriptionData = {
+  plan_id: "PLAN-001",
+  ccnumber: "4111111111111111",
+  ccexp: "1225",
+};
+await znmi.recurring.addCustomSubscription(subscriptionData);
 ```
 
-## Running Tests
+Available Methods:
 
-To ensure the functionality of the ZNMI wrapper, a suite of tests is provided. These tests cover the instantiation of the ZNMI class, the creation of various objects (CustomerVault, Transactions, Products, Invoices, Recurring), and the execution of key operations such as adding and updating customers, processing transactions, managing products, creating invoices, and handling recurring payments.
-To run the tests, execute the following command in your terminal:
-`vitest run`
-This command will run all tests defined in the `znmi.test.ts` file, which also has the testing security key in it for NMI, verifying the correct behavior of the ZNMI wrapper's functionalities.
+- `createRecurringPlan(request: AddRecurringPlan)` - Create new plan
+- `editRecurringPlan(request: EditRecurringPlan)` - Modify existing plan
+- `addSubscriptionToExistingPlan(request: AddSubscriptionToExistingPlan)` - Add subscription to plan
+- `addCustomSubscription(request: AddCustomSubscription)` - Create custom subscription
+- `updateSubscription(request: UpdateSubscription)` - Update subscription
+- `deleteSubscription(request: DeleteSubscriptionRequest)` - Cancel subscription
 
-## Further Reading
+## Response Types
 
-For more detailed information on transaction types, response variables, and testing methods, please refer to the official card brand documentation and the NMI API documentation. These resources provide comprehensive guidelines and best practices for integrating payment gateway services into your applications.
+All API responses are fully typed and validated using Zod schemas:
 
-### Changelog
+```typescript
+type TransactionResponse = {
+  response: "1" | "2" | "3"; // 1=success, 2=declined, 3=error
+  responsetext: string;
+  authcode: string;
+  transactionid?: string;
+  avsresponse: string;
+  cvvresponse: string;
+  orderid: string;
+  type:
+    | "sale"
+    | "auth"
+    | "validate"
+    | "credit"
+    | "offline"
+    | "refund"
+    | "void"
+    | "capture";
+  response_code: string;
+};
+```
 
-0.1.8 - Added missing function to recurring for adding a custom subscription by credit card, rather than only ACH, also updated ZOD parses to use safeParse rather than parse
-0.1.7 - Exported types for requests and such from the functions, in theory that'll fix the typehints not showing up
-0.1.6 - Fixed publish script order oops
-0.1.5 - Added tsc as a prepublish step to hopefully get return types fixed
-0.1.4 - Added the return types to export in index so you can use em
-0.1.3 - Added return types to all functions
-0.1.2 - Added additional methods I forgot to customerVault, added more tests for data to use in my integration package
-0.1.1 - Fixed Vite dependency instead of dev dependency
+## Error Handling
+
+The wrapper includes comprehensive error handling:
+
+```typescript
+try {
+  const response = await znmi.transactions.createTransaction(transactionData);
+  if (response.response === "1") {
+    // Success
+    console.log("Transaction ID:", response.transactionid);
+  } else {
+    // Declined or Error
+    console.error("Error:", response.responsetext);
+  }
+} catch (error) {
+  console.error("API Error:", error);
+}
+```
+
+## Type Safety
+
+All requests and responses are fully typed using Zod schemas. Import types directly:
+
+```typescript
+import {
+  AddUpdateCustomerRequest,
+  TransactionRequest,
+  CustomerVaultResponse,
+} from "znmi";
+```
+
+## Testing
+
+Run the test suite:
+
+```bash
+pnpm test
+```
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Changelog
+
+- 0.2.2: Fix the test running
+- 0.2.1: Fix types
+- 0.2.0: Initial changelog

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const INVOICE_URL = "https://secure.nmi.com/api/transact.php";
 
-export const ProductDataSchema = z.object({
+export const InvoiceProductDataSchema = z.object({
   item_product_code: z.string(),
   item_description: z.string(),
   item_commodity_code: z.string(),
@@ -16,6 +16,8 @@ export const ProductDataSchema = z.object({
   item_tax_type: z.string(),
   item_alternate_tax_id: z.string(),
 });
+
+export type InvoiceProductData = z.infer<typeof InvoiceProductDataSchema>;
 
 export const CreateInvoiceSchema = z.object({
   invoicing: z
@@ -128,10 +130,12 @@ export const CreateInvoiceSchema = z.object({
     .optional()
     .describe(`Custom fields to add to the invoice`),
   products: z
-    .array(ProductDataSchema)
+    .array(InvoiceProductDataSchema)
     .optional()
     .describe(`The products to add to the invoice`),
 });
+
+export type CreateInvoice = z.infer<typeof CreateInvoiceSchema>;
 
 export const CreateInvoiceRequestSchema = CreateInvoiceSchema.transform(
   (data) => {
@@ -162,10 +166,14 @@ export const CreateInvoiceRequestSchema = CreateInvoiceSchema.transform(
   }
 );
 
+export type CreateInvoiceRequest = z.infer<typeof CreateInvoiceRequestSchema>;
+
 export const UpdateInvoiceSchema = CreateInvoiceSchema.extend({
   invoicing: z.literal("update_invoice").describe(`Update an existing invoice`),
   invoice_id: z.string().describe(`The invoice ID to update`),
 });
+
+export type UpdateInvoice = z.infer<typeof UpdateInvoiceSchema>;
 
 export const UpdateInvoiceRequestSchema = UpdateInvoiceSchema.transform(
   (data) => {
@@ -196,6 +204,8 @@ export const UpdateInvoiceRequestSchema = UpdateInvoiceSchema.transform(
   }
 );
 
+export type UpdateInvoiceRequest = z.infer<typeof UpdateInvoiceRequestSchema>;
+
 export const SendInvoiceRequestSchema = z.object({
   invoicing: z
     .literal("send_invoice")
@@ -203,7 +213,11 @@ export const SendInvoiceRequestSchema = z.object({
   invoice_id: z.string().describe(`The invoice ID to send`),
 });
 
+export type SendInvoiceRequest = z.infer<typeof SendInvoiceRequestSchema>;
+
 export const CloseInvoiceRequestSchema = z.object({
   invoicing: z.literal("close_invoice").describe(`Close an existing invoice`),
   invoice_id: z.string().describe(`The invoice ID to close`),
 });
+
+export type CloseInvoiceRequest = z.infer<typeof CloseInvoiceRequestSchema>;

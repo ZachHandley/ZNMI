@@ -6,7 +6,6 @@
     "module": "ESNext",
     "moduleDetection": "force",
     "declaration": true,
-    "jsx": "react-jsx",
     "allowJs": true,
     "outDir": "dist",
     "declarationDir": "dist",
@@ -14,7 +13,7 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
-    "noEmit": false,
+    "noEmit": true,
 
     /* Linting */
     "skipLibCheck": true,
@@ -26,5 +25,5 @@
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["src/types/secure.nmi.com-Direct-Post-API.docx"]
+  "exclude": ["node_modules", "dist", "secure.nmi.com-Direct-Post-API.docx"]
 }

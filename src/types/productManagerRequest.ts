@@ -22,12 +22,12 @@ export const AddProductRequestSchema = z.object({
     .optional()
     .describe("The product commodity code"),
   product_unit_of_measure: z.string().default("NAR").optional()
-    .describe(`The unit of measure for the product. Defaults to “NAR” (number of articles).
-    Examples: “TDK” or “MTQ”`),
+    .describe(`The unit of measure for the product. Defaults to "NAR" (number of articles).
+    Examples: "TDK" or "MTQ"`),
   product_tax_amount: z.string().optional()
     .describe(`The tax that should be added to the product cost. This is a fixed amount,
   not a percentage.
-  Example: “1.54”`),
+  Example: "1.54"`),
   product_discount_amount: z
     .string()
     .optional()
@@ -45,6 +45,8 @@ export const AddProductRequestSchema = z.object({
       `The file name of the image being added with product_image_data.`
     ),
 });
+
+export type AddProductRequest = z.infer<typeof AddProductRequestSchema>;
 
 export const UpdateProductRequestSchema = z.object({
   products: z
@@ -71,13 +73,13 @@ export const UpdateProductRequestSchema = z.object({
     .default("NAR")
     .optional()
     .describe(
-      `The unit of measure for the product. Defaults to “NAR” (number of articles). Examples: “TDK” or “MTQ”`
+      `The unit of measure for the product. Defaults to "NAR" (number of articles). Examples: "TDK" or "MTQ"`
     ),
   product_tax_amount: z
     .string()
     .optional()
     .describe(
-      `The tax that should be added to the product cost. This is a fixed amount, not a percentage. Example: “1.54”`
+      `The tax that should be added to the product cost. This is a fixed amount, not a percentage. Example: "1.54"`
     ),
   product_discount_amount: z
     .string()
@@ -97,9 +99,13 @@ export const UpdateProductRequestSchema = z.object({
     ),
 });
 
+export type UpdateProductRequest = z.infer<typeof UpdateProductRequestSchema>;
+
 export const DeleteProductRequestSchema = z.object({
   products: z
     .literal("delete_product")
     .describe("Delete a product from the product manager"),
   product_id: z.string().optional().describe("The product ID"),
 });
+
+export type DeleteProductRequest = z.infer<typeof DeleteProductRequestSchema>;

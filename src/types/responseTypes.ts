@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const TransactionResponseSchema = z.object({
+export const APITransactionResponseSchema = z.object({
   response: z
     .enum(["1", "2", "3"])
     .describe(`1 is success, 2 is declined, 3 is error`),
@@ -26,6 +26,10 @@ export const TransactionResponseSchema = z.object({
   partial_payment_balance: z.string().optional(),
   amount_authorized: z.string().optional(),
 });
+
+export type APITransactionResponse = z.infer<
+  typeof APITransactionResponseSchema
+>;
 
 export const CustomerVaultResponseSchema = z.object({
   response: z
@@ -56,7 +60,10 @@ export const CustomerVaultResponseSchema = z.object({
     .describe(`Only not included when you delete em.`),
 });
 
+export type CustomerVaultResponse = z.infer<typeof CustomerVaultResponseSchema>;
+
 export const BillingResponseSchema = CustomerVaultResponseSchema;
+export type BillingResponse = z.infer<typeof BillingResponseSchema>;
 
 export const InvoiceResponseSchema = z.object({
   response: z
@@ -72,6 +79,8 @@ export const InvoiceResponseSchema = z.object({
   response_code: z.string(),
   payment_terms: z.string().optional(),
 });
+
+export type InvoiceResponse = z.infer<typeof InvoiceResponseSchema>;
 
 export const RecurringResponseSchema = z.object({
   response: z
@@ -93,6 +102,8 @@ export const RecurringResponseSchema = z.object({
   subscription_id: z.string().optional(),
 });
 
+export type RecurringResponse = z.infer<typeof RecurringResponseSchema>;
+
 export const ProductResponseSchema = z.object({
   response: z
     .enum(["1", "2", "3"])
@@ -111,3 +122,5 @@ export const ProductResponseSchema = z.object({
   product_category: z.string().optional(),
   response_code: z.string().optional(),
 });
+
+export type ProductResponse = z.infer<typeof ProductResponseSchema>;

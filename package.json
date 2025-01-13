@@ -1,40 +1,67 @@
 {
   "name": "znmi",
   "type": "module",
-  "version": "0.1.8",
+  "version": "0.2.2",
   "description": "A simple and easy TypeScript wrapper around NMI's API",
   "files": [
     "dist"
   ],
-  "main": "./dist/znmi.umd.cjs",
+  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "module": "./dist/znmi.js",
+  "module": "./dist/index.js",
   "exports": {
     ".": {
-      "import": "./dist/znmi.js",
-      "require": "./dist/znmi.umd.cjs"
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
     }
   },
   "scripts": {
-    "build": "vite build && tsc --emitDeclarationOnly",
-    "start": "bun index.ts",
-    "prepublish": "vitest run && bun run build",
-    "publish_pkg": "bun run prepublish && npm publish --access public"
+    "build": "tsup",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "deploy": "pnpm run test:run && pnpm run build && npm publish --access public"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "vitest": "^1.2.2",
-    "vite": "^5.1.3"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+    "@types/node": "^20.0.0",
+    "@types/qs": "^6.9.11",
+    "@vitest/ui": "^1.6.0",
+    "tsup": "^8.0.2",
+    "tsx": "^4.7.1",
+    "vitest": "^1.2.2"
   },
   "dependencies": {
-    "@types/qs": "^6.9.11",
-    "axios": "^1.6.7",
+    "ky": "^1.2.0",
     "qs": "^6.11.2",
     "tslib": "^2.6.2",
     "typescript": "^5.3.3",
     "zod": "^3.22.4"
+  },
+  "keywords": [
+    "nmi",
+    "payment",
+    "gateway",
+    "typescript",
+    "api",
+    "znmi",
+    "network-merchants"
+  ],
+  "author": {
+    "name": "Zach Handley",
+    "url": "https://zachhandley.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZachHandley/ZNMI"
+  },
+  "bugs": {
+    "url": "https://github.com/ZachHandley/ZNMI/issues"
+  },
+  "homepage": "https://github.com/ZachHandley/ZNMI#readme",
+  "engines": {
+    "node": ">=18"
   }
 }

@@ -380,7 +380,7 @@ export const TransactionSchema = z.object({
   order_date: z
     .string()
     .optional()
-    .describe(`Purchase order date, defaults to the date of the transaction.`), // YYMMDD
+    .describe(`Purchase order date, defaults to the date of the transaction.`), // YYYYMMDD
   products: z
     .array(ProductDataSchema)
     .optional()
@@ -637,3 +637,21 @@ export const TransactionResponseSchema = z.object({
   is provided by the processor.
   Note: Only returned if API configuration is set to return this value.`),
 });
+
+// Type exports
+export type TransactionType = z.infer<typeof TransactionTypeSchema>;
+export type ProductData = z.infer<typeof ProductDataSchema>;
+export type Transaction = z.infer<typeof TransactionSchema>;
+export type TransactionRequest = z.infer<typeof TransactionRequestSchema>;
+export type CaptureTransactionRequest = z.infer<
+  typeof CaptureTransactionRequestSchema
+>;
+export type VoidTransactionRequest = z.infer<
+  typeof VoidTransactionRequestSchema
+>;
+export type RefundTransaction = z.infer<typeof RefundTransactionSchema>;
+export type UpdateTransaction = z.infer<typeof UpdateTransactionSchema>;
+export type UpdateTransactionRequest = z.infer<
+  typeof UpdateTransactionRequestSchema
+>;
+export type TransactionResponse = z.infer<typeof TransactionResponseSchema>;

@@ -4,9 +4,10 @@ import {
   SendInvoiceRequestSchema,
   CloseInvoiceRequestSchema,
   INVOICE_URL,
-} from "../types/invoiceRequestSchemas";
-import { InvoiceResponseSchema } from "../types/responseTypes";
-import { PostRequest } from "./utils";
+} from "../types/invoiceRequestSchemas.js";
+
+import { InvoiceResponseSchema } from "../types/responseTypes.js";
+import { PostRequest } from "./utils.js";
 import { z } from "zod";
 
 type CreateInvoiceRequest = z.infer<typeof CreateInvoiceRequestSchema>;

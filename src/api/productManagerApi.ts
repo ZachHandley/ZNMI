@@ -3,9 +3,10 @@ import {
   UpdateProductRequestSchema,
   DeleteProductRequestSchema,
   PRODUCT_MANAGER_URL,
-} from "../types/productManagerRequest";
-import { ProductResponseSchema } from "@/types/responseTypes";
-import { PostRequest } from "./utils";
+} from "../types/productManagerRequest.js";
+
+import { ProductResponseSchema } from "../types/responseTypes.js";
+import { PostRequest } from "./utils.js";
 import { z } from "zod";
 
 type AddProductRequest = z.infer<typeof AddProductRequestSchema>;

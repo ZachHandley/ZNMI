@@ -6,10 +6,10 @@ import {
   UpdateSubscriptionSchema,
   DeleteSubscriptionRequestSchema,
   RECURRING_URL,
-} from "../types/recurringRequest";
-import { RecurringResponseSchema } from "@/types/responseTypes";
+} from "../types/recurringRequest.js";
+import { RecurringResponseSchema } from "../types/responseTypes.js";
 import { z } from "zod";
-import { PostRequest } from "./utils";
+import { PostRequest } from "./utils.js";
 
 type AddRecurringPlan = z.infer<typeof AddRecurringPlanSchema>;
 type EditRecurringPlan = z.infer<typeof EditRecurringPlanSchema>;

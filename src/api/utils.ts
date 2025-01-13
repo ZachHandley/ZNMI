@@ -1,5 +1,5 @@
-import axios, { type AxiosRequestConfig } from "axios";
-import qs from "qs"; // Assuming you have qs installed for query string parsing
+import ky from "ky";
+import qs from "qs";
 
 export interface RequestResponse {
   status: number;
@@ -14,37 +14,30 @@ const parseQueryString = (responseString: string): any => {
 export const PostRequest = async (
   url: string,
   data: any,
-  options?: AxiosRequestConfig
+  options?: any
 ): Promise<RequestResponse> => {
   try {
-    const security_key = parseQueryString(data).security_key;
-    const postResponse = await axios.post(
-      (url = `${url}?security_key=${security_key}`),
-      (data = qs.stringify(data)),
-      (options = options ?? {
+    const security_key = data.security_key;
+    const formData = qs.stringify(data);
+
+    const postResponse = await ky
+      .post(`${url}?security_key=${security_key}`, {
+        body: formData,
         headers: {
           Accept: "application/x-www-form-urlencoded",
           "Content-Type": "application/x-www-form-urlencoded",
         },
+        ...options,
       })
-    );
-    if (postResponse.status !== 200) {
-      console.error("Error in PostRequest", postResponse.data);
-      return {
-        status: postResponse.status,
-        data: postResponse.data,
-        message: "Error in PostRequest",
-      };
-    }
-    // Parse the response data if it's a string
-    const responseData =
-      typeof postResponse.data === "string"
-        ? parseQueryString(postResponse.data)
-        : postResponse.data;
+      .text(); // Get the raw text response because NMI returns query strings!
+
+    // Always parse the response as it's always a query string from NMI
+    const responseData = parseQueryString(postResponse);
+
     return {
-      status: postResponse.status,
+      status: 200,
       data: responseData,
-      message: "Success!",
+      message: responseData.responsetext || "Success!",
     };
   } catch (error) {
     console.error("Error in PostRequest", error);
@@ -58,27 +51,16 @@ export const PostRequest = async (
 
 export const GetRequest = async (
   url: string,
-  options?: AxiosRequestConfig
+  options?: any
 ): Promise<RequestResponse> => {
   try {
-    const getResponse = await axios.get(url, options);
-    if (getResponse.status !== 200) {
-      console.error("Error in GetRequest", getResponse.data);
-      return {
-        status: getResponse.status,
-        data: getResponse.data,
-        message: "Error in GetRequest",
-      };
-    }
-    // Parse the response data if it's a string
-    const responseData =
-      typeof getResponse.data === "string"
-        ? parseQueryString(getResponse.data)
-        : getResponse.data;
+    const getResponse = await ky.get(url, options).text(); // Same here, always get text
+    const responseData = parseQueryString(getResponse);
+
     return {
-      status: getResponse.status,
+      status: 200,
       data: responseData,
-      message: "Success!",
+      message: responseData.responsetext || "Success!",
     };
   } catch (error) {
     console.error("Error in GetRequest", error);

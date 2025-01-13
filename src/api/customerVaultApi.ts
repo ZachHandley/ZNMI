@@ -11,12 +11,13 @@ import {
   SaleByVaultIdRequestSchema,
   CreditTransactionByVaultIdRequestSchema,
   OfflineTransactionByVaultIdRequestSchema,
-} from "../types/customerVaultRequest";
+} from "../types/customerVaultRequest.js";
 import {
   CustomerVaultResponseSchema,
   BillingResponseSchema,
-} from "@/types/responseTypes";
-import { PostRequest } from "./utils";
+} from "../types/responseTypes.js";
+
+import { PostRequest } from "./utils.js";
 import { z } from "zod";
 
 type AddUpdateCustomerRequest = z.infer<typeof AddUpdateCustomerRequestSchema>;

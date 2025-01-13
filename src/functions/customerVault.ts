@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { CustomerVaultApi } from "../api/customerVaultApi";
+import { CustomerVaultApi } from "../api/customerVaultApi.js";
+
 import {
   AddUpdateCustomerRequestSchema,
   CustomerVaultInitiatedTransactionSchema,
@@ -12,43 +13,23 @@ import {
   SaleByVaultIdRequestSchema,
   CreditTransactionByVaultIdRequestSchema,
   OfflineTransactionByVaultIdRequestSchema,
-} from "../types/customerVaultRequest";
+  type AddUpdateCustomerRequest,
+  type CustomerVaultInitiatedTransaction,
+  type DeleteCustomerRecord,
+  type AddBillingForCustomerRequest,
+  type UpdateBillingForCustomerRequest,
+  type DeleteBillingForCustomerRequest,
+  type ValidateCustomerByVaultIdRequest,
+  type AuthorizeCustomerByVaultIdRequest,
+  type CreditTransactionByVaultIdRequest,
+  type OfflineTransactionByVaultIdRequest,
+} from "../types/customerVaultRequest.js";
 import {
   CustomerVaultResponseSchema,
   BillingResponseSchema,
-} from "@/types/responseTypes";
-
-export type AddUpdateCustomerRequest = z.infer<
-  typeof AddUpdateCustomerRequestSchema
->;
-export type CustomerVaultInitiatedTransaction = z.infer<
-  typeof CustomerVaultInitiatedTransactionSchema
->;
-export type DeleteCustomerRecord = z.infer<typeof DeleteCustomerRecordSchema>;
-export type AddBillingForCustomerRequest = z.infer<
-  typeof AddBillingForCustomerRequestSchema
->;
-export type UpdateBillingForCustomerRequest = z.infer<
-  typeof UpdateBillingForCustomerRequestSchema
->;
-export type DeleteBillingForCustomerRequest = z.infer<
-  typeof DeleteBillingForCustomerRequestSchema
->;
-export type ValidateCustomerVaultIdRequest = z.infer<
-  typeof ValidateCustomerByVaultIdRequestSchema
->;
-export type AuthorizeCustomerByVaultIdRequest = z.infer<
-  typeof AuthorizeCustomerByVaultIdRequestSchema
->;
-export type SaleByVaultIdRequest = z.infer<typeof SaleByVaultIdRequestSchema>;
-export type CreditTransactionByVaultIdRequest = z.infer<
-  typeof CreditTransactionByVaultIdRequestSchema
->;
-export type OfflineTransactionByVaultIdRequest = z.infer<
-  typeof OfflineTransactionByVaultIdRequestSchema
->;
-export type CustomerVaultResponse = z.infer<typeof CustomerVaultResponseSchema>;
-export type BillingResponse = z.infer<typeof BillingResponseSchema>;
+  type CustomerVaultResponse,
+  type BillingResponse,
+} from "../types/responseTypes.js";
 
 export class CustomerVault {
   customerVaultApi: CustomerVaultApi;
@@ -222,7 +203,7 @@ export class CustomerVault {
     validateData?: {
       customer_vault_id: string | number;
     },
-    additionalOptions?: Partial<ValidateCustomerVaultIdRequest>
+    additionalOptions?: Partial<ValidateCustomerByVaultIdRequest>
   ): Promise<{
     status: number;
     data?: CustomerVaultResponse;
@@ -240,11 +221,12 @@ export class CustomerVault {
           message: `Invalid input data for validateCustomerByVaultId ${parsed.error.message}`,
         };
       }
-      const validateCustomerByVaultId: ValidateCustomerVaultIdRequest =
+      const validateCustomerByVaultId: ValidateCustomerByVaultIdRequest =
         parsed.data;
       const result = await this.customerVaultApi.validateCustomerVaultId(
         validateCustomerByVaultId
       );
+
       return {
         status: 200,
         data: result,
