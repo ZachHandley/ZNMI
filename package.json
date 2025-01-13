@@ -1,7 +1,7 @@
 {
   "name": "znmi",
   "type": "module",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A simple and easy TypeScript wrapper around NMI's API",
   "files": [
     "dist"
@@ -33,6 +33,7 @@
     "vitest": "^1.2.2"
   },
   "dependencies": {
+    "fast-xml-parser": "^4.5.1",
     "ky": "^1.2.0",
     "qs": "^6.11.2",
     "tslib": "^2.6.2",

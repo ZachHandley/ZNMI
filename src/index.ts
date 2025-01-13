@@ -3,6 +3,7 @@ import { CustomerVault } from "./functions/customerVault.js";
 import { Products } from "./functions/products.js";
 import { Invoices } from "./functions/invoices.js";
 import { Recurring } from "./functions/recurring.js";
+import { Query } from "./functions/query.js";
 
 import {
   APITransactionResponseSchema,
@@ -20,6 +21,7 @@ export class ZNMI {
   public products: Products;
   public invoices: Invoices;
   public recurring: Recurring;
+  public query: Query;
 
   constructor(securityKey: string) {
     if (!securityKey || securityKey === "")
@@ -30,6 +32,7 @@ export class ZNMI {
     this.products = new Products(securityKey);
     this.invoices = new Invoices(securityKey);
     this.recurring = new Recurring(securityKey);
+    this.query = new Query(securityKey);
   }
 }
 
@@ -47,9 +50,11 @@ export * from "./functions/customerVault.js";
 export * from "./functions/products.js";
 export * from "./functions/invoices.js";
 export * from "./functions/recurring.js";
+export * from "./functions/query.js";
 export * from "./types/customerVaultRequest.js";
 export * from "./types/invoiceRequestSchemas.js";
 export * from "./types/productManagerRequest.js";
 export * from "./types/recurringRequest.js";
 export * from "./types/responseTypes.js";
 export * from "./types/transactionSchemas.js";
+export * from "./types/queryTypes.js";

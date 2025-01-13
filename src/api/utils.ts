@@ -11,6 +11,7 @@ const parseQueryString = (responseString: string): any => {
   return qs.parse(responseString, { ignoreQueryPrefix: true });
 };
 
+// Original PostRequest for query string responses
 export const PostRequest = async (
   url: string,
   data: any,
@@ -20,54 +21,82 @@ export const PostRequest = async (
     const security_key = data.security_key;
     const formData = qs.stringify(data);
 
-    const postResponse = await ky
+    const response = await ky.post(`${url}?security_key=${security_key}`, {
+      body: formData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      ...options,
+    });
+
+    const responseText = await response.text();
+    const responseData = parseQueryString(responseText);
+
+    return {
+      status: response.status,
+      data: responseData,
+      message: "Success",
+    };
+  } catch (error) {
+    console.error("Error in PostRequest", error);
+    throw error;
+  }
+};
+
+// XML-specific request methods
+export const PostRequestXML = async (
+  url: string,
+  data: any,
+  options?: any
+): Promise<string> => {
+  try {
+    const security_key = data.security_key;
+    const formData = qs.stringify(data);
+
+    const response = await ky
       .post(`${url}?security_key=${security_key}`, {
         body: formData,
         headers: {
-          Accept: "application/x-www-form-urlencoded",
+          Accept: "application/xml",
           "Content-Type": "application/x-www-form-urlencoded",
         },
         ...options,
       })
-      .text(); // Get the raw text response because NMI returns query strings!
+      .text();
 
-    // Always parse the response as it's always a query string from NMI
-    const responseData = parseQueryString(postResponse);
-
-    return {
-      status: 200,
-      data: responseData,
-      message: responseData.responsetext || "Success!",
-    };
+    return response;
   } catch (error) {
-    console.error("Error in PostRequest", error);
-    return {
-      status: 500,
-      data: error,
-      message: "Error in PostRequest",
-    };
+    console.error("Error in PostRequestXML", error);
+    return `<?xml version="1.0"?>
+      <nm_response>
+        <error_response>Error in PostRequestXML: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }</error_response>
+      </nm_response>`;
   }
 };
 
-export const GetRequest = async (
+export const GetRequestXML = async (
   url: string,
   options?: any
-): Promise<RequestResponse> => {
+): Promise<string> => {
   try {
-    const getResponse = await ky.get(url, options).text(); // Same here, always get text
-    const responseData = parseQueryString(getResponse);
-
-    return {
-      status: 200,
-      data: responseData,
-      message: responseData.responsetext || "Success!",
-    };
+    const response = await ky
+      .get(url, {
+        headers: {
+          Accept: "application/xml",
+        },
+        ...options,
+      })
+      .text();
+    return response;
   } catch (error) {
-    console.error("Error in GetRequest", error);
-    return {
-      status: 500,
-      data: error,
-      message: "Error in GetRequest",
-    };
+    console.error("Error in GetRequestXML", error);
+    return `<?xml version="1.0"?>
+      <nm_response>
+        <error_response>Error in GetRequestXML: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }</error_response>
+      </nm_response>`;
   }
 };
