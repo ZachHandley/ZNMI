@@ -12,6 +12,8 @@ import {
   BillingResponseSchema,
   ProductResponseSchema,
   InvoiceResponseSchema,
+  QueryResponseSchema,
+  FlatQueryResponseSchema,
 } from "./types/responseTypes.js";
 
 export class ZNMI {
@@ -43,6 +45,8 @@ export {
   BillingResponseSchema,
   ProductResponseSchema,
   InvoiceResponseSchema,
+  QueryResponseSchema,
+  FlatQueryResponseSchema,
 };
 
 export * from "./functions/transactions.js";

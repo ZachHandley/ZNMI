@@ -448,3 +448,137 @@ export const QueryProfileResponseSchema = z.object({
 });
 
 export type QueryProfileResponse = z.infer<typeof QueryProfileResponseSchema>;
+
+export const QueryResponseSchema = z.union([
+  QueryCustomerVaultResponseSchema,
+  QueryRecurringResponseSchema,
+  QueryRecurringPlansResponseSchema,
+  QueryInvoicingResponseSchema,
+  QueryGatewayProcessorsResponseSchema,
+  QueryProfileResponseSchema,
+]);
+
+export type QueryResponse = z.infer<typeof QueryResponseSchema>;
+
+export const FlatQueryResponseSchema = z.object({
+  // Response Type Identifier
+  query_type: z.enum([
+    "customer_vault",
+    "recurring",
+    "recurring_plans",
+    "invoicing",
+    "gateway_processors",
+    "profile",
+  ]),
+
+  // Common Fields
+  id: z.string().optional(),
+  created: z.string().optional(),
+  updated: z.string().optional(),
+  status: z.string().optional(),
+
+  // Customer/Billing Info
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  fax: z.string().optional(),
+  cell_phone: z.string().optional(),
+  company: z.string().optional(),
+  website: z.string().optional(),
+
+  // Address Fields
+  address_1: z.string().optional(),
+  address_2: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  postal_code: z.string().optional(),
+  country: z.string().optional(),
+
+  // Shipping Info
+  shipping_first_name: z.string().optional(),
+  shipping_last_name: z.string().optional(),
+  shipping_address_1: z.string().optional(),
+  shipping_address_2: z.string().optional(),
+  shipping_company: z.string().optional(),
+  shipping_city: z.string().optional(),
+  shipping_state: z.string().optional(),
+  shipping_postal_code: z.string().optional(),
+  shipping_country: z.string().optional(),
+  shipping_email: z.string().optional(),
+  shipping_carrier: z.string().optional(),
+  shipping_date: z.string().optional(),
+  shipping_amount: z.string().optional(),
+  tracking_number: z.string().optional(),
+
+  // Payment Info
+  cc_number: z.string().optional(),
+  cc_hash: z.string().optional(),
+  cc_exp: z.string().optional(),
+  cc_start_date: z.string().optional(),
+  cc_issue_number: z.string().optional(),
+  cc_bin: z.string().optional(),
+  cc_type: z.string().optional(),
+
+  // Bank Account Info
+  check_account: z.string().optional(),
+  check_hash: z.string().optional(),
+  check_aba: z.string().optional(),
+  check_name: z.string().optional(),
+  account_holder_type: z.string().optional(),
+  account_type: z.string().optional(),
+  sec_code: z.string().optional(),
+
+  // Subscription/Plan Fields
+  subscription_id: z.string().optional(),
+  plan_id: z.string().optional(),
+  plan_name: z.string().optional(),
+  plan_amount: z.string().optional(),
+  plan_payments: z.string().optional(),
+  day_frequency: z.string().optional(),
+  month_frequency: z.string().optional(),
+  day_of_month: z.string().optional(),
+  next_charge_date: z.string().optional(),
+  completed_payments: z.string().optional(),
+  attempted_payments: z.string().optional(),
+  remaining_payments: z.string().optional(),
+
+  // Invoice Fields
+  invoice_id: z.string().optional(),
+  amount: z.string().optional(),
+  currency: z.string().optional(),
+  order_id: z.string().optional(),
+  po_number: z.string().optional(),
+  order_description: z.string().optional(),
+  tax_amount: z.string().optional(),
+  discount_amount: z.string().optional(),
+  payments_applied: z.string().optional(),
+
+  // Processor Fields
+  processor_id: z.string().optional(),
+  platform: z.string().optional(),
+  mcc: z.string().optional(),
+  emv_support: z.string().optional(),
+
+  // Merchant/Gateway Fields
+  merchant_company: z.string().optional(),
+  merchant_email: z.string().optional(),
+  merchant_url: z.string().optional(),
+  merchant_phone: z.string().optional(),
+  merchant_timezone: z.string().optional(),
+  merchant_favicon: z.string().optional(),
+  card_schemes: z.string().optional(),
+  account_status: z.string().optional(),
+  test_mode_enabled: z.string().optional(),
+
+  // Custom Fields
+  initiatedBy: z.string().optional(),
+  usersAffected: z.array(z.string()).optional(),
+  timestamp: z.string().optional(),
+
+  // Raw Response Storage
+  raw_response: z.string().optional(),
+  error: z.any().optional(),
+});
+
+export type FlatQueryResponse = z.infer<typeof FlatQueryResponseSchema>;

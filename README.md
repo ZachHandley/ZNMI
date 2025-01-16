@@ -306,6 +306,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
+- 0.2.32: Add `FlatQueryResponse` type, cause I like having logging in my database and I can't transform a union into a singular collection
+- 0.2.31: Add `QueryResponse` type, which is just a union of the others, but makes my life (and maybe yours) easier
 - 0.2.3: Add `Query` API, which I didn't know existed
 - 0.2.2: Fix the test running
 - 0.2.1: Fix types

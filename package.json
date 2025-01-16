@@ -1,7 +1,7 @@
 {
   "name": "znmi",
   "type": "module",
-  "version": "0.2.3",
+  "version": "0.2.32",
   "description": "A simple and easy TypeScript wrapper around NMI's API",
   "files": [
     "dist"
