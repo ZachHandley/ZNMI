@@ -306,6 +306,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
+- 0.2.35: Fixed `package.json` and `tsup.config.ts` to hopefully build it properly so we can reference it
+- 0.2.34: Change `updateSubscription` so it doesn't _need_ an `amount` (for example for pausing)
+- 0.2.33: Add `addSubscriptionToExistingPlan`
 - 0.2.32: Add `FlatQueryResponse` type, cause I like having logging in my database and I can't transform a union into a singular collection
 - 0.2.31: Add `QueryResponse` type, which is just a union of the others, but makes my life (and maybe yours) easier
 - 0.2.3: Add `Query` API, which I didn't know existed

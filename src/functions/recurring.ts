@@ -5,6 +5,7 @@ import {
   EditRecurringPlanSchema,
   AddSubscriptionToExistingPlanSchema,
   AddCustomSubscriptionSchema,
+  AddSubscriptionToExistingPlanRequestSchema,
   UpdateSubscriptionSchema,
   DeleteSubscriptionRequestSchema,
   type AddRecurringPlan,
@@ -271,10 +272,97 @@ export class Recurring {
     }
   }
 
+  async addSubscriptionToExistingPlan(
+    subscriptionData?: {
+      plan_id: string;
+      start_date?: string;
+      amount?: number;
+      payment?: "creditcard" | "check";
+      day_frequency?: number;
+      month_frequency?: number;
+      day_of_month?: number;
+    },
+    additionalData?: Partial<AddSubscriptionToExistingPlan>
+  ): Promise<{
+    status: number;
+    data?: RecurringResponse;
+    message: string;
+  }> {
+    try {
+      if (!subscriptionData && !additionalData) {
+        return {
+          status: 400,
+          message:
+            "Invalid request: either subscriptionData or additionalData is required",
+        };
+      }
+
+      // Ensure plan_id is provided
+      if (!subscriptionData?.plan_id) {
+        return {
+          status: 400,
+          message: "Invalid request: plan_id is required",
+        };
+      }
+
+      // Validate frequency parameters
+      if (
+        (subscriptionData?.day_frequency &&
+          subscriptionData?.month_frequency) ||
+        (subscriptionData?.day_frequency && subscriptionData?.day_of_month) ||
+        (subscriptionData?.month_frequency && !subscriptionData?.day_of_month)
+      ) {
+        return {
+          status: 400,
+          message:
+            "Invalid frequency configuration: day_frequency cannot be used with month_frequency or day_of_month, and month_frequency requires day_of_month",
+        };
+      }
+
+      const parsed = AddSubscriptionToExistingPlanRequestSchema.safeParse({
+        recurring: "add_subscription",
+        ...subscriptionData,
+        ...additionalData,
+        // Convert amount to string if provided
+        ...(subscriptionData?.amount && {
+          plan_amount: subscriptionData.amount.toFixed(2),
+        }),
+        // Format start_date if provided
+        ...(subscriptionData?.start_date && {
+          start_date: subscriptionData.start_date.replace(/-/g, ""),
+        }),
+      });
+
+      if (!parsed.success) {
+        return {
+          status: 400,
+          message: `Invalid input data: ${parsed.error.message}`,
+        };
+      }
+
+      const subscriptionRequest = parsed.data;
+      const result = await this.recurringApi.addSubscriptionToExistingPlan(
+        subscriptionRequest
+      );
+
+      return {
+        status: 200,
+        data: result,
+        message: "Subscription added successfully",
+      };
+    } catch (error: any) {
+      console.error("Error in addSubscriptionToExistingPlan:", error);
+      return {
+        status: 500,
+        message: `Error adding subscription: ${error.message}`,
+      };
+    }
+  }
+
   async updateSubscription(
     subscriptionData?: {
       subscription_id: string;
-      amount: number;
+      amount?: number;
       plan_payments?: number;
       day_frequency?: number;
       month_frequency?: number;

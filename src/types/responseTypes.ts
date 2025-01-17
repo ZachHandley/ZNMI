@@ -96,6 +96,7 @@ export const RecurringResponseSchema = z.object({
     "update_recurring",
     "delete_recurring",
     "get_recurring",
+    "add_subscription",
     "",
   ]),
   response_code: z.string(),
