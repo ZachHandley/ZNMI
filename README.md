@@ -250,6 +250,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
+- 0.2.42: Another fix to (actually) fix Query Recurring Plans now that I was able to test
 - 0.2.41: Fix Query Recurring types
 - 0.2.40: Tested and revamped the `Query` API to make sure it works, additionally, I updated the main query endpoints to just take an object parameter. I initially made them that way so you could just pass the required info, but I realize that at this point it's probably just annoying.
 - 0.2.37: Fix typedefs of `Query` API (some)

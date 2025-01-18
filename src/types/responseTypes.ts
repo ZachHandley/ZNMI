@@ -215,8 +215,8 @@ export const QueryRecurringResponseSchema = z.object({
           plan_amount: z.coerce
             .number()
             .describe("Amount associated with the plan"),
-          plan_payments: z.coerce
-            .number()
+          plan_payments: z
+            .union([z.coerce.number(), z.literal("until_cancelled")])
             .describe("Number of payments for the plan"),
           day_frequency: z.coerce
             .number()
@@ -278,9 +278,11 @@ export const QueryRecurringPlansResponseSchema = z.object({
     plan: z.array(
       z.object({
         id: z.string().optional().describe("Unique identifier for the plan"),
-        plan_id: z.coerce.number().describe("Plan's specific ID"),
+        plan_id: z.string().describe("Plan's specific ID"),
         plan_name: z.string().describe("Name of the recurring plan"),
-        plan_amount: z.string().describe("Amount associated with the plan"),
+        plan_amount: z.coerce
+          .number()
+          .describe("Amount associated with the plan"),
         day_frequency: z.coerce
           .number()
           .describe("Frequency of the plan in days"),
@@ -290,8 +292,8 @@ export const QueryRecurringPlansResponseSchema = z.object({
         day_of_month: z.coerce
           .number()
           .describe("Specific day of the month for the plan"),
-        plan_payments: z.coerce
-          .number()
+        plan_payments: z
+          .union([z.coerce.number(), z.literal("until_cancelled")])
           .describe("Number of payments for the plan"),
       })
     ),
@@ -704,7 +706,10 @@ export const FlatQueryResponseSchema = z.object({
   plan_id: z.string().optional(),
   plan_name: z.string().optional(),
   plan_amount: z.string().optional(),
-  plan_payments: z.string().optional(),
+  plan_payments: z
+    .union([z.coerce.number(), z.literal("until_cancelled")])
+    .optional()
+    .describe("Number of payments for the plan"),
   day_frequency: z.string().optional(),
   month_frequency: z.string().optional(),
   day_of_month: z.string().optional(),
