@@ -204,21 +204,36 @@ export const QueryRecurringResponseSchema = z.object({
   nm_response: z.object({
     subscription: z.array(
       z.object({
-        id: z.string().describe("Unique identifier for the subscription"),
+        id: z
+          .string()
+          .optional()
+          .describe("Unique identifier for the subscription"),
         subscription_id: z.string().describe("Subscription-specific ID"),
         plan: z.object({
           plan_id: z.string().describe("Plan's specific ID"),
           plan_name: z.string().describe("Name of the plan"),
-          plan_amount: z.string().describe("Amount associated with the plan"),
-          plan_payments: z.string().describe("Number of payments for the plan"),
-          day_frequency: z.string().describe("Frequency of the plan in days"),
+          plan_amount: z.coerce
+            .number()
+            .describe("Amount associated with the plan"),
+          plan_payments: z.coerce
+            .number()
+            .describe("Number of payments for the plan"),
+          day_frequency: z.coerce
+            .number()
+            .describe("Frequency of the plan in days"),
         }),
         next_charge_date: z
           .string()
           .describe("Date of next charge for the subscription"),
-        completed_payments: z.string().describe("Number of completed payments"),
-        attempted_payments: z.string().describe("Number of attempted payments"),
-        remaining_payments: z.string().describe("Number of remaining payments"),
+        completed_payments: z.coerce
+          .number()
+          .describe("Number of completed payments"),
+        attempted_payments: z.coerce
+          .number()
+          .describe("Number of attempted payments"),
+        remaining_payments: z.coerce
+          .number()
+          .describe("Number of remaining payments"),
         ponumber: z.string().describe("Purchase Order number"),
         orderid: z.string().describe("Order ID"),
         order_description: z.string().describe("Description of the order"),
@@ -241,12 +256,12 @@ export const QueryRecurringResponseSchema = z.object({
           .string()
           .describe("Customer's tax identification number"),
         website: z.string().describe("Website URL"),
-        cc_number: z.string().describe("Credit card number"),
+        cc_number: z.coerce.number().describe("Credit card number"),
         cc_hash: z.string().describe("Credit card hash"),
         cc_exp: z.string().describe("Credit card expiration date"),
         cc_start_date: z.string().describe("Credit card start date"),
-        cc_issue_number: z.string().describe("Credit card issue number"),
-        cc_bin: z.string().describe("Credit card BIN number"),
+        cc_issue_number: z.coerce.number().describe("Credit card issue number"),
+        cc_bin: z.coerce.number().describe("Credit card BIN number"),
         processor_id: z.string().describe("Processor ID"),
       })
     ),
@@ -262,16 +277,22 @@ export const QueryRecurringPlansResponseSchema = z.object({
   nm_response: z.object({
     plan: z.array(
       z.object({
-        id: z.string().describe("Unique identifier for the plan"),
-        plan_id: z.string().describe("Plan's specific ID"),
+        id: z.string().optional().describe("Unique identifier for the plan"),
+        plan_id: z.coerce.number().describe("Plan's specific ID"),
         plan_name: z.string().describe("Name of the recurring plan"),
         plan_amount: z.string().describe("Amount associated with the plan"),
-        day_frequency: z.string().describe("Frequency of the plan in days"),
-        month_frequency: z.string().describe("Frequency of the plan in months"),
-        day_of_month: z
-          .string()
+        day_frequency: z.coerce
+          .number()
+          .describe("Frequency of the plan in days"),
+        month_frequency: z.coerce
+          .number()
+          .describe("Frequency of the plan in months"),
+        day_of_month: z.coerce
+          .number()
           .describe("Specific day of the month for the plan"),
-        plan_payments: z.string().describe("Number of payments for the plan"),
+        plan_payments: z.coerce
+          .number()
+          .describe("Number of payments for the plan"),
       })
     ),
   }),
