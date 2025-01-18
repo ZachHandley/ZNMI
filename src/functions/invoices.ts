@@ -1,15 +1,10 @@
+import { InvoicesApi } from "../api/invoicesApi.js";
 import {
-  INVOICE_URL,
-  CreateInvoiceRequestSchema,
-  UpdateInvoiceRequestSchema,
-  CloseInvoiceRequestSchema,
-  SendInvoiceRequestSchema,
   type CreateInvoiceRequest,
   type UpdateInvoiceRequest,
   type CloseInvoiceRequest,
   type SendInvoiceRequest,
 } from "../types/invoiceRequestSchemas.js";
-import { InvoicesApi } from "../api/invoicesApi.js";
 import type { InvoiceResponse } from "../types/responseTypes.js";
 
 export class Invoices {
@@ -21,73 +16,23 @@ export class Invoices {
     this.invoicesApi = new InvoicesApi(securityKey);
   }
 
-  beforeRequest = (request: any) => {
-    return {
-      ...request,
-      securityKey: this._securityKey,
-    };
-  };
-
-  async createInvoice(
-    invoiceData?: {
-      amount: number;
-      email: string;
-      tax?: number;
-      payment_terms?: "upon_receipt" | number;
-      payment_terms_allowed?: ("cc" | "ck" | "cs")[];
-      shipping?: number;
-      customer_id?: string;
-      currency?: string;
-      orderid?: string;
-      order_description?: string;
-      first_name?: string;
-      last_name?: string;
-      company?: string;
-      address1?: string;
-      address2?: string;
-      city?: string;
-      state?: string;
-      zip?: string;
-      country?: string;
-      phone?: string;
-      fax?: string;
-      website?: string;
-    },
-    additionalOptions?: Partial<CreateInvoiceRequest>
-  ): Promise<{
+  async createInvoice(request: CreateInvoiceRequest): Promise<{
     status: number;
     data?: InvoiceResponse;
     message: string;
   }> {
     try {
-      if (!invoiceData && !additionalOptions) {
-        return {
-          status: 400,
-          message: "Invalid request",
-        };
-      }
-      const parsed = CreateInvoiceRequestSchema.safeParse({
+      const result = await this.invoicesApi.createInvoice({
+        ...request,
         invoicing: "add_invoice",
-        payment_terms: "upon_receipt",
-        payment_terms_allowed: ["cc", "ck", "cs"],
-        ...invoiceData,
-        ...additionalOptions,
       });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for createInvoice ${parsed.error.message}`,
-        };
-      }
-      const createInvoiceRequest: CreateInvoiceRequest = parsed.data;
-      const request = this.beforeRequest(createInvoiceRequest);
-      const result = await this.invoicesApi.createInvoice(request);
       return {
         status: 200,
         data: result,
-        message: "Invoice created",
+        message: "Invoice created successfully",
       };
     } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
         message: `Error creating invoice: ${error.message}`,
@@ -95,164 +40,74 @@ export class Invoices {
     }
   }
 
-  async updateInvoice(
-    invoiceData?: {
-      invoice_id: string;
-      amount?: number;
-      email?: string;
-      tax?: number;
-      shipping?: number;
-      payment_terms?: "upon_receipt" | number;
-      customer_id?: string;
-      currency?: string;
-      orderid?: string;
-      order_description?: string;
-      first_name?: string;
-      last_name?: string;
-      company?: string;
-      address1?: string;
-      address2?: string;
-      city?: string;
-      state?: string;
-      zip?: string;
-      country?: string;
-      phone?: string;
-      fax?: string;
-      website?: string;
-    },
-    additionalOptions?: Partial<UpdateInvoiceRequest>
-  ): Promise<{
+  async updateInvoice(request: UpdateInvoiceRequest): Promise<{
     status: number;
     data?: InvoiceResponse;
     message: string;
   }> {
     try {
-      if (!invoiceData && !additionalOptions) {
-        return {
-          status: 400,
-          message: "Invalid request",
-        };
-      }
-      const parsed = UpdateInvoiceRequestSchema.safeParse({
+      const result = await this.invoicesApi.updateInvoice({
+        ...request,
         invoicing: "update_invoice",
-        ...invoiceData,
-        ...additionalOptions,
       });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for updateInvoice ${parsed.error.message}`,
-        };
-      }
-      const updateInvoiceRequest: UpdateInvoiceRequest = parsed.data;
-      const request = this.beforeRequest(updateInvoiceRequest);
-      const result = await this.invoicesApi.updateInvoice(request);
       return {
         status: 200,
         data: result,
-        message: "Invoice updated",
+        message: "Invoice updated successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message: "Error updating invoice",
+        message: `Error updating invoice: ${error.message}`,
       };
     }
   }
 
-  async closeInvoice(
-    invoiceData?: {
-      invoice_id?: string;
-    },
-    additionalOptions?: Partial<CloseInvoiceRequest>
-  ): Promise<{
+  async closeInvoice(request: CloseInvoiceRequest): Promise<{
     status: number;
     data?: InvoiceResponse;
     message: string;
   }> {
     try {
-      if (
-        !invoiceData &&
-        (!additionalOptions || !additionalOptions.invoice_id)
-      ) {
-        return {
-          status: 400,
-          message: "invoice_id is required",
-        };
-      }
-      const parsed = CloseInvoiceRequestSchema.safeParse({
+      const result = await this.invoicesApi.closeInvoice({
+        ...request,
         invoicing: "close_invoice",
-        ...invoiceData,
-        ...additionalOptions,
       });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for closeInvoice ${parsed.error.message}`,
-        };
-      }
-      const closeInvoiceRequest: CloseInvoiceRequest = parsed.data;
-      const request = this.beforeRequest(closeInvoiceRequest);
-      const result = await this.invoicesApi.closeInvoice(request);
       return {
         status: 200,
         data: result,
-        message: "Invoice closed",
+        message: "Invoice closed successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message: "Error closing invoice",
+        message: `Error closing invoice: ${error.message}`,
       };
     }
   }
 
-  async sendInvoice(
-    invoiceData?: {
-      email: string;
-      invoice_id?: string;
-    },
-    additionalOptions?: Partial<SendInvoiceRequest>
-  ): Promise<{
+  async sendInvoice(request: SendInvoiceRequest): Promise<{
     status: number;
     data?: InvoiceResponse;
     message: string;
   }> {
     try {
-      if (
-        !invoiceData ||
-        !invoiceData.email ||
-        (!invoiceData.invoice_id &&
-          (!additionalOptions || !additionalOptions.invoice_id))
-      ) {
-        return {
-          status: 400,
-          message: "invoice_id and email are required",
-        };
-      }
-      const parsed = SendInvoiceRequestSchema.safeParse({
+      const result = await this.invoicesApi.sendInvoice({
+        ...request,
         invoicing: "send_invoice",
-        ...invoiceData,
-        ...additionalOptions,
       });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for sendInvoice ${parsed.error.message}`,
-        };
-      }
-      const sendInvoiceRequest: SendInvoiceRequest = parsed.data;
-      const request = this.beforeRequest(sendInvoiceRequest);
-      const result = await this.invoicesApi.sendInvoice(request);
       return {
         status: 200,
         data: result,
-        message: "Invoice sent",
+        message: "Invoice sent successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message: "Error sending invoice",
+        message: `Error sending invoice: ${error.message}`,
       };
     }
   }

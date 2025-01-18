@@ -2,13 +2,10 @@ import { XMLParser } from "fast-xml-parser";
 import { z } from "zod";
 import {
   QueryRequestSchema,
-  type QueryRequest,
-  type QueryRequestWithoutKey,
-  QueryTransactionConditionEnum,
   type QueryDateSearchEnum,
+  type QueryRequest,
   type QueryResultOrderEnum,
-  type QueryTransactionSourceEnum,
-  type QueryTransactionActionTypeEnum,
+  type QueryRequestWithoutKey,
 } from "../types/queryTypes.js";
 import {
   type QueryProfileResponse,
@@ -23,19 +20,20 @@ import {
   QueryGatewayProcessorsResponseSchema,
   type QueryCustomerVaultResponse,
   QueryCustomerVaultResponseSchema,
+  type QueryTransactionResponse,
+  QueryTransactionResponseSchema,
+  type QueryTestModeResponse,
+  QueryTestModeResponseSchema,
 } from "../types/responseTypes.js";
-import { PostRequest, PostRequestXML } from "./utils.js";
+import { PostRequestXML } from "./utils.js";
 
 export const QUERY_URL = "https://secure.nmi.com/api/query.php";
 
-// Add error response type
 const QueryErrorResponseSchema = z.object({
   nm_response: z.object({
     error_response: z.string(),
   }),
 });
-
-type QueryErrorResponse = z.infer<typeof QueryErrorResponseSchema>;
 
 export class QueryApi {
   private _securityKey: string;
@@ -60,261 +58,253 @@ export class QueryApi {
   private parseResponse<T>(xmlResponse: string, schema: z.ZodType<T>): T {
     const parsed = this._xmlParser.parse(xmlResponse);
 
+    // Handle completely empty response
+    if (parsed.nm_response === "") {
+      parsed.nm_response = {
+        customer_vault: { customer: [] },
+        transaction: [],
+        recurring: [],
+        plan: [],
+        subscription: [],
+        gateway_processor: [],
+        invoice_report: { invoice: [] },
+      };
+    }
+    // Handle empty string properties
+    else if (parsed.nm_response) {
+      if (parsed.nm_response.customer_vault === "") {
+        parsed.nm_response.customer_vault = { customer: [] };
+      }
+      if (parsed.nm_response.transaction === "") {
+        parsed.nm_response.transaction = [];
+      }
+      if (parsed.nm_response.recurring === "") {
+        parsed.nm_response.recurring = [];
+      }
+      if (parsed.nm_response.plan === "") {
+        parsed.nm_response.plan = [];
+      }
+      if (parsed.nm_response.gateway_processor === "") {
+        parsed.nm_response.gateway_processor = [];
+      }
+      if (parsed.nm_response.invoice_report === "") {
+        parsed.nm_response.invoice_report = { invoice: [] };
+      }
+    }
+
     // Check for error response first
     try {
       const errorResponse = QueryErrorResponseSchema.parse(parsed);
       throw new Error(errorResponse.nm_response.error_response);
     } catch (e) {
       if (e instanceof z.ZodError) {
-        // Not an error response, continue with normal parsing
         return schema.parse(parsed);
       }
-      throw e; // Re-throw if it was our error
+      throw e;
     }
   }
 
-  /**
-   * Base query method
-   */
-  private query = async (queryRequest: Partial<QueryRequestWithoutKey>) => {
-    const request = this.beforeRequest(queryRequest);
-    const validatedRequest = QueryRequestSchema.parse(request);
-    const response = await PostRequestXML(QUERY_URL, validatedRequest);
+  private async query(request: Partial<QueryRequestWithoutKey>) {
+    const fullRequest = this.beforeRequest(request);
+    const response = await PostRequestXML(QUERY_URL, fullRequest);
     return response;
-  };
+  }
 
-  /**
-   * Query a specific transaction by ID
-   */
-  queryTransaction = async (transactionId: string) => {
-    const response = await this.query({
-      transaction_id: transactionId,
-    });
-    return this.parseResponse(response, QueryCustomerVaultResponseSchema);
-  };
+  // Non-paginated queries
+  async queryTransaction(
+    request: Pick<QueryRequest, "transaction_id" | "report_type">
+  ): Promise<QueryTransactionResponse> {
+    const response = await this.query(request);
+    return this.parseResponse(response, QueryTransactionResponseSchema);
+  }
 
-  /**
-   * Get HTML receipt for a transaction
-   */
-  queryReceipt = async (transactionId: string) => {
-    return this.query({
-      report_type: "receipt",
-      transaction_id: transactionId,
-    });
-  };
+  async queryReceipt(
+    request: Pick<QueryRequest, "transaction_id"> & { report_type: "receipt" }
+  ): Promise<string> {
+    const response = await this.query(request);
+    return response;
+  }
 
-  /**
-   * Query merchant profile
-   */
-  queryProfile = async (
-    includeProcessorDetails: boolean = false
-  ): Promise<QueryProfileResponse> => {
-    const response = await this.query({
-      report_type: "profile",
-      processor_details: includeProcessorDetails ? "true" : "false",
-    });
+  async queryProfile(
+    request: { report_type: "profile" } & Pick<
+      QueryRequest,
+      "processor_details"
+    >
+  ): Promise<QueryProfileResponse> {
+    const response = await this.query(request);
     return this.parseResponse(response, QueryProfileResponseSchema);
-  };
+  }
 
-  /**
-   * Query transactions by date range
-   */
-  queryTransactionsByDate = async (
-    startDate: string, // Format: YYYYMMDDhhmmss
-    endDate: string, // Format: YYYYMMDDhhmmss
-    options: Partial<QueryRequestWithoutKey> = {}
-  ) => {
-    const response = await this.query({
-      start_date: startDate,
-      end_date: endDate,
-      ...options,
-    });
-    return this.parseResponse(response, QueryCustomerVaultResponseSchema);
-  };
+  // Paginated queries with date ranges
+  async queryTransactionsByDate(
+    request: Pick<
+      QueryRequestWithoutKey,
+      | "start_date"
+      | "end_date"
+      | "date_search"
+      | "page_number"
+      | "result_limit"
+      | "result_order"
+    >
+  ): Promise<QueryTransactionResponse> {
+    const response = await this.query(request);
+    return this.parseResponse(response, QueryTransactionResponseSchema);
+  }
 
-  /**
-   * Query customer vault data
-   */
-  queryCustomerVault = async (
-    customerVaultId?: string,
-    dateRange?: {
-      startDate: string; // Format: YYYYMMDDhhmmss
-      endDate: string; // Format: YYYYMMDDhhmmss
-      searchType: QueryDateSearchEnum;
-    },
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<QueryCustomerVaultResponse> => {
-    const request: Partial<QueryRequestWithoutKey> = {
-      report_type: "customer_vault",
-      customer_vault_id: customerVaultId,
-      ...options,
-    };
-
-    if (dateRange) {
-      request.date_search = dateRange.searchType;
-      request.start_date = dateRange.startDate;
-      request.end_date = dateRange.endDate;
-    }
-
+  async queryCustomerVault(
+    request: { report_type: "customer_vault" } & Pick<
+      QueryRequestWithoutKey,
+      | "customer_vault_id"
+      | "start_date"
+      | "end_date"
+      | "date_search"
+      | "page_number"
+      | "result_limit"
+      | "result_order"
+    >
+  ): Promise<QueryCustomerVaultResponse> {
     const response = await this.query(request);
     return this.parseResponse(response, QueryCustomerVaultResponseSchema);
-  };
+  }
 
-  /**
-   * Query recurring subscription data
-   */
-  queryRecurring = async (
-    subscriptionId?: string,
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<QueryRecurringResponse> => {
+  async queryRecurring(
+    request: { report_type: "recurring" } & Pick<
+      QueryRequestWithoutKey,
+      | "subscription_id"
+      | "start_date"
+      | "end_date"
+      | "date_search"
+      | "page_number"
+      | "result_limit"
+      | "result_order"
+    >
+  ): Promise<QueryRecurringResponse> {
     const response = await this.query({
+      ...request,
       report_type: "recurring",
-      subscription_id: subscriptionId,
-      ...options,
     });
     return this.parseResponse(response, QueryRecurringResponseSchema);
-  };
+  }
 
-  /**
-   * Query recurring plans data
-   */
-  queryRecurringPlans = async (
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<QueryRecurringPlansResponse> => {
+  // Paginated queries without date ranges
+  async queryRecurringPlans(
+    request: { report_type: "recurring_plans" } & Pick<
+      QueryRequestWithoutKey,
+      "page_number" | "result_limit" | "result_order"
+    >
+  ): Promise<QueryRecurringPlansResponse> {
     const response = await this.query({
+      ...request,
       report_type: "recurring_plans",
-      ...options,
     });
     return this.parseResponse(response, QueryRecurringPlansResponseSchema);
-  };
+  }
 
-  /**
-   * Query invoice data
-   */
-  queryInvoices = async (
-    invoiceId?: string,
-    status?: string[], // Array of statuses that will be joined with commas
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<QueryInvoicingResponse> => {
+  async queryInvoices(
+    request: { report_type: "invoicing" } & Pick<
+      QueryRequestWithoutKey,
+      | "invoice_id"
+      | "invoice_status"
+      | "page_number"
+      | "result_limit"
+      | "result_order"
+    >
+  ): Promise<QueryInvoicingResponse> {
     const response = await this.query({
+      ...request,
       report_type: "invoicing",
-      invoice_id: invoiceId,
-      invoice_status: status?.join(","),
-      ...options,
     });
     return this.parseResponse(response, QueryInvoicingResponseSchema);
-  };
+  }
 
-  /**
-   * Query transactions by condition
-   */
-  queryTransactionsByCondition = async (
-    conditions: (keyof typeof QueryTransactionConditionEnum)[],
-    options: Partial<QueryRequestWithoutKey> = {}
-  ) => {
-    const response = await this.query({
-      condition: conditions.join(","),
-      ...options,
-    });
-    return this.parseResponse(response, QueryCustomerVaultResponseSchema);
-  };
+  async queryTransactions(request: {
+    report_type?: QueryRequest["report_type"];
+    transaction_id?: string;
+    start_date?: string;
+    end_date?: string;
+    date_search_type?: QueryDateSearchEnum;
+    page_number?: number;
+    result_limit?: number;
+    result_order?: QueryResultOrderEnum;
+  }): Promise<QueryTransactionResponse> {
+    const response = await this.query(request);
+    return this.parseResponse(response, QueryTransactionResponseSchema);
+  }
 
-  /**
-   * Query transactions by source
-   */
-  queryTransactionsBySource = async (
-    sources: QueryTransactionSourceEnum[],
-    options: Partial<QueryRequestWithoutKey> = {}
-  ) => {
+  async queryTransactionsByCondition(
+    request: Pick<
+      QueryRequestWithoutKey,
+      "condition" | "page_number" | "result_limit" | "result_order"
+    >
+  ): Promise<QueryTransactionResponse> {
     const response = await this.query({
-      source: sources.join(","),
-      ...options,
+      ...request,
+      condition: Array.isArray(request.condition)
+        ? request.condition.join(",")
+        : request.condition,
     });
-    return this.parseResponse(response, QueryCustomerVaultResponseSchema);
-  };
+    return this.parseResponse(response, QueryTransactionResponseSchema);
+  }
 
-  /**
-   * Query transactions by action type
-   */
-  queryTransactionsByActionType = async (
-    actionTypes: QueryTransactionActionTypeEnum[],
-    options: Partial<QueryRequestWithoutKey> = {}
-  ) => {
+  async queryTransactionsBySource(
+    request: Pick<
+      QueryRequestWithoutKey,
+      "source" | "page_number" | "result_limit" | "result_order"
+    >
+  ): Promise<QueryTransactionResponse> {
     const response = await this.query({
-      action_type: actionTypes.join(","),
-      ...options,
+      ...request,
+      source: Array.isArray(request.source)
+        ? request.source.join(",")
+        : request.source,
     });
-    return this.parseResponse(response, QueryCustomerVaultResponseSchema);
-  };
+    return this.parseResponse(response, QueryTransactionResponseSchema);
+  }
 
-  /**
-   * Query transactions by card number (full or last 4)
-   */
-  queryTransactionsByCard = async (
-    cardNumber: string,
-    options: Partial<QueryRequestWithoutKey> = {}
-  ) => {
+  async queryTransactionsByActionType(
+    request: Pick<
+      QueryRequestWithoutKey,
+      "action_type" | "page_number" | "result_limit" | "result_order"
+    >
+  ): Promise<QueryTransactionResponse> {
     const response = await this.query({
-      cc_number: cardNumber,
-      ...options,
+      ...request,
+      action_type: Array.isArray(request.action_type)
+        ? request.action_type.join(",")
+        : request.action_type,
     });
-    return this.parseResponse(response, QueryCustomerVaultResponseSchema);
-  };
+    return this.parseResponse(response, QueryTransactionResponseSchema);
+  }
 
-  /**
-   * Query transactions with pagination
-   */
-  queryTransactionsWithPagination = async (
-    pageNumber: number,
-    resultLimit: number,
-    resultOrder: QueryResultOrderEnum,
-    options: Partial<QueryRequestWithoutKey> = {}
-  ) => {
-    const response = await this.query({
-      page_number: pageNumber.toString(),
-      result_limit: resultLimit.toString(),
-      result_order: resultOrder,
-      ...options,
-    });
-    return this.parseResponse(response, QueryCustomerVaultResponseSchema);
-  };
+  async queryTransactionsByCard(
+    request: Pick<
+      QueryRequestWithoutKey,
+      "cc_number" | "page_number" | "result_limit" | "result_order"
+    >
+  ): Promise<QueryTransactionResponse> {
+    const response = await this.query(request);
+    return this.parseResponse(response, QueryTransactionResponseSchema);
+  }
 
-  /**
-   * Query gateway processors
-   */
-  queryGatewayProcessors = async (
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<QueryGatewayProcessorsResponse> => {
-    const response = await this.query({
-      report_type: "gateway_processors",
-      ...options,
-    });
+  // Non-paginated queries
+  async queryGatewayProcessors(request: {
+    report_type: "gateway_processors";
+  }): Promise<QueryGatewayProcessorsResponse> {
+    const response = await this.query(request);
     return this.parseResponse(response, QueryGatewayProcessorsResponseSchema);
-  };
+  }
 
-  /**
-   * Query account updater status
-   */
-  queryAccountUpdater = async (
-    options: Partial<QueryRequestWithoutKey> = {}
-  ) => {
-    const response = await this.query({
-      report_type: "account_updater",
-      ...options,
-    });
+  async queryAccountUpdater(request: {
+    report_type: "account_updater";
+  }): Promise<QueryCustomerVaultResponse> {
+    const response = await this.query(request);
     return this.parseResponse(response, QueryCustomerVaultResponseSchema);
-  };
+  }
 
-  /**
-   * Query test mode status
-   */
-  queryTestModeStatus = async (
-    options: Partial<QueryRequestWithoutKey> = {}
-  ) => {
-    const response = await this.query({
-      report_type: "test_mode_status",
-      ...options,
-    });
-    return this.parseResponse(response, QueryCustomerVaultResponseSchema);
-  };
+  async queryTestModeStatus(request: {
+    report_type: "test_mode_status";
+  }): Promise<QueryTestModeResponse> {
+    const response = await this.query(request);
+    return this.parseResponse(response, QueryTestModeResponseSchema);
+  }
 }

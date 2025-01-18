@@ -1,13 +1,9 @@
+import { ProductManagerApi } from "../api/productManagerApi.js";
 import {
-  AddProductRequestSchema,
-  UpdateProductRequestSchema,
-  DeleteProductRequestSchema,
   type AddProductRequest,
   type UpdateProductRequest,
   type DeleteProductRequest,
-  PRODUCT_MANAGER_URL,
 } from "../types/productManagerRequest.js";
-import { ProductManagerApi } from "../api/productManagerApi.js";
 import type { ProductResponse } from "../types/responseTypes.js";
 
 export class Products {
@@ -19,163 +15,74 @@ export class Products {
     this.productManagerApi = new ProductManagerApi(securityKey);
   }
 
-  beforeRequest = (request: any) => {
-    return {
-      ...request,
-      securityKey: this._securityKey,
-    };
-  };
-
-  async addProduct(
-    productData?: {
-      product_sku: string;
-      product_description: string;
-      product_cost: string;
-      product_currency?: string;
-      product_commodity_code?: string;
-      product_unit_of_measure?: string;
-      product_tax_amount?: string;
-      product_discount_amount?: string;
-      product_image_data?: string;
-      product_image_name?: string;
-    },
-    additionalOptions?: Partial<AddProductRequest>
-  ): Promise<{
+  async addProduct(request: AddProductRequest): Promise<{
     status: number;
     data?: ProductResponse;
-    message?: string;
+    message: string;
   }> {
     try {
-      if (!productData && !additionalOptions) {
-        return {
-          status: 400,
-          message: "Invalid request",
-        };
-      }
-      const parsed = AddProductRequestSchema.safeParse({
+      const result = await this.productManagerApi.addProduct({
+        ...request,
         products: "add_product",
-        ...productData,
-        ...additionalOptions,
       });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for addProduct ${parsed.error.message}`,
-        };
-      }
-      const addProductRequest: AddProductRequest = parsed.data;
-      const request = this.beforeRequest(addProductRequest);
-      const result = await this.productManagerApi.addProduct(request);
       return {
         status: 200,
         data: result,
         message: "Product added successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message: "Error adding product",
+        message: `Error adding product: ${error.message}`,
       };
     }
   }
 
-  async updateProduct(
-    productData?: {
-      product_id: string;
-      product_sku?: string;
-      product_description?: string;
-      product_cost?: string;
-      product_currency?: string;
-      product_commodity_code?: string;
-      product_unit_of_measure?: string;
-      product_tax_amount?: string;
-      product_discount_amount?: string;
-      product_image_data?: string;
-      product_image_name?: string;
-    },
-    additionalOptions?: Partial<UpdateProductRequest>
-  ): Promise<{
+  async updateProduct(request: UpdateProductRequest): Promise<{
     status: number;
     data?: ProductResponse;
-    message?: string;
+    message: string;
   }> {
     try {
-      if (!productData && !additionalOptions) {
-        return {
-          status: 400,
-          message: "Invalid request",
-        };
-      }
-      const parsed = UpdateProductRequestSchema.safeParse({
+      const result = await this.productManagerApi.updateProduct({
+        ...request,
         products: "update_product",
-        ...productData,
-        ...additionalOptions,
       });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for updateProduct ${parsed.error.message}`,
-        };
-      }
-      const updateProductRequest: UpdateProductRequest = parsed.data;
-      const request = this.beforeRequest(updateProductRequest);
-      const result = await this.productManagerApi.updateProduct(request);
       return {
         status: 200,
         data: result,
         message: "Product updated successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message: "Error updating product",
+        message: `Error updating product: ${error.message}`,
       };
     }
   }
 
-  async deleteProduct(
-    productData?: {
-      product_id: string;
-    },
-    additionalOptions?: Partial<DeleteProductRequest>
-  ): Promise<{
+  async deleteProduct(request: DeleteProductRequest): Promise<{
     status: number;
     data?: ProductResponse;
-    message?: string;
+    message: string;
   }> {
     try {
-      if (
-        !productData &&
-        (!additionalOptions || !additionalOptions.product_id)
-      ) {
-        return {
-          status: 400,
-          message: "product_id is required",
-        };
-      }
-      const parsed = DeleteProductRequestSchema.safeParse({
+      const result = await this.productManagerApi.deleteProduct({
+        ...request,
         products: "delete_product",
-        ...productData,
-        ...additionalOptions,
       });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for deleteProduct ${parsed.error.message}`,
-        };
-      }
-      const deleteProductRequest: DeleteProductRequest = parsed.data;
-      const request = this.beforeRequest(deleteProductRequest);
-      const result = await this.productManagerApi.deleteProduct(request);
       return {
         status: 200,
         data: result,
         message: "Product deleted successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message: "Error deleting product",
+        message: `Error deleting product: ${error.message}`,
       };
     }
   }

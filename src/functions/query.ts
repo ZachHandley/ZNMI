@@ -1,12 +1,11 @@
 import { QueryApi } from "../api/queryApi.js";
 import {
-  type QueryRequest,
-  type QueryRequestWithoutKey,
-  type QueryTransactionSourceEnum,
-  type QueryTransactionActionTypeEnum,
   type QueryDateSearchEnum,
   type QueryResultOrderEnum,
-  QueryTransactionConditionEnum,
+  type QueryTransactionSource,
+  type QueryTransactionActionTypeEnum,
+  type QueryTransactionCondition,
+  type QueryRequest,
 } from "../types/queryTypes.js";
 import {
   type QueryProfileResponse,
@@ -15,7 +14,16 @@ import {
   type QueryInvoicingResponse,
   type QueryGatewayProcessorsResponse,
   type QueryCustomerVaultResponse,
+  type QueryTransactionResponse,
+  type QueryTestModeResponse,
 } from "../types/responseTypes.js";
+
+// Common response type to reduce repetition
+type QueryResponse<T> = {
+  status: number;
+  data?: T;
+  message: string;
+};
 
 export class Query {
   queryApi: QueryApi;
@@ -26,438 +34,356 @@ export class Query {
     this.queryApi = new QueryApi(securityKey);
   }
 
-  async queryTransaction(transactionId: string): Promise<{
-    status: number;
-    data?: QueryCustomerVaultResponse;
-    message?: string;
-  }> {
+  async queryTransaction(request: {
+    transaction_id: string;
+    report_type?: QueryRequest["report_type"];
+  }): Promise<QueryResponse<QueryTransactionResponse>> {
     try {
-      const result = await this.queryApi.queryTransaction(transactionId);
+      const result = await this.queryApi.queryTransaction(request);
       return {
         status: 200,
         data: result,
         message: "Transaction queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error ? error.message : "Error querying transaction",
+        message: `Error querying transaction: ${error.message}`,
       };
     }
   }
 
-  async queryReceipt(transactionId: string): Promise<{
-    status: number;
-    data?: string;
-    message?: string;
-  }> {
+  async queryReceipt(request: {
+    transaction_id: string;
+    report_type: "receipt";
+  }): Promise<QueryResponse<string>> {
     try {
-      const result = await this.queryApi.queryReceipt(transactionId);
+      const result = await this.queryApi.queryReceipt(request);
       return {
         status: 200,
         data: result,
         message: "Receipt queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error ? error.message : "Error querying receipt",
+        message: `Error querying receipt: ${error.message}`,
       };
     }
   }
 
-  async queryProfile(includeProcessorDetails: boolean = false): Promise<{
-    status: number;
-    data?: QueryProfileResponse;
-    message?: string;
-  }> {
+  async queryProfile(request: {
+    report_type: "profile";
+    include_processor_details?: "0" | "1";
+  }): Promise<QueryResponse<QueryProfileResponse>> {
     try {
-      const result = await this.queryApi.queryProfile(includeProcessorDetails);
+      const result = await this.queryApi.queryProfile(request);
       return {
         status: 200,
         data: result,
         message: "Profile queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error ? error.message : "Error querying profile",
+        message: `Error querying profile: ${error.message}`,
       };
     }
   }
 
-  async queryTransactionsByDate(
-    startDate: string,
-    endDate: string,
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryCustomerVaultResponse;
-    message?: string;
-  }> {
+  async queryTransactions(request: {
+    report_type?: QueryRequest["report_type"];
+    transaction_id?: string;
+    start_date?: string;
+    end_date?: string;
+    date_search_type?: QueryDateSearchEnum;
+    page_number?: number;
+    result_limit?: number;
+    result_order?: QueryResultOrderEnum;
+  }): Promise<QueryResponse<QueryTransactionResponse>> {
     try {
-      const result = await this.queryApi.queryTransactionsByDate(
-        startDate,
-        endDate,
-        options
-      );
+      const result = await this.queryApi.queryTransactions(request);
       return {
         status: 200,
         data: result,
         message: "Transactions queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying transactions by date",
+        message: `Error querying transactions: ${error.message}`,
       };
     }
   }
 
-  async queryCustomerVault(
-    customerVaultId?: string,
-    dateRange?: {
-      startDate: string;
-      endDate: string;
-      searchType: QueryDateSearchEnum;
-    },
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryCustomerVaultResponse;
-    message?: string;
-  }> {
+  async queryTransactionsByDate(request: {
+    start_date: string;
+    end_date: string;
+    date_search_type?: QueryDateSearchEnum;
+    page_number?: number;
+    result_limit?: number;
+    result_order?: QueryResultOrderEnum;
+  }): Promise<QueryResponse<QueryTransactionResponse>> {
     try {
-      const result = await this.queryApi.queryCustomerVault(
-        customerVaultId,
-        dateRange,
-        options
-      );
+      const result = await this.queryApi.queryTransactionsByDate(request);
+      return {
+        status: 200,
+        data: result,
+        message: "Transactions queried successfully",
+      };
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: 500,
+        message: `Error querying transactions by date: ${error.message}`,
+      };
+    }
+  }
+
+  async queryCustomerVault(request: {
+    report_type: "customer_vault";
+    customer_vault_id?: string;
+    start_date?: string;
+    end_date?: string;
+    date_search_type?: QueryDateSearchEnum;
+    page_number?: number;
+    result_limit?: number;
+    result_order?: QueryResultOrderEnum;
+  }): Promise<QueryResponse<QueryCustomerVaultResponse>> {
+    try {
+      const result = await this.queryApi.queryCustomerVault(request);
       return {
         status: 200,
         data: result,
         message: "Customer vault queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying customer vault",
+        message: `Error querying customer vault: ${error.message}`,
       };
     }
   }
 
-  async queryRecurring(
-    subscriptionId?: string,
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryRecurringResponse;
-    message?: string;
-  }> {
+  async queryRecurring(request: {
+    report_type: "recurring";
+    subscription_id?: string;
+    start_date?: string;
+    end_date?: string;
+    date_search_type?: QueryDateSearchEnum;
+    page_number?: number;
+    result_limit?: number;
+    result_order?: QueryResultOrderEnum;
+    status?: string;
+  }): Promise<QueryResponse<QueryRecurringResponse>> {
     try {
-      const result = await this.queryApi.queryRecurring(
-        subscriptionId,
-        options
-      );
+      const result = await this.queryApi.queryRecurring({
+        ...request,
+        report_type: "recurring",
+      });
       return {
         status: 200,
         data: result,
-        message: "Recurring subscription queried successfully",
+        message: "Recurring subscriptions queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying recurring subscription",
+        message: `Error querying recurring subscriptions: ${error.message}`,
       };
     }
   }
 
-  async queryRecurringPlans(
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryRecurringPlansResponse;
-    message?: string;
-  }> {
+  async queryRecurringPlans(request: {
+    report_type: "recurring_plans";
+    plan_id?: string;
+    page_number?: number;
+    result_limit?: number;
+    result_order?: QueryResultOrderEnum;
+  }): Promise<QueryResponse<QueryRecurringPlansResponse>> {
     try {
-      const result = await this.queryApi.queryRecurringPlans(options);
+      const result = await this.queryApi.queryRecurringPlans({
+        ...request,
+        report_type: "recurring_plans",
+      });
       return {
         status: 200,
         data: result,
         message: "Recurring plans queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying recurring plans",
+        message: `Error querying recurring plans: ${error.message}`,
       };
     }
   }
 
-  async queryInvoices(
-    invoiceId?: string,
-    status?: string[],
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryInvoicingResponse;
-    message?: string;
-  }> {
+  async queryInvoices(request: {
+    report_type: "invoicing";
+    invoice_id?: string;
+    status?: string[];
+    page_number?: number;
+    result_limit?: number;
+    result_order?: QueryResultOrderEnum;
+  }): Promise<QueryResponse<QueryInvoicingResponse>> {
     try {
-      const result = await this.queryApi.queryInvoices(
-        invoiceId,
-        status,
-        options
-      );
+      const result = await this.queryApi.queryInvoices({
+        ...request,
+        invoice_status: request.status?.join(","),
+      });
       return {
         status: 200,
         data: result,
         message: "Invoices queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error ? error.message : "Error querying invoices",
+        message: `Error querying invoices: ${error.message}`,
       };
     }
   }
 
-  async queryTransactionsByCondition(
-    conditions: (keyof typeof QueryTransactionConditionEnum)[],
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryCustomerVaultResponse;
-    message?: string;
-  }> {
+  async queryTransactionsByCondition(request: {
+    condition: QueryTransactionCondition[];
+    page_number?: number;
+    result_limit?: number;
+    result_order?: QueryResultOrderEnum;
+  }): Promise<QueryResponse<QueryTransactionResponse>> {
     try {
-      const result = await this.queryApi.queryTransactionsByCondition(
-        conditions,
-        options
-      );
+      const result = await this.queryApi.queryTransactionsByCondition({
+        ...request,
+        condition: request.condition.join(","),
+      });
       return {
         status: 200,
         data: result,
         message: "Transactions queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying transactions by condition",
+        message: `Error querying transactions by condition: ${error.message}`,
       };
     }
   }
 
-  async queryTransactionsBySource(
-    sources: QueryTransactionSourceEnum[],
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryCustomerVaultResponse;
-    message?: string;
-  }> {
+  async queryTransactionsBySource(request: {
+    source: QueryTransactionSource[];
+    page_number?: number;
+    result_limit?: number;
+    result_order?: QueryResultOrderEnum;
+  }): Promise<QueryResponse<QueryTransactionResponse>> {
     try {
-      const result = await this.queryApi.queryTransactionsBySource(
-        sources,
-        options
-      );
+      const result = await this.queryApi.queryTransactionsBySource({
+        ...request,
+        source: request.source.join(","),
+      });
       return {
         status: 200,
         data: result,
         message: "Transactions queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying transactions by source",
+        message: `Error querying transactions by source: ${error.message}`,
       };
     }
   }
 
-  async queryTransactionsByActionType(
-    actionTypes: QueryTransactionActionTypeEnum[],
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryCustomerVaultResponse;
-    message?: string;
-  }> {
+  async queryTransactionsByActionType(request: {
+    action_type: QueryTransactionActionTypeEnum[];
+    page_number?: number;
+    result_limit?: number;
+    result_order?: QueryResultOrderEnum;
+  }): Promise<QueryResponse<QueryTransactionResponse>> {
     try {
-      const result = await this.queryApi.queryTransactionsByActionType(
-        actionTypes,
-        options
-      );
+      const result = await this.queryApi.queryTransactionsByActionType({
+        ...request,
+        action_type: request.action_type.join(","),
+      });
       return {
         status: 200,
         data: result,
         message: "Transactions queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying transactions by action type",
+        message: `Error querying transactions by action type: ${error.message}`,
       };
     }
   }
 
-  async queryTransactionsByCard(
-    cardNumber: string,
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryCustomerVaultResponse;
-    message?: string;
-  }> {
+  async queryTransactionsByCard(request: {
+    cc_number: string;
+    page_number?: number;
+    result_limit?: number;
+    result_order?: QueryResultOrderEnum;
+  }): Promise<QueryResponse<QueryTransactionResponse>> {
     try {
-      const result = await this.queryApi.queryTransactionsByCard(
-        cardNumber,
-        options
-      );
+      const result = await this.queryApi.queryTransactionsByCard(request);
       return {
         status: 200,
         data: result,
         message: "Transactions queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying transactions by card",
+        message: `Error querying transactions by card: ${error.message}`,
       };
     }
   }
 
-  async queryTransactionsWithPagination(
-    pageNumber: number,
-    resultLimit: number,
-    resultOrder: QueryResultOrderEnum,
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryCustomerVaultResponse;
-    message?: string;
-  }> {
+  async queryGatewayProcessors(request: {
+    report_type: "gateway_processors";
+  }): Promise<QueryResponse<QueryGatewayProcessorsResponse>> {
     try {
-      const result = await this.queryApi.queryTransactionsWithPagination(
-        pageNumber,
-        resultLimit,
-        resultOrder,
-        options
-      );
-      return {
-        status: 200,
-        data: result,
-        message: "Transactions queried successfully",
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying transactions with pagination",
-      };
-    }
-  }
-
-  async queryGatewayProcessors(
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryGatewayProcessorsResponse;
-    message?: string;
-  }> {
-    try {
-      const result = await this.queryApi.queryGatewayProcessors(options);
+      const result = await this.queryApi.queryGatewayProcessors(request);
       return {
         status: 200,
         data: result,
         message: "Gateway processors queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying gateway processors",
+        message: `Error querying gateway processors: ${error.message}`,
       };
     }
   }
 
-  async queryAccountUpdater(
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryCustomerVaultResponse;
-    message?: string;
-  }> {
+  async queryTestModeStatus(request: {
+    report_type: "test_mode_status";
+  }): Promise<QueryResponse<QueryTestModeResponse>> {
     try {
-      const result = await this.queryApi.queryAccountUpdater(options);
-      return {
-        status: 200,
-        data: result,
-        message: "Account updater status queried successfully",
-      };
-    } catch (error) {
-      return {
-        status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying account updater status",
-      };
-    }
-  }
-
-  async queryTestModeStatus(
-    options: Partial<QueryRequestWithoutKey> = {}
-  ): Promise<{
-    status: number;
-    data?: QueryCustomerVaultResponse;
-    message?: string;
-  }> {
-    try {
-      const result = await this.queryApi.queryTestModeStatus(options);
+      const result = await this.queryApi.queryTestModeStatus(request);
       return {
         status: 200,
         data: result,
         message: "Test mode status queried successfully",
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error);
       return {
         status: 500,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Error querying test mode status",
+        message: `Error querying test mode status: ${error.message}`,
       };
     }
   }

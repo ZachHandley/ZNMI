@@ -2,12 +2,6 @@
 
 A comprehensive TypeScript wrapper for NMI (Network Merchants, Inc.) payment gateway API. This wrapper provides type-safe interactions with NMI's services including customer vault management, transaction processing, product management, invoicing, and recurring payments.
 
-## 0.2.0 Update
-
-My bad for leaving it for so long pointing to the wrong file, I have fixed it and updated the `README` <3
-
-- Zach
-
 ## Installation
 
 ```bash
@@ -27,6 +21,46 @@ yarn add znmi
 import { ZNMI } from "znmi";
 
 const znmi = new ZNMI("your_security_key_here");
+```
+
+## 0.2.0 Update
+
+My bad for leaving it for so long pointing to the wrong file, I have fixed it and updated the `README` <3
+
+- Zach
+
+**Please Note: NMI's Payment API & Query API Docs SUCK. I am doing my best to keep things up to date as I find them, if you find any out of date typedefs or invalid requests, please file a report!**
+
+## Type Safety
+
+All requests and responses are fully typed using Zod schemas. The library provides comprehensive type definitions for:
+
+- Request Categories (Transaction, CustomerVault, Recurring, etc.)
+- Action Types per Category
+- Request Data Schemas
+- Response Types
+
+Import types directly:
+
+```typescript
+import type {
+  // Request Types
+  RequestInfo,
+  RequestCategory,
+  TransactionRequestActions,
+  CustomerVaultRequestActions,
+  RecurringRequestActions,
+  InvoiceRequestActions,
+  ProductManagerRequestActions,
+  QueryRequestActions,
+
+  // Response Types
+  TransactionResponse,
+  CustomerVaultResponse,
+  RecurringResponse,
+  QueryResponse,
+  FlatQueryResponse,
+} from "znmi";
 ```
 
 ## API Documentation
@@ -53,15 +87,15 @@ await znmi.customerVault.validateCustomerVaultId(validateData);
 
 Available Methods:
 
-- `addOrUpdateCustomer(request: AddUpdateCustomerRequest)` - Add or update a customer's information
-- `validateCustomerVaultId(request: ValidateCustomerVaultIdRequest)` - Validate stored customer data
-- `authorizeCustomerByVaultId(request: AuthorizeCustomerByVaultIdRequest)` - Authorize payment using vault
-- `saleByVaultId(request: SaleByVaultIdRequest)` - Process sale using vault
-- `creditTransactionByVaultId(request: CreditTransactionByVaultIdRequest)` - Process credit using vault
-- `offlineTransactionByVaultId(request: OfflineTransactionByVaultIdRequest)` - Process offline transaction
-- `initiateCustomerVaultTransaction(request: CustomerVaultInitiatedTransaction)` - Start vault transaction
-- `deleteCustomer(request: DeleteCustomerRecord)` - Remove customer from vault
-- `addBillingForCustomer(request: AddBillingForCustomerRequest)` - Add billing info
+- `addOrUpdateCustomer(request: AddUpdateCustomerRequest)` - Add or update customer
+- `validateCustomerVaultId(request: ValidateCustomerVaultIdRequest)` - Validate stored customer
+- `authorizeCustomerByVaultId(request: AuthorizeCustomerByVaultIdRequest)` - Authorize payment
+- `saleByVaultId(request: SaleByVaultIdRequest)` - Process sale
+- `creditTransactionByVaultId(request: CreditTransactionByVaultIdRequest)` - Process credit
+- `offlineTransactionByVaultId(request: OfflineTransactionByVaultIdRequest)` - Process offline
+- `initiateCustomerVaultTransaction(request: CustomerVaultInitiatedTransaction)` - Start transaction
+- `deleteCustomer(request: DeleteCustomerRecord)` - Remove customer
+- `addBillingForCustomer(request: AddBillingForCustomerRequest)` - Add billing
 - `updateBillingForCustomer(request: UpdateBillingForCustomerRequest)` - Update billing
 - `deleteBillingForCustomer(request: DeleteBillingForCustomerRequest)` - Remove billing
 
@@ -95,62 +129,6 @@ Available Methods:
 - `voidTransaction(request: VoidTransactionRequest)` - Void transaction
 - `updateTransaction(request: UpdateTransactionRequest)` - Update transaction details
 
-### Product Management API
-
-Manage your product catalog.
-
-```typescript
-// Add a Product
-const productData = {
-  product_sku: "PROD-001",
-  product_description: "Premium Widget",
-  product_cost: "29.99",
-  product_currency: "USD",
-};
-await znmi.products.addProduct(productData);
-
-// Update a Product
-const updateData = {
-  product_sku: "PROD-001",
-  product_description: "Premium Widget V2",
-};
-await znmi.products.updateProduct(updateData);
-```
-
-Available Methods:
-
-- `addProduct(request: AddProductRequest)` - Add new product
-- `updateProduct(request: UpdateProductRequest)` - Update product details
-- `deleteProduct(request: DeleteProductRequest)` - Remove product
-
-### Invoice Management API
-
-Create and manage invoices.
-
-```typescript
-// Create an Invoice
-const invoiceData = {
-  amount: 99.99,
-  email: "customer@example.com",
-  payment_terms: "upon_receipt",
-};
-await znmi.invoices.createInvoice(invoiceData);
-
-// Send an Invoice
-const sendData = {
-  invoice_id: "INV-001",
-  email: "customer@example.com",
-};
-await znmi.invoices.sendInvoice(sendData);
-```
-
-Available Methods:
-
-- `createInvoice(request: CreateInvoiceRequest)` - Generate new invoice
-- `updateInvoice(request: UpdateInvoiceRequest)` - Modify existing invoice
-- `sendInvoice(request: SendInvoiceRequest)` - Send invoice to customer
-- `closeInvoice(request: CloseInvoiceRequest)` - Close existing invoice
-
 ### Recurring Payments API
 
 Set up and manage recurring payment plans.
@@ -166,20 +144,20 @@ const planData = {
 };
 await znmi.recurring.createRecurringPlan(planData);
 
-// Add Custom Subscription
+// Add Subscription to Existing Plan
 const subscriptionData = {
   plan_id: "PLAN-001",
   ccnumber: "4111111111111111",
   ccexp: "1225",
 };
-await znmi.recurring.addCustomSubscription(subscriptionData);
+await znmi.recurring.addSubscriptionToExistingPlan(subscriptionData);
 ```
 
 Available Methods:
 
 - `createRecurringPlan(request: AddRecurringPlan)` - Create new plan
 - `editRecurringPlan(request: EditRecurringPlan)` - Modify existing plan
-- `addSubscriptionToExistingPlan(request: AddSubscriptionToExistingPlan)` - Add subscription to plan
+- `addSubscriptionToExistingPlan(request: AddSubscriptionToExistingPlan)` - Add to plan
 - `addCustomSubscription(request: AddCustomSubscription)` - Create custom subscription
 - `updateSubscription(request: UpdateSubscription)` - Update subscription
 - `deleteSubscription(request: DeleteSubscriptionRequest)` - Cancel subscription
@@ -193,13 +171,15 @@ Query transaction data and account information.
 const transactionId = "1234567890";
 const response = await znmi.query.queryTransaction(transactionId);
 
-// Query Profile with Processor Details
-const profileResponse = await znmi.query.queryProfile(true);
-
-// Query Transactions by Date Range
-const dateResponse = await znmi.query.queryTransactionsByDate(
-  "2024-01-01",
-  "2024-01-31"
+// Query Transactions by Date Range with Pagination
+const dateResponse = await znmi.query.queryTransactionsWithPagination(
+  1, // page number
+  100, // results per page
+  "asc", // order
+  {
+    start_date: "2024-01-01",
+    end_date: "2024-01-31",
+  }
 );
 ```
 
@@ -208,45 +188,19 @@ Available Methods:
 - `queryTransaction(transactionId: string)` - Query single transaction
 - `queryReceipt(transactionId: string)` - Get transaction receipt
 - `queryProfile(includeProcessorDetails?: boolean)` - Query account profile
-- `queryTransactionsByDate(startDate: string, endDate: string, options?: QueryRequestWithoutKey)` - Query by date range
+- `queryTransactionsByDate(startDate: string, endDate: string, options?: QueryRequestWithoutKey)` - Query by date
 - `queryCustomerVault(customerVaultId?: string, dateRange?: DateRange, options?: QueryRequestWithoutKey)` - Query vault
-- `queryRecurring(subscriptionId?: string, options?: QueryRequestWithoutKey)` - Query recurring payments
-- `queryRecurringPlans(options?: QueryRequestWithoutKey)` - Query recurring plans
+- `queryRecurring(subscriptionId?: string, options?: QueryRequestWithoutKey)` - Query recurring
+- `queryRecurringPlans(options?: QueryRequestWithoutKey)` - Query plans
 - `queryInvoices(invoiceId?: string, status?: string[], options?: QueryRequestWithoutKey)` - Query invoices
-- `queryTransactionsBySource(sources: QueryTransactionSourceEnum[], options?: QueryRequestWithoutKey)` - Query by source
-- `queryTransactionsByCondition(conditions: QueryTransactionConditionEnum[], options?: QueryRequestWithoutKey)` - Query by condition
-- `queryTransactionsByActionType(actionTypes: QueryTransactionActionTypeEnum[], options?: QueryRequestWithoutKey)` - Query by action
-- `queryTransactionsByCard(cardNumber: string, options?: QueryRequestWithoutKey)` - Query by card number
-- `queryTransactionsWithPagination(pageNumber: number, resultLimit: number, resultOrder: QueryResultOrderEnum, options?: QueryRequestWithoutKey)` - Paginated query
+- `queryTransactionsBySource(sources: QueryTransactionSourceEnum[], options?: QueryRequestWithoutKey)` - By source
+- `queryTransactionsByCondition(conditions: QueryTransactionConditionEnum[], options?: QueryRequestWithoutKey)` - By condition
+- `queryTransactionsByActionType(actionTypes: QueryTransactionActionTypeEnum[], options?: QueryRequestWithoutKey)` - By action
+- `queryTransactionsByCard(cardNumber: string, options?: QueryRequestWithoutKey)` - By card
+- `queryTransactionsWithPagination(pageNumber: number, resultLimit: number, resultOrder: QueryResultOrderEnum, options?: QueryRequestWithoutKey)` - Paginated
 - `queryGatewayProcessors(options?: QueryRequestWithoutKey)` - Query processors
-- `queryAccountUpdater(options?: QueryRequestWithoutKey)` - Query account updater status
-- `queryTestModeStatus(options?: QueryRequestWithoutKey)` - Query test mode status
-
-## Response Types
-
-All API responses are fully typed and validated using Zod schemas:
-
-```typescript
-type TransactionResponse = {
-  response: "1" | "2" | "3"; // 1=success, 2=declined, 3=error
-  responsetext: string;
-  authcode: string;
-  transactionid?: string;
-  avsresponse: string;
-  cvvresponse: string;
-  orderid: string;
-  type:
-    | "sale"
-    | "auth"
-    | "validate"
-    | "credit"
-    | "offline"
-    | "refund"
-    | "void"
-    | "capture";
-  response_code: string;
-};
-```
+- `queryAccountUpdater(options?: QueryRequestWithoutKey)` - Query updater status
+- `queryTestModeStatus(options?: QueryRequestWithoutKey)` - Query test mode
 
 ## Error Handling
 
@@ -274,21 +228,11 @@ try {
 }
 ```
 
-## Type Safety
-
-All requests and responses are fully typed using Zod schemas. Import types directly:
-
-```typescript
-import {
-  AddUpdateCustomerRequest,
-  TransactionRequest,
-  CustomerVaultResponse,
-  QueryRequestWithoutKey,
-  QueryProfileResponse,
-} from "znmi";
-```
-
 ## Testing
+
+Testing will work for all but the Query API with the default key
+
+To test using your NMI_SECURITY_KEY please set the env variable `export ZNMI_SECURITY_KEY=your-security-key`
 
 Run the test suite:
 
@@ -306,6 +250,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
+- 0.2.40: Tested and revamped the `Query` API to make sure it works, additionally, I updated the main query endpoints to just take an object parameter. I initially made them that way so you could just pass the required info, but I realize that at this point it's probably just annoying.
+- 0.2.37: Fix typedefs of `Query` API (some)
+- 0.2.36: Fixed export of `saleByVaultId`
 - 0.2.35: Fixed `package.json` and `tsup.config.ts` to hopefully build it properly so we can reference it
 - 0.2.34: Change `updateSubscription` so it doesn't _need_ an `amount` (for example for pausing)
 - 0.2.33: Add `addSubscriptionToExistingPlan`

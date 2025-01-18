@@ -191,6 +191,14 @@ export type QueryCustomerVaultResponse = z.infer<
   typeof QueryCustomerVaultResponseSchema
 >;
 
+export const QueryTestModeResponseSchema = z.object({
+  nm_response: z.object({
+    test_mode_enabled: z.boolean(),
+  }),
+});
+
+export type QueryTestModeResponse = z.infer<typeof QueryTestModeResponseSchema>;
+
 // Query API Response Types for Recurring Report
 export const QueryRecurringResponseSchema = z.object({
   nm_response: z.object({
@@ -344,28 +352,28 @@ export type QueryInvoicingResponse = z.infer<
   typeof QueryInvoicingResponseSchema
 >;
 
+export const GatewayProcessorSchema = z.object({
+  description: z.string().describe("Description of the gateway processor"),
+  processor_id: z.string().describe("Unique identifier for the processor"),
+  platform: z
+    .string()
+    .describe("Platform associated with the gateway processor"),
+  emv_support: z
+    .boolean()
+    .describe(
+      "EMV support status; indicates whether the processor supports EMV transactions"
+    ),
+  mcc: z.number().describe("Merchant category code"),
+});
+
+export type GatewayProcessor = z.infer<typeof GatewayProcessorSchema>;
+
 // Query API Response Types for Gateway Processors Report
 export const QueryGatewayProcessorsResponseSchema = z.object({
   nm_response: z.object({
-    gateway_processor: z.array(
-      z.object({
-        description: z
-          .string()
-          .describe("Description of the gateway processor"),
-        processor_id: z
-          .string()
-          .describe("Unique identifier for the processor"),
-        platform: z
-          .string()
-          .describe("Platform associated with the gateway processor"),
-        emv_support: z
-          .string()
-          .describe(
-            "EMV support status; indicates whether the processor supports EMV transactions"
-          ),
-        mcc: z.string().describe("Merchant category code"),
-      })
-    ),
+    gateway_processor: z
+      .array(GatewayProcessorSchema)
+      .or(GatewayProcessorSchema),
   }),
 });
 
@@ -377,32 +385,33 @@ export type QueryGatewayProcessorsResponse = z.infer<
 export const QueryProfileResponseSchema = z.object({
   nm_response: z.object({
     protected: z
-      .string()
+      .boolean()
       .describe("Indicates whether the response is protected"),
     is_gateway: z
-      .string()
+      .boolean()
       .describe("Indicates whether the response is related to a gateway"),
     merchant: z.object({
       company: z.string().describe("Merchant's company name"),
       email: z.string().describe("Merchant's email address"),
-      phone: z.string().describe("Merchant's phone number"),
+      phone: z.number().describe("Merchant's phone number"),
       url: z.string().describe("Merchant's website URL"),
       address1: z.string().describe("Merchant's primary address line"),
       address2: z.string().describe("Merchant's secondary address line"),
       city: z.string().describe("Merchant's city"),
       state: z.string().describe("Merchant's state"),
-      zip: z.string().describe("Merchant's ZIP code"),
+      zip: z.number().describe("Merchant's ZIP code"),
       country: z.string().describe("Merchant's country"),
       timezone: z.string().describe("Merchant's timezone"),
       card_schemes: z
         .string()
+        .optional()
         .describe("Supported card schemes by the merchant"),
     }),
     gateway: z.object({
       company: z.string().describe("Gateway's company name"),
       url: z.string().describe("Gateway's website URL"),
       email: z.string().describe("Gateway's email address"),
-      phone: z.string().describe("Gateway's phone number"),
+      phone: z.number().describe("Gateway's phone number"),
       primary_color: z.string().describe("Gateway's primary color code"),
       complimentary_color_1: z
         .string()
@@ -410,37 +419,40 @@ export const QueryProfileResponseSchema = z.object({
       complimentary_color_2: z
         .string()
         .describe("Gateway's second complimentary color code"),
-      merchant_defined_fields: z
-        .array(z.record(z.unknown()))
-        .describe("Merchant-defined fields"),
     }),
-    processors: z.object({
-      processor: z.array(
-        z.object({
-          id: z.string().describe("Processor's unique identifier"),
-          type: z.string().describe("Processor's type"),
-          platform: z.string().describe("Processor's platform"),
-          tap_to_mobile: z
-            .record(z.unknown())
-            .describe("Details related to tap mobile functionality"),
-          required_fields: z
-            .string()
-            .describe("Fields required by the processor"),
-          currencies: z
-            .record(z.unknown())
-            .or(z.string().array())
-            .describe("Supported currencies by the processor"),
-          merchant_category_code: z
-            .string()
-            .describe("Merchant category code associated with the processor"),
-        })
-      ),
-    }),
+    merchant_defined_fields: z
+      .array(z.record(z.unknown()))
+      .or(z.string())
+      .describe("Merchant-defined fields"),
     merchant_favicon: z.string().describe("Merchant's favicon data"),
+    processors: z
+      .object({
+        processor: z.array(
+          z.object({
+            id: z.string().describe("Processor's unique identifier"),
+            type: z.string().describe("Processor's type"),
+            platform: z.string().describe("Processor's platform"),
+            tap_to_mobile: z
+              .record(z.unknown())
+              .describe("Details related to tap mobile functionality"),
+            required_fields: z
+              .string()
+              .describe("Fields required by the processor"),
+            currencies: z
+              .record(z.unknown())
+              .or(z.string().array())
+              .describe("Supported currencies by the processor"),
+            merchant_category_code: z
+              .number()
+              .describe("Merchant category code associated with the processor"),
+          })
+        ),
+      })
+      .optional(),
     account_details: z.object({
       account_status: z.string().describe("Status of the merchant's account"),
       test_mode_enabled: z
-        .string()
+        .boolean()
         .describe(
           "Indicates whether test mode is enabled for the merchant's account"
         ),
@@ -450,6 +462,99 @@ export const QueryProfileResponseSchema = z.object({
 
 export type QueryProfileResponse = z.infer<typeof QueryProfileResponseSchema>;
 
+export const QueryTransactionResponseSchema = z.object({
+  nm_response: z.object({
+    transaction: z.array(
+      z.object({
+        transaction_id: z.string(),
+        platform_id: z.string().nullable(),
+        transaction_type: z.string(),
+        condition: z.string(),
+        order_id: z.string(),
+        authorization_code: z.string(),
+        ponumber: z.string().nullable(),
+        order_description: z.string().nullable(),
+        first_name: z.string(),
+        last_name: z.string(),
+        address_1: z.string(),
+        address_2: z.string().nullable(),
+        company: z.string().nullable(),
+        city: z.string(),
+        state: z.string(),
+        postal_code: z.string(),
+        country: z.string(),
+        email: z.string(),
+        phone: z.string(),
+        fax: z.string().nullable(),
+        cell_phone: z.string().nullable(),
+        customertaxid: z.string().nullable(),
+        customerid: z.string().nullable(),
+        website: z.string().nullable(),
+        shipping_first_name: z.string().nullable(),
+        shipping_last_name: z.string().nullable(),
+        shipping_address_1: z.string().nullable(),
+        shipping_address_2: z.string().nullable(),
+        shipping_company: z.string().nullable(),
+        shipping_city: z.string().nullable(),
+        shipping_state: z.string().nullable(),
+        shipping_postal_code: z.string().nullable(),
+        shipping_country: z.string().nullable(),
+        shipping_email: z.string().nullable(),
+        shipping_carrier: z.string().nullable(),
+        tracking_number: z.string().nullable(),
+        shipping_date: z.string().nullable(),
+        shipping: z.string(),
+        shipping_phone: z.string().nullable(),
+        cc_number: z.string(),
+        cc_hash: z.string(),
+        cc_exp: z.string(),
+        cc_start_date: z.string().nullable(),
+        cc_issue_number: z.string().nullable(),
+        cc_bin: z.string(),
+        cc_type: z.string(),
+        tax: z.string(),
+        currency: z.string(),
+        processor_id: z.string(),
+        actions: z.array(
+          z.object({
+            amount: z.string(),
+            action_type: z.string(),
+            date: z.string(),
+            success: z.string(),
+            ip_address: z.string().nullable(),
+            source: z.string(),
+            api_method: z.string().nullable(),
+            username: z.string().nullable(),
+            response_text: z.string().nullable(),
+            batch_id: z.string(),
+            processor_batch_id: z.string().nullable(),
+            response_code: z.string(),
+            processor_response_text: z.string().nullable(),
+            processor_response_code: z.string().nullable(),
+            requested_amount: z.string().optional(),
+            device_license_number: z.string().nullable(),
+            device_nickname: z.string().nullable(),
+          })
+        ),
+        products: z
+          .array(
+            z.object({
+              sku: z.string(),
+              description: z.string(),
+              amount: z.string(),
+              quantity: z.string(),
+            })
+          )
+          .optional(),
+      })
+    ),
+  }),
+});
+
+export type QueryTransactionResponse = z.infer<
+  typeof QueryTransactionResponseSchema
+>;
+
 export const QueryResponseSchema = z.union([
   QueryCustomerVaultResponseSchema,
   QueryRecurringResponseSchema,
@@ -457,6 +562,7 @@ export const QueryResponseSchema = z.union([
   QueryInvoicingResponseSchema,
   QueryGatewayProcessorsResponseSchema,
   QueryProfileResponseSchema,
+  QueryTransactionResponseSchema,
 ]);
 
 export type QueryResponse = z.infer<typeof QueryResponseSchema>;
@@ -470,6 +576,7 @@ export const FlatQueryResponseSchema = z.object({
     "invoicing",
     "gateway_processors",
     "profile",
+    "transaction", // Added transaction type
   ]),
 
   // Common Fields
@@ -477,6 +584,47 @@ export const FlatQueryResponseSchema = z.object({
   created: z.string().optional(),
   updated: z.string().optional(),
   status: z.string().optional(),
+
+  // Transaction-specific Fields
+  transaction_id: z.string().optional(),
+  platform_id: z.string().nullable().optional(),
+  authorization_code: z.string().optional(),
+  transaction_type: z.string().optional(),
+  condition: z.string().optional(),
+  tax: z.string().optional(),
+  actions: z
+    .array(
+      z.object({
+        amount: z.string(),
+        action_type: z.string(),
+        date: z.string(),
+        success: z.string(),
+        ip_address: z.string().nullable(),
+        source: z.string(),
+        api_method: z.string().nullable(),
+        username: z.string().nullable(),
+        response_text: z.string().nullable(),
+        batch_id: z.string(),
+        processor_batch_id: z.string().nullable(),
+        response_code: z.string(),
+        processor_response_text: z.string().nullable(),
+        processor_response_code: z.string().nullable(),
+        requested_amount: z.string().optional(),
+        device_license_number: z.string().nullable(),
+        device_nickname: z.string().nullable(),
+      })
+    )
+    .optional(),
+  products: z
+    .array(
+      z.object({
+        sku: z.string(),
+        description: z.string(),
+        amount: z.string(),
+        quantity: z.string(),
+      })
+    )
+    .optional(),
 
   // Customer/Billing Info
   first_name: z.string().optional(),

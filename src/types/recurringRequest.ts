@@ -20,21 +20,21 @@ export const AddRecurringPlanSchema = z.object({
   day_frequency: z
     .number()
     .int()
-    .default(0)
+    .optional()
     .describe(
       `The frequency, in days, to charge the customer. Cannot be set with 'month_frequency' or 'day_of_month'`
     ),
   month_frequency: z
     .number()
     .int()
-    .default(0)
+    .optional()
     .describe(
       `The frequency, in months, to charge the customer. Cannot be set with 'day_frequency', must be set with 'day_of_month'`
     ),
   day_of_month: z
     .number()
     .int()
-    .default(0)
+    .optional()
     .describe(
       `The day of the month to charge the customer. Cannot be set with 'day_frequency' or 'month_frequency'`
     ),

@@ -1,65 +1,36 @@
-import { z } from "zod";
 import { TransactionsApi } from "../api/transactionsApi.js";
-
 import {
-  TransactionRequestSchema,
-  CaptureTransactionRequestSchema,
-  RefundTransactionSchema,
-  VoidTransactionRequestSchema,
-  UpdateTransactionRequestSchema,
   type TransactionRequest,
   type CaptureTransactionRequest,
   type RefundTransaction,
   type VoidTransactionRequest,
   type UpdateTransactionRequest,
+  type AuthTransactionRequest,
   type TransactionResponse,
+  type ValidateTransactionRequest,
 } from "../types/transactionSchemas.js";
+
+type TransactionApiResponse = {
+  status: number;
+  data?: TransactionResponse;
+  message: string;
+};
 
 export class Transactions {
   transactionsApi: TransactionsApi;
   _securityKey: string;
 
   constructor(securityKey: string) {
-    this.transactionsApi = new TransactionsApi(securityKey);
     this._securityKey = securityKey;
+    this.transactionsApi = new TransactionsApi(securityKey);
   }
 
+  // Base transaction methods
   async createTransaction(
-    transactionData?: {
-      amount: number;
-      ccnumber: string;
-      ccexp: string;
-      cvv: string;
-      transactionType: "sale" | "auth" | "credit" | "validate" | "offline";
-      payment: "creditcard" | "check";
-    },
-    additionalOptions?: Partial<TransactionRequest>
-  ): Promise<{
-    status: number;
-    data?: TransactionResponse;
-    message: string;
-  }> {
+    request: Omit<TransactionRequest, "security_key">
+  ): Promise<TransactionApiResponse> {
     try {
-      if (!transactionData && !additionalOptions) {
-        return {
-          status: 400,
-          message: "Invalid request",
-        };
-      }
-      const parsed = TransactionRequestSchema.safeParse({
-        ...transactionData,
-        ...additionalOptions,
-      });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for createTransaction: ${parsed.error.message}`,
-        };
-      }
-      const transactionRequest: TransactionRequest = parsed.data;
-      const result = await this.transactionsApi.createTransaction(
-        transactionRequest
-      );
+      const result = await this.transactionsApi.createTransaction(request);
       return {
         status: 200,
         data: result,
@@ -69,143 +40,83 @@ export class Transactions {
       console.log(error);
       return {
         status: 500,
-        message: `Error in createTransaction ${error.message}`,
+        message: `Error in createTransaction: ${error.message}`,
       };
     }
   }
 
   async authorizeTransaction(
-    transactionData?: {
-      amount: number;
-      ccnumber: string;
-      ccexp: string;
-      cvv: string;
-    },
-    additionalOptions?: Partial<TransactionRequest>
-  ): Promise<{
-    status: number;
-    data?: TransactionResponse;
-    message: string;
-  }> {
-    try {
-      if (!transactionData && !additionalOptions) {
-        return {
-          status: 400,
-          message: "Invalid request",
-        };
-      }
-      const parsed = TransactionRequestSchema.safeParse({
-        type: "auth",
-        payment: "creditcard",
-        ...transactionData,
-        ...additionalOptions,
-      });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for authorizeTransaction: ${parsed.error.message}`,
-        };
-      }
-      const transactionRequest: TransactionRequest = parsed.data;
-      const result = await this.transactionsApi.createTransaction(
-        transactionRequest
-      );
-      return {
-        status: 200,
-        data: result,
-        message: "Transaction authorized successfully",
-      };
-    } catch (error: any) {
-      console.log(error);
-      return {
-        status: 500,
-        message: `Error in authorizeTransaction ${error.message}`,
-      };
-    }
+    request: AuthTransactionRequest
+  ): Promise<TransactionApiResponse> {
+    return this.createTransaction({
+      ...request,
+      type: "auth",
+      payment: "creditcard",
+    });
   }
 
   async validateTransaction(
-    transactionData?: {
-      ccnumber: string;
-      ccexp: string;
-      cvv: string;
-    },
-    additionalOptions?: Partial<TransactionRequest>
-  ): Promise<{
-    status: number;
-    data?: TransactionResponse;
-    message: string;
-  }> {
-    try {
-      if (!transactionData) {
-        return {
-          status: 400,
-          message: "Invalid request",
-        };
-      }
-      const parsed = TransactionRequestSchema.safeParse({
-        type: "validate",
-        payment: "creditcard",
-        ...transactionData,
-        ...additionalOptions,
-      });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for validateTransaction: ${parsed.error.message}`,
-        };
-      }
-      const transactionRequest: TransactionRequest = parsed.data;
-      const result = await this.transactionsApi.createTransaction(
-        transactionRequest
-      );
-      return {
-        status: 200,
-        data: result,
-        message: "Transaction validated successfully",
-      };
-    } catch (error: any) {
-      console.log(error);
-      return {
-        status: 500,
-        message: `Error in validateTransaction ${error.message}`,
-      };
-    }
+    request: ValidateTransactionRequest
+  ): Promise<TransactionApiResponse> {
+    return this.createTransaction({
+      ...request,
+      type: "validate",
+      payment: "creditcard",
+    });
   }
 
+  // Transaction type convenience methods
+  async sale(
+    request: Omit<TransactionRequest, "security_key" | "type">
+  ): Promise<TransactionApiResponse> {
+    return this.createTransaction({
+      type: "sale",
+      ...request,
+    });
+  }
+
+  async auth(
+    request: Omit<TransactionRequest, "security_key" | "type">
+  ): Promise<TransactionApiResponse> {
+    return this.createTransaction({
+      type: "auth",
+      ...request,
+    });
+  }
+
+  async validate(
+    request: Omit<TransactionRequest, "security_key" | "type">
+  ): Promise<TransactionApiResponse> {
+    return this.createTransaction({
+      type: "validate",
+      ...request,
+    });
+  }
+
+  async credit(
+    request: Omit<TransactionRequest, "security_key" | "type">
+  ): Promise<TransactionApiResponse> {
+    return this.createTransaction({
+      type: "credit",
+      ...request,
+    });
+  }
+
+  async offline(
+    request: Omit<TransactionRequest, "security_key" | "type">
+  ): Promise<TransactionApiResponse> {
+    return this.createTransaction({
+      type: "offline",
+      ...request,
+    });
+  }
+
+  // Post-transaction operations
   async captureTransaction(
-    transactionData?: {
-      transactionid: string;
-      amount: number;
-    },
-    additionalOptions: Partial<CaptureTransactionRequest> = {}
-  ): Promise<{
-    status: number;
-    data?: TransactionResponse;
-    message: string;
-  }> {
+    request: Omit<CaptureTransactionRequest, "security_key">
+  ): Promise<TransactionApiResponse> {
     try {
-      if (!transactionData && !additionalOptions) {
-        return {
-          status: 400,
-          message: "Invalid request",
-        };
-      }
-      const parsed = CaptureTransactionRequestSchema.safeParse({
-        type: "capture",
-        ...transactionData,
-        ...additionalOptions,
-      });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for captureTransaction: ${parsed.error.message}`,
-        };
-      }
-      const captureRequest: CaptureTransactionRequest = parsed.data;
-      const result = await this.transactionsApi.captureTransaction(
-        captureRequest
-      );
+      const result = await this.transactionsApi.captureTransaction(request);
       return {
         status: 200,
         data: result,
@@ -215,44 +126,16 @@ export class Transactions {
       console.log(error);
       return {
         status: 500,
-        message: `Error in captureTransaction ${error.message}`,
+        message: `Error in captureTransaction: ${error.message}`,
       };
     }
   }
 
   async refundTransaction(
-    transactionData?: {
-      transactionid: string;
-      amount: number;
-    },
-    additionalOptions: Partial<RefundTransaction> = {}
-  ): Promise<{
-    status: number;
-    data?: TransactionResponse;
-    message: string;
-  }> {
+    request: Omit<RefundTransaction, "security_key">
+  ): Promise<TransactionApiResponse> {
     try {
-      if (!transactionData && !additionalOptions) {
-        return {
-          status: 400,
-          message: "Invalid request",
-        };
-      }
-      const parsed = RefundTransactionSchema.safeParse({
-        type: "refund",
-        ...transactionData,
-        ...additionalOptions,
-      });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for refundTransaction: ${parsed.error.message}`,
-        };
-      }
-      const refundRequest: RefundTransaction = parsed.data;
-      const result = await this.transactionsApi.refundTransaction(
-        refundRequest
-      );
+      const result = await this.transactionsApi.refundTransaction(request);
       return {
         status: 200,
         data: result,
@@ -262,41 +145,16 @@ export class Transactions {
       console.log(error);
       return {
         status: 500,
-        message: `Error in refundTransaction ${error.message}`,
+        message: `Error in refundTransaction: ${error.message}`,
       };
     }
   }
 
   async voidTransaction(
-    transactionData?: {
-      transactionid: string;
-    },
-    additionalOptions: Partial<VoidTransactionRequest> = {}
-  ): Promise<{
-    status: number;
-    data?: TransactionResponse;
-    message: string;
-  }> {
+    request: Omit<VoidTransactionRequest, "security_key">
+  ): Promise<TransactionApiResponse> {
     try {
-      if (!transactionData && !additionalOptions) {
-        return {
-          status: 400,
-          message: "Invalid request",
-        };
-      }
-      const parsed = VoidTransactionRequestSchema.safeParse({
-        type: "void",
-        ...transactionData,
-        ...additionalOptions,
-      });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for voidTransaction: ${parsed.error.message}`,
-        };
-      }
-      const voidRequest: VoidTransactionRequest = parsed.data;
-      const result = await this.transactionsApi.voidTransaction(voidRequest);
+      const result = await this.transactionsApi.voidTransaction(request);
       return {
         status: 200,
         data: result,
@@ -306,43 +164,16 @@ export class Transactions {
       console.log(error);
       return {
         status: 500,
-        message: `Error in voidTransaction ${error.message}`,
+        message: `Error in voidTransaction: ${error.message}`,
       };
     }
   }
 
   async updateTransaction(
-    transactionData?: {
-      transactionid: string;
-    },
-    additionalOptions: Partial<UpdateTransactionRequest> = {}
-  ): Promise<{
-    status: number;
-    data?: TransactionResponse;
-    message: string;
-  }> {
+    request: Omit<UpdateTransactionRequest, "security_key">
+  ): Promise<TransactionApiResponse> {
     try {
-      if (!transactionData && !additionalOptions) {
-        return {
-          status: 400,
-          message: "Invalid request",
-        };
-      }
-      const parsed = UpdateTransactionRequestSchema.safeParse({
-        type: "update",
-        ...transactionData,
-        ...additionalOptions,
-      });
-      if (!parsed.success) {
-        return {
-          status: 400,
-          message: `Invalid input data for updateTransaction: ${parsed.error.message}`,
-        };
-      }
-      const updateRequest: UpdateTransactionRequest = parsed.data;
-      const result = await this.transactionsApi.updateTransaction(
-        updateRequest
-      );
+      const result = await this.transactionsApi.updateTransaction(request);
       return {
         status: 200,
         data: result,
@@ -352,7 +183,7 @@ export class Transactions {
       console.log(error);
       return {
         status: 500,
-        message: `Error in updateTransaction ${error.message}`,
+        message: `Error in updateTransaction: ${error.message}`,
       };
     }
   }
