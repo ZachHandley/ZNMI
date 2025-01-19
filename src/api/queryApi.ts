@@ -197,7 +197,6 @@ export class QueryApi {
       ...request,
       report_type: "recurring_plans",
     });
-    console.log(response);
     return this.parseResponse(response, QueryRecurringPlansResponseSchema);
   }
 

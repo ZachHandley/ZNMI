@@ -306,11 +306,6 @@ export const DeleteCustomerRecordSchema = z.object({
     .string()
     .or(z.number())
     .describe(`The customer vault id of the customer to delete`),
-  security_key: z
-    .string()
-    .describe(
-      `API Security Key assigned to a merchant account. New keys can be generated from the merchant control panel in Settings > Security Keys`
-    ),
 });
 
 export type DeleteCustomerRecord = z.infer<typeof DeleteCustomerRecordSchema>;

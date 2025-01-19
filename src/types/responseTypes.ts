@@ -684,7 +684,7 @@ export const FlatQueryResponseSchema = z.object({
   tracking_number: z.string().optional(),
 
   // Payment Info
-  cc_number: z.string().optional(),
+  cc_number: z.coerce.number().optional(),
   cc_hash: z.string().optional(),
   cc_exp: z.string().optional(),
   cc_start_date: z.string().optional(),
@@ -705,18 +705,18 @@ export const FlatQueryResponseSchema = z.object({
   subscription_id: z.string().optional(),
   plan_id: z.string().optional(),
   plan_name: z.string().optional(),
-  plan_amount: z.string().optional(),
+  plan_amount: z.coerce.number().optional(),
   plan_payments: z
     .union([z.coerce.number(), z.literal("until_cancelled")])
     .optional()
     .describe("Number of payments for the plan"),
-  day_frequency: z.string().optional(),
-  month_frequency: z.string().optional(),
-  day_of_month: z.string().optional(),
+  day_frequency: z.coerce.number().optional(),
+  month_frequency: z.coerce.number().optional(),
+  day_of_month: z.coerce.number().optional(),
   next_charge_date: z.string().optional(),
-  completed_payments: z.string().optional(),
-  attempted_payments: z.string().optional(),
-  remaining_payments: z.string().optional(),
+  completed_payments: z.coerce.number().optional(),
+  attempted_payments: z.coerce.number().optional(),
+  remaining_payments: z.coerce.number().optional(),
 
   // Invoice Fields
   invoice_id: z.string().optional(),
