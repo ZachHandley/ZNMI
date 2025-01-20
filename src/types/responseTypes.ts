@@ -128,7 +128,7 @@ export type ProductResponse = z.infer<typeof ProductResponseSchema>;
 
 // Query API Response Types
 export const QueryCustomerVaultCustomerSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   first_name: z.string().optional(),
   last_name: z.string().optional(),
   address_1: z.string().optional(),
@@ -136,12 +136,12 @@ export const QueryCustomerVaultCustomerSchema = z.object({
   company: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
-  postal_code: z.string().optional(),
+  postal_code: z.coerce.number().optional(),
   country: z.string().optional(),
   email: z.string().optional(),
-  phone: z.string().optional(),
-  fax: z.string().optional(),
-  cell_phone: z.string().optional(),
+  phone: z.coerce.number().optional(),
+  fax: z.coerce.number().optional(),
+  cell_phone: z.coerce.number().optional(),
   customertaxid: z.string().optional(),
   website: z.string().optional(),
   shipping_first_name: z.string().optional(),
@@ -160,7 +160,7 @@ export const QueryCustomerVaultCustomerSchema = z.object({
   shipping: z.string().optional(),
   cc_number: z.string().optional(),
   cc_hash: z.string().optional(),
-  cc_exp: z.string().optional(),
+  cc_exp: z.coerce.number().optional(),
   cc_start_date: z.string().optional(),
   cc_issue_number: z.string().optional(),
   check_account: z.string().optional(),
@@ -171,18 +171,20 @@ export const QueryCustomerVaultCustomerSchema = z.object({
   account_type: z.string().optional(),
   sec_code: z.string().optional(),
   processor_id: z.string().optional(),
-  cc_bin: z.string().optional(),
+  cc_bin: z.coerce.number().optional(),
   cc_type: z.string().optional(),
-  created: z.string().optional(),
-  updated: z.string().optional(),
-  account_updated: z.string().optional(),
+  created: z.coerce.number().optional(),
+  updated: z.coerce.number().optional(),
+  account_updated: z.coerce.number().optional(),
   customer_vault_id: z.string(),
 });
 
 export const QueryCustomerVaultResponseSchema = z.object({
   nm_response: z.object({
     customer_vault: z.object({
-      customer: z.array(QueryCustomerVaultCustomerSchema),
+      customer: z
+        .array(QueryCustomerVaultCustomerSchema)
+        .or(QueryCustomerVaultCustomerSchema),
     }),
   }),
 });
@@ -416,13 +418,13 @@ export const QueryProfileResponseSchema = z.object({
     merchant: z.object({
       company: z.string().describe("Merchant's company name"),
       email: z.string().describe("Merchant's email address"),
-      phone: z.number().describe("Merchant's phone number"),
+      phone: z.coerce.number().describe("Merchant's phone number"),
       url: z.string().describe("Merchant's website URL"),
       address1: z.string().describe("Merchant's primary address line"),
       address2: z.string().describe("Merchant's secondary address line"),
       city: z.string().describe("Merchant's city"),
       state: z.string().describe("Merchant's state"),
-      zip: z.number().describe("Merchant's ZIP code"),
+      zip: z.coerce.number().describe("Merchant's ZIP code"),
       country: z.string().describe("Merchant's country"),
       timezone: z.string().describe("Merchant's timezone"),
       card_schemes: z
@@ -434,7 +436,7 @@ export const QueryProfileResponseSchema = z.object({
       company: z.string().describe("Gateway's company name"),
       url: z.string().describe("Gateway's website URL"),
       email: z.string().describe("Gateway's email address"),
-      phone: z.number().describe("Gateway's phone number"),
+      phone: z.coerce.number().describe("Gateway's phone number"),
       primary_color: z.string().describe("Gateway's primary color code"),
       complimentary_color_1: z
         .string()
@@ -504,10 +506,10 @@ export const QueryTransactionResponseSchema = z.object({
         company: z.string().nullable(),
         city: z.string(),
         state: z.string(),
-        postal_code: z.string(),
+        postal_code: z.coerce.number(),
         country: z.string(),
         email: z.string(),
-        phone: z.string(),
+        phone: z.coerce.number(),
         fax: z.string().nullable(),
         cell_phone: z.string().nullable(),
         customertaxid: z.string().nullable(),
@@ -527,13 +529,13 @@ export const QueryTransactionResponseSchema = z.object({
         tracking_number: z.string().nullable(),
         shipping_date: z.string().nullable(),
         shipping: z.string(),
-        shipping_phone: z.string().nullable(),
-        cc_number: z.string(),
+        shipping_phone: z.coerce.number().nullable(),
+        cc_number: z.coerce.number(),
         cc_hash: z.string(),
-        cc_exp: z.string(),
+        cc_exp: z.coerce.number(),
         cc_start_date: z.string().nullable(),
         cc_issue_number: z.string().nullable(),
-        cc_bin: z.string(),
+        cc_bin: z.coerce.number(),
         cc_type: z.string(),
         tax: z.string(),
         currency: z.string(),
@@ -564,8 +566,8 @@ export const QueryTransactionResponseSchema = z.object({
             z.object({
               sku: z.string(),
               description: z.string(),
-              amount: z.string(),
-              quantity: z.string(),
+              amount: z.coerce.number(),
+              quantity: z.coerce.number(),
             })
           )
           .optional(),

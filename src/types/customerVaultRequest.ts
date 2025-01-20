@@ -14,6 +14,7 @@ export const AddUpdateCustomerSchema = z.object({
     .describe(
       `The customer vault id of the customer to update, if not set the gateway will generate one randomly.`
     ),
+  ccnumber: z.string().optional().describe(`The customer's credit card number`),
   billing_id: z
     .string()
     .optional()
@@ -32,7 +33,6 @@ export const AddUpdateCustomerSchema = z.object({
     .describe(
       `The tokenized version of the customer's Google Pay payment data created when integrated with Google Pay SDK.`
     ),
-  ccnumber: z.string().optional().describe(`The customer's credit card number`),
   ccexp: z
     .string()
     .optional()

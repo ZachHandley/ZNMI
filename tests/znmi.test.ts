@@ -36,6 +36,7 @@ describe("ZNMI Core", () => {
 
 describe("Customer Vault API", () => {
   const securityKey = "6457Thfj624V5r7WUwc5v6a68Zsd6YEm";
+  let customerVaultId: string;
   let znmi: ZNMI;
 
   beforeAll(() => {
@@ -54,13 +55,14 @@ describe("Customer Vault API", () => {
       console.log("Add Customer Response:", response);
       expect(response.data).toBeDefined();
       expect(response.data?.response).toBe("1");
+      customerVaultId = response.data?.customer_vault_id ?? "";
     });
 
     it("should update a customer", async () => {
       const updateCustomerRequest = {
         customer_vault: "update_customer" as const,
         currency: "USD",
-        customer_vault_id: "123456789",
+        customer_vault_id: customerVaultId,
         ccnumber: "4111111111111111",
         ccexp: "1234",
       };
@@ -77,7 +79,7 @@ describe("Customer Vault API", () => {
       const addBillingRequest = {
         customer_vault: "add_billing" as const,
         currency: "USD",
-        customer_vault_id: "123456789",
+        customer_vault_id: customerVaultId,
         billing_id: "BillingId1",
         ccnumber: "4111111111111111",
         ccexp: "1234",
@@ -94,7 +96,7 @@ describe("Customer Vault API", () => {
         customer_vault: "update_billing" as const,
         currency: "USD",
         billing_id: "BillingId1",
-        customer_vault_id: "123456789",
+        customer_vault_id: customerVaultId,
         ccnumber: "4111111111111111",
         ccexp: "1234",
       };
@@ -109,12 +111,24 @@ describe("Customer Vault API", () => {
       const deleteBillingRequest = {
         customer_vault: "delete_billing" as const,
         billing_id: "BillingId1",
-        customer_vault_id: "123456789",
+        customer_vault_id: customerVaultId,
       };
       const response = await znmi.customerVault.deleteBillingForCustomer(
         deleteBillingRequest
       );
       console.log("Delete Billing Response:", response);
+      expect(response.data?.response).toBe("1");
+    });
+
+    it("should delete a customer", async () => {
+      const deleteCustomerRequest = {
+        customer_vault: "delete_customer" as const,
+        customer_vault_id: customerVaultId,
+      };
+      const response = await znmi.customerVault.deleteCustomer(
+        deleteCustomerRequest
+      );
+      console.log("Delete Customer Response:", response);
       expect(response.data?.response).toBe("1");
     });
   });

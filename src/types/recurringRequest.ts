@@ -106,10 +106,7 @@ export const AddSubscriptionToExistingPlanSchema = z.object({
     .describe(
       `The encrypted token creted when integrated directly with the Google Pay SDK`
     ),
-  ccnumber: z
-    .string()
-    .optional()
-    .describe(`The credit card number of the customer`),
+  ccnumber: z.string().describe(`The credit card number of the customer`),
   ccexp: z
     .string()
     .optional()

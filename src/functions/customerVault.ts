@@ -26,7 +26,9 @@ export class CustomerVault {
     this._securityKey = securityKey;
   }
 
-  async addCustomer(request: AddUpdateCustomerRequest): Promise<{
+  async addCustomer(
+    request: AddUpdateCustomerRequest & { ccnumber: string }
+  ): Promise<{
     status: number;
     data?: CustomerVaultResponse;
     message: string;

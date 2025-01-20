@@ -250,6 +250,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
+- 0.2.46: Fix the `QueryCustomerVaultResponseType` -- some type errors, and it can be an array of customers in the object, or just one if you use `customer_vault_id`
+- 0.2.45: Fix the `updateCustomer` type to not require the `ccnumber`, but `addCustomer` does
+- 0.2.44: Fix `addCustomer` in the `Customer Vault` not requiring a `ccnumber` (kinda dumb if you ask me but I am not the dev)
 - 0.2.43: Fix `deleteCustomer` from the `Customer Vault` requiring a security key, when others do not (it gets added automatically)
 - 0.2.42: Another fix to (actually) fix Query Recurring Plans now that I was able to test
 - 0.2.41: Fix Query Recurring types
